@@ -10,8 +10,6 @@ services:
     restart: unless-stopped
     env_file:
       - "$HOME/dawn/.env"
-    environment:
-      - MYSQL_DATABASE=wordpress
     command: '--default-authentication-plugin=mysql_native_password'
 
 
@@ -29,7 +27,7 @@ services:
       - "WORDPRESS_DB_HOST=dawn_db:3306"
       - "WORDPRESS_DB_USER=$MYSQL_USER"
       - "WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD"
-      - "WORDPRESS_DB_NAME=wordpress"
+      - "WORDPRESS_DB_NAME={{ db_name }}"
     volumes:
       - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
 

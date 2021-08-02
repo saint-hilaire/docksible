@@ -33,15 +33,13 @@ def replace_line_in_file(file_path, search_for, replace_with):
             else:
                 file_handle.write(line)
 
-# TODO: Do this with a domain?
-# def services(user, host, domain):
-def services(user, host):
+# TODO: Do this with a domain
+def services(user, host, db_root_passwd, db_user, db_passwd, db_name):
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", host + "    ansible_python_interpreter=/usr/bin/python3")
     os.chdir(dawn_path+"/ansible")
 
-    # TODO: Do this with a domain?
-    # os.system("ansible-playbook -u " + user + " -i hosts playbook.yml --extra-vars domain="+domain)
-    os.system("ansible-playbook -u " + user + " -i hosts playbook.yml")
+    ansible_cmd = 'ansible-playbook -u {user} -i hosts playbook.yml --extra-vars "db_root_passwd={db_root_passwd} db_user={db_user} db_passwd={db_passwd} db_name={db_name}"'.format(user=user, db_root_passwd=db_root_passwd, db_user=db_user, db_passwd=db_passwd, db_name=db_name)
+    os.system(ansible_cmd)
     os.system("git restore hosts")
     
 
@@ -57,6 +55,11 @@ def main():
     parser.add_argument("-H", "--host" )
     parser.add_argument("-u", "--user" )
 
+    parser.add_argument("-P", "--database-root-password", default="root_password" )
+    parser.add_argument("-U", "--database-user", default="wordpress" )
+    parser.add_argument("-p", "--database-password", default="wordpress_password" )
+    parser.add_argument("-D", "--database-name", default="wordpress" )
+
     # TODO: Give this a default value
     # parser.add_argument("-d", "--domain", default="default.com" )
     parser.add_argument("-d", "--domain" )
@@ -65,26 +68,43 @@ def main():
 
     host = args.host
     user = args.user
+
+    database_root_password = args.database_root_password
+    database_user = args.database_user
+    database_password = args.database_password
+    database_name = args.database_name
+
     domain = args.domain
 
+    # Checking for required arguments
     if host is None or user is None:
         exit("Please specify a host and a user.")
+
+    if database_root_password == "root_password":
+        print("WARNING! Using default value for database root password: 'root_password'! This is unsafe in production environments!")
+    if database_user == "wordpress":
+        print("WARNING! Using default value for database user: 'wordpress'! This is unsafe in production environments!")
+    if database_password == "wordpress_password":
+        print("WARNING! Using default value for database password: 'wordpress_password'! This is unsafe in production environments!")
+    if database_name == "wordpress":
+        print("WARNING! Using default value for database name: 'wordpress'! This is unsafe in production environments!")
+
 
     try:
         replace_line_in_file(ansible_hosts_file_path, "123.123.123.123", host + "    ansible_python_interpreter=/usr/bin/python3")
     except:
         exit("Could not find an Ansible hosts file! Exiting.")
 
-    # This does the actual deployment.
+    # This installs Docker and Docker Compose.
     os.chdir(ansible_playbook_path)
     os.system("ansible-playbook -u " + user + " -i hosts playbook.yml")
 
     # This sets the host's IP address back to the placeholder, so that it gets caught next time (if the host should change)
     os.system("git restore hosts")
 
-    # TODO: Do this with a domain
-    # services(user, host, domain)
-    services(user, host)
+    # This deploys our services. 
+    # TODO: Do this with a domain as well
+    services(user, host, database_root_password, database_user, database_password, database_name)
 
 if __name__ == "__main__":
     main()
