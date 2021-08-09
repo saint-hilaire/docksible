@@ -46,6 +46,15 @@ services:
     volumes:
       - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
 
+  dawn_phpmyadmin:
+    depends_on:
+      - dawn_db
+    image: phpmyadmin
+    container_name: dawn_phpmyadmin
+    restart: unless-stopped
+    environment:
+      - "PMA_HOST=dawn_db"
+
 
   
        

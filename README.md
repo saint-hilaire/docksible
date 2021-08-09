@@ -1,7 +1,18 @@
 Get a VPS, for example AWS or Digital Ocean.   
 The VPS needs ports 22 and 2222 open.   
 Note the user and public IP address (or domain name) of that server, then run the deployment script:   
-`./dawn.py -u <USER> -H <HOST>`
+
+- To see help:
+
+`./dawn.py -h`
+
+- For everything:
+
+`./dawn.py -u <USER> -H <HOST> --bootstrap --services --ssl-selfsigned`
+
+- You can also do one of `--bootstrap`, `--services` or `--ssl-selfsigned`.
+
+
 That command will install Docker and Docker Compose onto the server, and set up the needed containers over there.
 
 There is a little bit of manual stuff that you need to do on the server:
@@ -21,5 +32,12 @@ That should leave you with something like this:
 
 
 
-On your local machine, do this:
+On your local machine:
+
+- For IRC over SSH tunnel:
+
 `ssh -i /home/user/.ssh/private_key -p 2222 -L <LOCAL_PORT>:dawn_ircd:6667 proxy_user@123.123.123.123`, where `<LOCAL_PORT>` is a port that you choose,  such as 9000, then you can connect to the IRC server with your favorite IRC client on `localhost:<LOCAL_PORT>`
+
+- For PhpMyAdmin over SSH tunnel:
+
+`ssh -i /home/user/.ssh/private_key -p 2222 -L <LOCAL_PORT>:dawn_phpmyadmin:80 proxy_user@123.123.123.123`, where `<LOCAL_PORT>` is a port that you choose,  such as 9000
