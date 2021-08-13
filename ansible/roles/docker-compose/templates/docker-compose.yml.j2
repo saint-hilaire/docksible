@@ -35,8 +35,6 @@ services:
 
   
   dawn_webserver:
-    depends_on:
-      - dawn_wordpress
     image: nginx:latest
     container_name: dawn_webserver
     restart: unless-stopped
