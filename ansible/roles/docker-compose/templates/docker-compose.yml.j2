@@ -43,6 +43,7 @@ services:
       - "443:443"
     volumes:
       - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
 
   dawn_phpmyadmin:
     depends_on:

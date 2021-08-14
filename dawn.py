@@ -63,6 +63,12 @@ def do_ssl_selfsigned(user, host):
     os.system(ansible_cmd)
     os.system("git restore hosts")
 
+def do_letsencrypt(user, host, domain, email):
+    replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", host + "    ansible_python_interpreter=/usr/bin/python3")
+    os.chdir(dawn_path+"/ansible")
+    ansible_cmd = 'ansible-playbook -u {user} -i hosts --extra-vars "domain={domain} email={email}" letsencrypt.yml'.format(user=user, domain=domain, email=email)
+    os.system(ansible_cmd)
+    os.system("git restore hosts")
 
 
 def main():
@@ -83,10 +89,10 @@ def main():
     parser.add_argument("-b", "--bootstrap", action="store_true" )
     parser.add_argument("-s", "--services", action="store_true" )
     parser.add_argument("-S", "--ssl-selfsigned", action="store_true" )
+    parser.add_argument("-l", "--letsencrypt", action="store_true" )
 
-    # TODO: Give this a default value
-    # parser.add_argument("-d", "--domain", default="default.com" )
     parser.add_argument("-d", "--domain" )
+    parser.add_argument("-e", "--email" )
 
     args = parser.parse_args()
 
@@ -100,11 +106,13 @@ def main():
     bootstrap = args.bootstrap
     services = args.services
     ssl_selfsigned = args.ssl_selfsigned
+    letsencrypt = args.letsencrypt
 
     domain = args.domain
+    email = args.email
 
-    if not (bootstrap or services or ssl_selfsigned):
-        exit("Please specify an action (--bootstrap, --services, and/or --ssl-selfsigned)")
+    if not (bootstrap or services or ssl_selfsigned or letsencrypt):
+        exit("Please specify an action (--bootstrap, --services, --ssl-selfsigned and/or --letsencrypt)")
 
     # Checking for required arguments
     if host is None or user is None:
@@ -126,6 +134,8 @@ def main():
         do_services(user, host, database_root_password, database_user, database_password, database_name)
     if ssl_selfsigned:
         do_ssl_selfsigned(user, host)
+    if letsencrypt:
+        do_letsencrypt(user, host, domain, email)
 
 if __name__ == "__main__":
     main()
