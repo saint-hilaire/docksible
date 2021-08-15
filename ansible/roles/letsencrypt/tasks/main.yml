@@ -62,3 +62,11 @@
 
 - name: Restart Nginx
   raw: "cd $HOME/dawn; docker-compose -f docker-compose-certbot.yml restart dawn_webserver"
+
+- name: Force WordPress to use HTTPS
+  template:
+      src: wp-config.php
+      dest: "$HOME/dawn_docker_volumes/wordpress_data/wp-config.php"
+      owner: root
+      group: root
+      mode: '0644'
