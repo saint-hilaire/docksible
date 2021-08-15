@@ -45,14 +45,7 @@ On your local machine:
 `ssh -i /home/user/.ssh/private_key -p 2222 -L <LOCAL_PORT>:dawn_phpmyadmin:80 proxy_user@123.123.123.123`, where `<LOCAL_PORT>` is a port that you choose,  such as 9000
 
 
-Dealing with SSL stuff:   
-
-It still needs to be done manually. For some reason, doing it with Ansible still leaves Nginx crashing because it couldn't find the certificates, which failed to be generated.    
-
-
-Do this:    
-
-**This might not be necessary. Maybe the reason it failed were the Letsencrypt rate limits.**
+In case Certbot failed, for whatever reason, you can still do it manually:    
 
 - Edit `dawn_docker_volumes/nginx_data/nginx.conf`, get rid of the lines that tell to the server to listen on port 443, and to use any SSL certificates.
 - Restart Nginx with `docker-compose -f docker-compose-certbot.yml restart dawn_webserver`.
