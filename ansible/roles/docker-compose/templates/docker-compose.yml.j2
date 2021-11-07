@@ -70,3 +70,12 @@ services:
     restart: always
     container_name: dawn_ssh-proxy
 
+  dawn_ftp:
+    build: "$HOME/ssh-proxy"
+    ports:
+            - "2020:22"
+    volumes:
+            - "$HOME/dawn_docker_volumes/ftp_data:/home/proxy_user"
+    restart: always
+    container_name: dawn_ftp
+

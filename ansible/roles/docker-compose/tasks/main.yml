@@ -19,7 +19,7 @@
                     path: "{{ ansible_env.HOME }}/dawn_docker_volumes/{{ item }}"
                     state: directory
                     mode: '0755'
-            loop: [ 'db_data', 'wordpress_data', 'nginx_data', 'ssh-proxy_data' ]
+            loop: [ 'db_data', 'wordpress_data', 'nginx_data', 'ssh-proxy_data', 'ftp_data' ]
 
           - name: Copy the Nginx Configuration
             template:

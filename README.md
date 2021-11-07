@@ -30,6 +30,8 @@ That should leave you with something like this:
 `docker exec -it dawn_ssh-proxy bash`
 `chown proxy_user:proxy_user /home/proxy_user/.ssh/authorized_keys`
 
+**TODO** Do this also for the `dawn_ftp` container. Note, there you have to do the whole user directory.  
+`chown -R proxy_user:proxy_user /home/proxy_user/`
 
 
 On your local machine:
