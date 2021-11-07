@@ -13,13 +13,13 @@ Switch the SSH configurations to allow/disallow passwords as needed, in `/etc/ss
 The deployment script will pull in the repository for the SSH-proxy, and in there, you should have a 
 directory into which you can copy the `authorized_keys` file, onto which the users will copy their keys, into.
 That should leave you with something like this:
-`$HOME/ssh-proxy/data/authorized_keys`
+`$HOME/dawn_docker_volumes/ssh-proxy_data/authorized_keys`
 
 **TODO:** We have to manually fix the permissions of the `authorized_keys` file in the container, but fortunately, we only have to do this the first time.
-`docker exec -it ssh-proxy bash`
+`docker exec -it dawn_ssh-proxy bash`
 `chown proxy_user:proxy_user /home/proxy_user/.ssh/authorized_keys`
 
 
 
 On your local machine, do this:
-`ssh -i /home/user/.ssh/private_key -p 2222 -L 9000:inspircd:6667 proxy_user@123.123.123.123`
+`ssh -i /home/user/.ssh/private_key -p 2222 -L <LOCAL_PORT>:dawn_ircd:6667 proxy_user@123.123.123.123`, where `<LOCAL_PORT>` is a port that you choose,  such as 9000, then you can connect to the IRC server with your favorite IRC client on `localhost:<LOCAL_PORT>`

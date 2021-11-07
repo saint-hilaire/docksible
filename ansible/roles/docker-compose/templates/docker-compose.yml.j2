@@ -1,0 +1,68 @@
+version: "3.9"
+    
+services:
+
+  dawn_db:
+    image: mysql:8.0
+    container_name: dawn_db
+    volumes:
+      - "$HOME/dawn_docker_volumes/db_data:/var/lib/mysql"
+    restart: unless-stopped
+    env_file:
+      - "$HOME/dawn/.env"
+    environment:
+      - MYSQL_DATABASE=wordpress
+    command: '--default-authentication-plugin=mysql_native_password'
+
+
+
+    
+  dawn_wordpress:
+    depends_on:
+      - dawn_db
+    container_name: dawn_wordpress
+    image: wordpress:latest
+    restart: unless-stopped
+    env_file:
+      - "$HOME/dawn/.env"
+    environment:
+      - "WORDPRESS_DB_HOST=dawn_db:3306"
+      - "WORDPRESS_DB_USER=$MYSQL_USER"
+      - "WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD"
+      - "WORDPRESS_DB_NAME=wordpress"
+    volumes:
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+
+
+
+  
+  dawn_webserver:
+    depends_on:
+      - dawn_wordpress
+    image: nginx:latest
+    container_name: dawn_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+      - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
+
+
+  
+       
+  ircd:
+    image: inspircd/inspircd-docker
+    restart: always
+    container_name: dawn_ircd
+
+  ssh-proxy:
+    build: "$HOME/ssh-proxy"
+    ports:
+            - "2222:22"
+    volumes:
+            - "$HOME/dawn_docker_volumes/ssh-proxy_data:/home/proxy_user/.ssh"
+    restart: always
+    container_name: dawn_ssh-proxy
+

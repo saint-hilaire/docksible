@@ -1,0 +1,14 @@
+server {
+        listen 80;
+        location / {
+                proxy_pass  http://dawn_wordpress:80;
+                proxy_set_header Host      $host;
+                proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location ~ /.well-known/acme-challenge {
+                allow all;
+        }
+
+}
+

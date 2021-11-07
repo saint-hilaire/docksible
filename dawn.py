@@ -33,9 +33,14 @@ def replace_line_in_file(file_path, search_for, replace_with):
             else:
                 file_handle.write(line)
 
+# TODO: Do this with a domain?
+# def services(user, host, domain):
 def services(user, host):
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", host + "    ansible_python_interpreter=/usr/bin/python3")
     os.chdir(dawn_path+"/ansible")
+
+    # TODO: Do this with a domain?
+    # os.system("ansible-playbook -u " + user + " -i hosts playbook.yml --extra-vars domain="+domain)
     os.system("ansible-playbook -u " + user + " -i hosts playbook.yml")
     os.system("git restore hosts")
     
@@ -51,10 +56,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-H", "--host" )
     parser.add_argument("-u", "--user" )
+
+    # TODO: Give this a default value
+    # parser.add_argument("-d", "--domain", default="default.com" )
+    parser.add_argument("-d", "--domain" )
+
     args = parser.parse_args()
 
     host = args.host
     user = args.user
+    domain = args.domain
 
     if host is None or user is None:
         exit("Please specify a host and a user.")
@@ -71,6 +82,8 @@ def main():
     # This sets the host's IP address back to the placeholder, so that it gets caught next time (if the host should change)
     os.system("git restore hosts")
 
+    # TODO: Do this with a domain
+    # services(user, host, domain)
     services(user, host)
 
 if __name__ == "__main__":
