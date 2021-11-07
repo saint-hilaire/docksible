@@ -1,0 +1,25 @@
+server {
+        listen 80;
+        listen [::]:80;
+        location / {
+                proxy_pass  http://dawn_django:8000;
+                proxy_set_header Host      $host;
+                proxy_set_header X-Real-IP $remote_addr;
+        }
+
+	# TODO: Consider doing something similar for /static/admin
+	location /static/ {
+		alias {{ django_staticfiles_directory }}/;
+	}
+	location /media/ {
+		alias {{ django_media_directory }}/;
+	}
+
+        server_name {{ inventory_hostname }};
+        location ~ /.well-known/ {
+                allow all;
+		root /var/www/html;
+        }
+	client_max_body_size {{ django_max_upload_size }};
+	client_body_buffer_size {{ django_upload_buffer_size }};
+}

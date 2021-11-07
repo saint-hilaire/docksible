@@ -1,0 +1,21 @@
+server {
+        listen 80;
+        listen [::]:80;
+        listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+        server_name {{ inventory_hostname }};
+        include /etc/nginx/conf.d/snippets/self-signed.conf;
+        include /etc/nginx/conf.d/snippets/ssl-params.conf;
+
+        location ~ /.well-known/ {
+                allow all;
+		root /var/www/html;
+        }
+
+        location / {
+                proxy_pass  http://dawn_{{ service_to_encrypt }}:{{ port_to_encrypt }};
+                proxy_set_header Host      $host;
+                proxy_set_header X-Real-IP $remote_addr;
+        }
+}
+

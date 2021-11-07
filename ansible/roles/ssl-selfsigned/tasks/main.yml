@@ -1,0 +1,74 @@
+---
+- name: Prepare directories
+  file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: root
+      mode: '0755'
+  loop:
+      - "$HOME/dawn_docker_volumes/nginx_data/ssl/certs"
+      - "$HOME/dawn_docker_volumes/nginx_data/ssl/private"
+      - "$HOME/dawn_docker_volumes/nginx_data/ssl/csr"
+      - "$HOME/dawn_docker_volumes/nginx_data/snippets"
+        # - /etc/apache2/conf-available
+
+- name: Generate SSL private key
+  openssl_privatekey:
+      path:  "$HOME/dawn_docker_volumes/nginx_data/ssl/private/selfsigned.key"
+      size: 2048
+- name: Self-signing
+  openssl_csr:
+      path:  "$HOME/dawn_docker_volumes/nginx_data/ssl/csr/selfsigned.csr"
+      privatekey_path:  "$HOME/dawn_docker_volumes/nginx_data/ssl/private/selfsigned.key"
+- name: Certificate
+  openssl_certificate:
+      path: "$HOME/dawn_docker_volumes/nginx_data/ssl/certs/selfsigned.crt"
+      privatekey_path: "$HOME/dawn_docker_volumes/nginx_data/ssl/private/selfsigned.key"
+      csr_path: "$HOME/dawn_docker_volumes/nginx_data/ssl/csr/selfsigned.csr"
+      provider: selfsigned
+
+- name: Create Diffie-Hellman group for forward secrecy
+  raw: "openssl dhparam -out $HOME/dawn_docker_volumes/nginx_data/ssl/certs/dhparam.pem 2048"
+
+- name: Load self-signed.conf into snippets
+  template:
+      src: self-signed.conf
+      dest: "$HOME/dawn_docker_volumes/nginx_data/snippets/self-signed.conf"
+      owner: root
+      group: root
+      mode: '0644'
+- name: Load ssl-params.conf into snippets
+  template:
+      src: ssl-params.conf
+      dest: "$HOME/dawn_docker_volumes/nginx_data/snippets/ssl-params.conf"
+      owner: root
+      group: root
+      mode: '0644'
+
+- name: Force WordPress to use HTTPS
+  template:
+      src: wp-config.php
+      dest: "$HOME/dawn_docker_volumes/wordpress_data/wp-config.php"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt == "wordpress"
+
+- name: Load the actual Nginx configuration
+  template:
+      src: nginx.conf.j2
+      dest: "$HOME/dawn_docker_volumes/nginx_data/nginx.conf"
+      owner: root
+      group: root
+      mode: '0644'
+
+
+
+- name: Restart Nginx
+  raw: "cd $HOME/dawn; docker-compose restart dawn_webserver"
+  when: service_to_encrypt == "wordpress"
+
+- name: Restart Nginx
+  raw: "cd $HOME/dawn; docker-compose -f docker-compose-{{ service_to_encrypt }}.yml restart dawn_webserver"
+  when: service_to_encrypt != "wordpress"

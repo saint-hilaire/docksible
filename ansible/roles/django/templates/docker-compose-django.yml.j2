@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+
+  dawn_django:
+    image: {{ app_name }}
+    container_name: dawn_django
+    restart: always
+    env_file:
+      - "$HOME/dawn/.env"
+    environment:
+      - "DATABASE_ENGINE=mysql"
+      - "DATABASE_NAME={{ database_name }}"
+      - "DATABASE_USER=$MYSQL_USER"
+      - "DATABASE_HOST=dawn_db"
+      - "DATABASE_PASSWORD=$MYSQL_PASSWORD"
+      - "DATABASE_PORT=3306"
+      - "{{ host_domain_env_var_name }}={{ domain }}"
+      - "{{ django_secret_key_var_name }}={{ django_secret_key }}"
+    volumes:
+      - static_volume:{{ django_staticfiles_directory }}
+      - media_volume:{{ django_media_directory }}
+
+  dawn_db:
+    image: mysql:8.0
+    container_name: dawn_db
+    volumes:
+      - "$HOME/dawn_docker_volumes/db_data:/var/lib/mysql"
+    restart: unless-stopped
+    env_file:
+      - "$HOME/dawn/.env"
+    command: '--default-authentication-plugin=mysql_native_password'
+
+  dawn_webserver:
+    image: nginx:latest
+    container_name: dawn_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
+      # TODO: This "WordPress volume" is needed for Certbot?
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+      - static_volume:{{ django_staticfiles_directory }}
+      - media_volume:{{ django_media_directory }}
+
+  dawn_phpmyadmin:
+    depends_on:
+      - dawn_db
+    image: phpmyadmin
+    container_name: dawn_phpmyadmin
+    restart: unless-stopped
+    environment:
+      - "PMA_HOST=dawn_db"
+
+  dawn_ssh-proxy:
+    build: "$HOME/ssh-proxy"
+    ports:
+            - "2222:22"
+    volumes:
+            - "$HOME/dawn_docker_volumes/ssh-proxy_data:/home/proxy_user/.ssh"
+    restart: always
+    container_name: dawn_ssh-proxy
+
+volumes:
+  static_volume:
+  media_volume:

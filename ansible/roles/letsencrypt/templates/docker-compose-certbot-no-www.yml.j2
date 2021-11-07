@@ -1,0 +1,26 @@
+version: "3.9"
+    
+services:
+
+  dawn_webserver:
+    image: nginx:latest
+    container_name: dawn_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
+      - "$HOME/dawn_docker_volumes/certbot_data:/etc/letsencrypt"
+      - "$HOME/dawn_docker_volumes/{{ service_to_encrypt }}_data:/var/www/html"
+
+  dawn_certbot:
+    depends_on:
+      - dawn_webserver
+    image: certbot/certbot
+    container_name: dawn_certbot
+    volumes:
+      - "$HOME/dawn_docker_volumes/certbot_data:/etc/letsencrypt"
+      - "$HOME/dawn_docker_volumes/{{ service_to_encrypt }}_data:/var/www/html"
+    command: "certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} {{ test_cert }}"
+

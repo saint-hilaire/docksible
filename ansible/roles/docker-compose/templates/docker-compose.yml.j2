@@ -1,0 +1,90 @@
+version: "3.9"
+    
+services:
+
+  dawn_db:
+    image: mysql:8.0
+    container_name: dawn_db
+    volumes:
+      - "$HOME/dawn_docker_volumes/db_data:/var/lib/mysql"
+    restart: unless-stopped
+    env_file:
+      - "$HOME/dawn/.env"
+    command: '--default-authentication-plugin=mysql_native_password'
+
+
+
+    
+  dawn_wordpress:
+    depends_on:
+      - dawn_db
+    container_name: dawn_wordpress
+    image: wordpress:latest
+    restart: unless-stopped
+    env_file:
+      - "$HOME/dawn/.env"
+    environment:
+      - "WORDPRESS_DB_HOST=dawn_db:3306"
+      - "WORDPRESS_DB_USER=$MYSQL_USER"
+      - "WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD"
+      - "WORDPRESS_DB_NAME={{ db_name }}"
+      - "WORDPRESS_AUTH_KEY={{ wp_auth_key }}"
+      - "WORDPRESS_SECURE_AUTH_KEY={{ wp_secure_auth_key }}"
+      - "WORDPRESS_LOGGED_IN_KEY={{ wp_logged_in_key }}"
+      - "WORDPRESS_NONCE_KEY={{ wp_nonce_key }}"
+      - "WORDPRESS_AUTH_SALT={{ wp_auth_salt }}"
+      - "WORDPRESS_SECURE_AUTH_SALT={{ wp_secure_auth_salt }}"
+      - "WORDPRESS_LOGGED_IN_SALT={{ wp_logged_in_salt }}"
+      - "WORDPRESS_NONCE_SALT={{ wp_nonce_salt }}"
+    volumes:
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+
+
+
+  
+  dawn_webserver:
+    image: nginx:latest
+    container_name: dawn_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+
+  dawn_phpmyadmin:
+    depends_on:
+      - dawn_db
+    image: phpmyadmin
+    container_name: dawn_phpmyadmin
+    restart: unless-stopped
+    environment:
+      - "PMA_HOST=dawn_db"
+
+
+  
+       
+  dawn_ircd:
+    image: inspircd/inspircd-docker
+    restart: always
+    container_name: dawn_ircd
+
+  dawn_ssh-proxy:
+    build: "$HOME/ssh-proxy"
+    ports:
+            - "2222:22"
+    volumes:
+            - "$HOME/dawn_docker_volumes/ssh-proxy_data:/home/proxy_user/.ssh"
+    restart: always
+    container_name: dawn_ssh-proxy
+
+  dawn_ftp:
+    build: "$HOME/ssh-proxy"
+    ports:
+            - "2020:22"
+    volumes:
+            - "$HOME/dawn_docker_volumes/ftp_data:/home/proxy_user"
+    restart: always
+    container_name: dawn_ftp
+

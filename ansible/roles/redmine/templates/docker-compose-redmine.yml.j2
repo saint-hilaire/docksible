@@ -1,0 +1,51 @@
+version: "3.9"
+    
+services:
+
+  dawn_redmine:
+    image: redmine
+    container_name: dawn_redmine
+    restart: always
+    environment:
+      REDMINE_DB_MYSQL: dawn_db
+      REDMINE_DB_PASSWORD: "{{ database_root_password }}"
+
+  dawn_db:
+    image: mysql:5.7
+    container_name: dawn_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "{{ database_root_password }}"
+      MYSQL_DATABASE: redmine
+    volumes:
+      - "$HOME/dawn_docker_volumes/db_data:/var/lib/mysql"
+
+  dawn_webserver:
+    image: nginx:latest
+    container_name: dawn_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
+      # TODO: This "WordPress volume" is needed for Certbot?
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+
+  dawn_phpmyadmin:
+    depends_on:
+      - dawn_db
+    image: phpmyadmin
+    container_name: dawn_phpmyadmin
+    restart: unless-stopped
+    environment:
+      - "PMA_HOST=dawn_db"
+
+  dawn_ssh-proxy:
+    build: "$HOME/ssh-proxy"
+    ports:
+            - "2222:22"
+    volumes:
+            - "$HOME/dawn_docker_volumes/ssh-proxy_data:/home/proxy_user/.ssh"
+    restart: always
+    container_name: dawn_ssh-proxy
