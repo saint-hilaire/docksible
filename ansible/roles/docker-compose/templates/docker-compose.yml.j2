@@ -58,12 +58,12 @@ services:
 
   
        
-  ircd:
+  dawn_ircd:
     image: inspircd/inspircd-docker
     restart: always
     container_name: dawn_ircd
 
-  ssh-proxy:
+  dawn_ssh-proxy:
     build: "$HOME/ssh-proxy"
     ports:
             - "2222:22"
