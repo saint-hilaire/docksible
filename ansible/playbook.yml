@@ -1,0 +1,28 @@
+---
+
+
+- hosts: all
+  become: true
+
+  tasks:
+          - name: Pull the SSH-proxy from Github
+            git:
+                    repo: "https://github.com/sanctus91/simple-docker-ssh-proxy.git"
+                    dest: "{{ ansible_env.HOME }}/ssh-proxy"
+
+          - name: Create the directory for the whole stack
+            file:
+                    path: "{{ ansible_env.HOME }}/dawn"
+                    state: directory
+                    mode: '0755'
+
+          - name: Copy the Docker Compose file over
+            template:
+                    src: "files/docker-compose.yml"
+                    dest: "{{ ansible_env.HOME }}/dawn/docker-compose.yml"
+                    owner: "{{ ansible_env.USER }}"
+                    group: "{{ ansible_env.USER }}"
+                    mode: '0644'
+
+          - name: Run Docker Compose
+            raw: "cd $HOME/dawn; sudo docker-compose up -d"
