@@ -46,6 +46,14 @@
       group: root
       mode: '0644'
 
+- name: Force WordPress to use HTTPS
+  template:
+      src: wp-config.php
+      dest: "$HOME/dawn_docker_volumes/wordpress_data/wp-config.php"
+      owner: root
+      group: root
+      mode: '0644'
+
 - name: Load the actual Nginx configuration
   template:
       src: nginx.conf.j2
