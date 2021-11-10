@@ -8,7 +8,8 @@
       mode: '0755'
   loop:
       - "$HOME/dawn_docker_volumes/certbot_data"
-      - "$HOME/dawn_docker_volumes/wordpress_data"
+        # TODO: is that necessary for Redmine?
+      - "$HOME/dawn_docker_volumes/{{ service_to_encrypt }}_data"
 
 - name: Delete unneeded directories
   file:
@@ -21,6 +22,10 @@
       - "$HOME/dawn_docker_volumes/nginx_data/snippets"
 
 
+# TODO: Figure out a better way to handle this conditional:
+#       For WordPress, we need the domain also with www. in front,
+#       For other services (in the current case of Redmine) the
+#       www. will break Certbot.
 - name: Load Docker-Compose file for Certbot
   template:
       src: docker-compose-certbot.yml.j2
@@ -28,6 +33,18 @@
       owner: root
       group: root
       mode: '0644'
+  when: service_to_encrypt == "wordpress"
+#
+- name: Load Docker-Compose file for Certbot
+  template:
+      src: docker-compose-certbot-no-www.yml.j2
+      dest: "$HOME/dawn/docker-compose-certbot.yml"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt != "wordpress"
+#
+###
 
 - name: Load preliminary Nginx Configuration, with domain set up, but no SSL stuff
   template:
@@ -70,3 +87,4 @@
       owner: root
       group: root
       mode: '0644'
+  when: service_to_encrypt == "wordpress"

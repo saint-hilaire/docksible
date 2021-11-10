@@ -63,10 +63,10 @@ def do_ssl_selfsigned(user, host):
     os.system(ansible_cmd)
     os.system("git restore hosts")
 
-def do_letsencrypt(user, host, domain, email):
+def do_letsencrypt(user, host, domain, email, service_to_encrypt="wordpress", port_to_encrypt="80"):
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", host + "    ansible_python_interpreter=/usr/bin/python3")
     os.chdir(dawn_path+"/ansible")
-    ansible_cmd = 'ansible-playbook -u {user} -i hosts --extra-vars "domain={domain} email={email}" letsencrypt.yml'.format(user=user, domain=domain, email=email)
+    ansible_cmd = 'ansible-playbook -u {user} -i hosts --extra-vars "domain={domain} email={email} service_to_encrypt={service_to_encrypt} port_to_encrypt={port_to_encrypt}" letsencrypt.yml'.format(user=user, domain=domain, email=email, service_to_encrypt=service_to_encrypt, port_to_encrypt=port_to_encrypt)
     os.system(ansible_cmd)
     os.system("git restore hosts")
 
@@ -100,6 +100,9 @@ def main():
     parser.add_argument("-d", "--domain" )
     parser.add_argument("-e", "--email" )
 
+    parser.add_argument("--service-to-encrypt", default="wordpress")
+    parser.add_argument("--port-to-encrypt", default="80")
+
     # TODO: This is not currently compatible with the rest of the
     #       project.
     #       We are just doing this to be able to quickly set up a Redmine instance.
@@ -125,9 +128,12 @@ def main():
     domain = args.domain
     email = args.email
 
+    service_to_encrypt = args.service_to_encrypt
+    port_to_encrypt = args.port_to_encrypt
+
     redmine = args.redmine
 
-    if not (bootstrap or services or ssl_selfsigned or letsencrypt):
+    if not (bootstrap or services or ssl_selfsigned or letsencrypt or redmine):
         exit("Please specify an action (--bootstrap, --services, --ssl-selfsigned and/or --letsencrypt)")
 
     # Checking for required arguments
@@ -150,10 +156,10 @@ def main():
         do_services(user, host, database_root_password, database_user, database_password, database_name)
     if ssl_selfsigned:
         do_ssl_selfsigned(user, host)
-    if letsencrypt:
-        do_letsencrypt(user, host, domain, email)
     if redmine:
         do_redmine(user, host, database_root_password)
+    if letsencrypt:
+        do_letsencrypt(user, host, domain, email, service_to_encrypt, port_to_encrypt)
 
 if __name__ == "__main__":
     main()

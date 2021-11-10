@@ -2,20 +2,43 @@ version: "3.9"
     
 services:
 
-  redmine:
+  dawn_redmine:
     image: redmine
+    container_name: dawn_redmine
     restart: always
-    ports:
-      - 8080:3000
     environment:
-      REDMINE_DB_MYSQL: db
+      REDMINE_DB_MYSQL: dawn_db
       REDMINE_DB_PASSWORD: "{{ database_root_password }}"
 
-  db:
+  dawn_db:
     image: mysql:5.7
+    container_name: dawn_db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "{{ database_root_password }}"
       MYSQL_DATABASE: redmine
     volumes:
       - "$HOME/dawn_docker_volumes/db_data:/var/lib/mysql"
+
+  dawn_webserver:
+    image: nginx:latest
+    container_name: dawn_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
+      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+
+# TODO: Maybe we want to install phpMyAdmin, and then access it via
+#       the SSH-proxy.
+#
+#  dawn_phpmyadmin:
+#    depends_on:
+#      - dawn_db
+#    image: phpmyadmin
+#    container_name: dawn_phpmyadmin
+#    restart: unless-stopped
+#    environment:
+#      - "PMA_HOST=dawn_db"
