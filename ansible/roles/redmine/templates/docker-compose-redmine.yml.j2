@@ -1,0 +1,21 @@
+version: "3.9"
+    
+services:
+
+  redmine:
+    image: redmine
+    restart: always
+    ports:
+      - 8080:3000
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: "{{ database_root_password }}"
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "{{ database_root_password }}"
+      MYSQL_DATABASE: redmine
+    volumes:
+      - "$HOME/dawn_docker_volumes/db_data:/var/lib/mysql"

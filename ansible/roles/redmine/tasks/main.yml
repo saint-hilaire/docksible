@@ -1,0 +1,27 @@
+---
+- name: Create the directory for Docker compose
+  file:
+      path: "{{ ansible_env.HOME }}/dawn"
+      state: directory
+      mode: '0755'
+- name: Prepare directory for Docker bind mount
+  file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: root
+      mode: '0755'
+  loop:
+      - "$HOME/dawn_docker_volumes/db_data"
+
+
+- name: Load Docker-Compose file for Redmine
+  template:
+      src: docker-compose-redmine.yml.j2
+      dest: "$HOME/dawn/docker-compose-redmine.yml"
+      owner: root
+      group: root
+      mode: '0644'
+
+- name: Run Redmine
+  raw: "cd $HOME/dawn; docker-compose -f docker-compose-redmine.yml up -d"

@@ -70,6 +70,12 @@ def do_letsencrypt(user, host, domain, email):
     os.system(ansible_cmd)
     os.system("git restore hosts")
 
+def do_redmine(user, host, database_root_password):
+    replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", host + "    ansible_python_interpreter=/usr/bin/python3")
+    os.chdir(dawn_path+"/ansible")
+    ansible_cmd = 'ansible-playbook -u {user} -i hosts --extra-vars "database_root_password={database_root_password}" redmine.yml'.format(user=user, database_root_password=database_root_password)
+    os.system(ansible_cmd)
+    os.system("git restore hosts")
 
 def main():
     os.chdir(home)
@@ -94,6 +100,14 @@ def main():
     parser.add_argument("-d", "--domain" )
     parser.add_argument("-e", "--email" )
 
+    # TODO: This is not currently compatible with the rest of the
+    #       project.
+    #       We are just doing this to be able to quickly set up a Redmine instance.
+    #       Currently, it should just be passed together with the --bootstrap,-b flag.
+    #       Ideally, we would want to integrate it together with the rest
+    #       of the services.
+    parser.add_argument("-R", "--redmine", action="store_true" )
+
     args = parser.parse_args()
 
     host = args.host
@@ -110,6 +124,8 @@ def main():
 
     domain = args.domain
     email = args.email
+
+    redmine = args.redmine
 
     if not (bootstrap or services or ssl_selfsigned or letsencrypt):
         exit("Please specify an action (--bootstrap, --services, --ssl-selfsigned and/or --letsencrypt)")
@@ -136,6 +152,8 @@ def main():
         do_ssl_selfsigned(user, host)
     if letsencrypt:
         do_letsencrypt(user, host, domain, email)
+    if redmine:
+        do_redmine(user, host, database_root_password)
 
 if __name__ == "__main__":
     main()
