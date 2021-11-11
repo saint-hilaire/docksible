@@ -53,3 +53,9 @@ In case Certbot failed, for whatever reason, you can still do it manually:
 - Run the Certbot container with `docker-compose -f docker-compose-certbot.yml up dawn_certbot`
 - Go back into `dawn_docker_volumes/nginx_data/nginx.conf` and reenable the configurations for port 443 and the SSL certificates. See the file `nginx.conf.j2` in the template directory for the letsencrypt Ansible role for more info.
 - Restart Nginx one more time with the same command as before.
+
+You can now also incorporate a Redmine installation for issue tracking. See the `--help` flag.  
+To do it with SSL encryption from Letsencrypt, you have to pass the `--service-to-encrypt` and `--service-to-encrypt` flags. Do something like this:
+```
+./dawn.py -H 123.123.123.123 -u someuser -P database_root_password -b -l -d some.domain.com -e some.email@domain.com --service-to-encrypt redmine --port-to-encrypt 3000 -R
+```
