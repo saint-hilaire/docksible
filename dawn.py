@@ -56,10 +56,10 @@ def do_services(user, host, db_root_passwd, db_user, db_passwd, db_name):
     os.system(ansible_cmd)
     os.system("git restore hosts")
     
-def do_ssl_selfsigned(user, host):
+def do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt):
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", host + "    ansible_python_interpreter=/usr/bin/python3")
     os.chdir(dawn_path+"/ansible")
-    ansible_cmd = 'ansible-playbook -u {user} -i hosts ssl-selfsigned.yml'.format(user=user)
+    ansible_cmd = 'ansible-playbook -u {user} -i hosts --extra-vars "service_to_encrypt={service_to_encrypt} port_to_encrypt={port_to_encrypt}" ssl-selfsigned.yml'.format(user=user, service_to_encrypt=service_to_encrypt, port_to_encrypt=port_to_encrypt)
     os.system(ansible_cmd)
     os.system("git restore hosts")
 
@@ -155,7 +155,7 @@ def main():
     if services:
         do_services(user, host, database_root_password, database_user, database_password, database_name)
     if ssl_selfsigned:
-        do_ssl_selfsigned(user, host)
+        do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)
     if redmine:
         do_redmine(user, host, database_root_password)
     if letsencrypt:
