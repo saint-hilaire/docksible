@@ -67,3 +67,8 @@
 
 - name: Restart Nginx
   raw: "cd $HOME/dawn; docker-compose restart dawn_webserver"
+  when: service_to_encrypt == "wordpress"
+
+- name: Restart Nginx
+  raw: "cd $HOME/dawn; docker-compose -f docker-compose-{{ service_to_encrypt }}.yml restart dawn_webserver"
+  when: service_to_encrypt != "wordpress"

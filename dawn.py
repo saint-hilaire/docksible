@@ -154,10 +154,10 @@ def main():
         do_bootstrap(user, host)
     if services:
         do_services(user, host, database_root_password, database_user, database_password, database_name)
-    if ssl_selfsigned:
-        do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)
     if redmine:
         do_redmine(user, host, database_root_password)
+    if ssl_selfsigned:
+        do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)
     if letsencrypt:
         do_letsencrypt(user, host, domain, email, service_to_encrypt, port_to_encrypt)
 
