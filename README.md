@@ -59,6 +59,3 @@ To do it with SSL encryption from Letsencrypt, you have to pass the `--service-t
 ```
 ./dawn.py -H 123.123.123.123 -u someuser -P database_root_password -b -l -d some.domain.com -e some.email@domain.com --service-to-encrypt redmine --port-to-encrypt 3000 -R
 ```
-
-TODO:
-You can also do it similarly with self-signed certificates, but I have not tested this yet.
