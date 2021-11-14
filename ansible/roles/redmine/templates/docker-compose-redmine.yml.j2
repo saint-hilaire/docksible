@@ -31,14 +31,20 @@ services:
       - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
       - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
 
-# TODO: Maybe we want to install phpMyAdmin, and then access it via
-#       the SSH-proxy.
-#
-#  dawn_phpmyadmin:
-#    depends_on:
-#      - dawn_db
-#    image: phpmyadmin
-#    container_name: dawn_phpmyadmin
-#    restart: unless-stopped
-#    environment:
-#      - "PMA_HOST=dawn_db"
+  dawn_phpmyadmin:
+    depends_on:
+      - dawn_db
+    image: phpmyadmin
+    container_name: dawn_phpmyadmin
+    restart: unless-stopped
+    environment:
+      - "PMA_HOST=dawn_db"
+
+  dawn_ssh-proxy:
+    build: "$HOME/ssh-proxy"
+    ports:
+            - "2222:22"
+    volumes:
+            - "$HOME/dawn_docker_volumes/ssh-proxy_data:/home/proxy_user/.ssh"
+    restart: always
+    container_name: dawn_ssh-proxy
