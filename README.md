@@ -59,3 +59,14 @@ To do it with SSL encryption from Letsencrypt, you have to pass the `--service-t
 ```
 ./dawn.py -H 123.123.123.123 -u someuser -P database_root_password -b -l -d some.domain.com -e some.email@domain.com --service-to-encrypt redmine --port-to-encrypt 3000 -R
 ```
+
+## Note for Redmine
+
+Redmine is very feature-rich, and provides/requires extensive configuration.   
+The Docker image omits much of this configuration.   
+So to make future-installations easier, I have provided some sensible default configurations.   
+Just connect to the database as (probably) `root:root_password`. (Or whatever you provided as the `--database-root-password`). and import `redmine_defaults.sql`.    
+That configuration has some sensible defaults set up, including the following users:
+- admin:adminadmin
+- developer:password
+- manager:password
