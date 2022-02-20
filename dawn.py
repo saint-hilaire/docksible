@@ -113,6 +113,7 @@ def backup_database(host, path_to_ssh_key, database_user, database_password, dat
     print("Killing proxy connection...")
     proxy_process.kill()
     print("... Done.")
+    mysql_dump_output_file.close()
 
 def do_backup(user, host, path_to_ssh_key, database_user, database_password, database_name, local_dest=backups_path, delete=False):
     print("Started backup process...")
