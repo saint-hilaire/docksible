@@ -99,7 +99,7 @@ def backup_database(host, path_to_ssh_key, database_user, database_password, dat
         database_name=database_name
         ), "w")
     mysql_dump_cmd = "mysqldump --user={database_user} --password={database_password} \
-        --port=9000 --host=127.0.0.1 --protocol=TCP --no-tablespaces \
+        --port=9000 --host=127.0.0.1 --protocol=TCP --no-tablespaces --column-statistics=0 \
         {database_name}".format(
             database_user=database_user,
             database_password=database_password,
