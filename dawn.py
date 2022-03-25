@@ -79,13 +79,19 @@ def do_ssl_selfsigned(user, host):
     os.system(ansible_cmd)
     os.system("git restore hosts")
 
-def do_letsencrypt(user, host, domain, email):
+def do_letsencrypt(user, host, domain, email, test_cert):
+    if test_cert:
+        test_cert = "--test-cert"
+    else:
+        test_cert = " "
+
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", 
         host + "    ansible_python_interpreter=/usr/bin/python3")
     os.chdir(dawn_path+"/ansible")
     ansible_cmd = 'ansible-playbook -u {user} -i hosts \
-        --extra-vars "domain={domain} email={email}" letsencrypt.yml'.format(
-            user=user, domain=domain, email=email)
+        --extra-vars "domain={domain} email={email} test_cert={test_cert}" \
+        letsencrypt.yml'.format(
+            user=user, domain=domain, email=email, test_cert=test_cert)
     os.system(ansible_cmd)
     os.system("git restore hosts")
 
@@ -212,6 +218,7 @@ def main():
     parser.add_argument("-s", "--services", action="store_true")
     parser.add_argument("-S", "--ssl-selfsigned", action="store_true")
     parser.add_argument("-l", "--letsencrypt", action="store_true")
+    parser.add_argument("-t", "--test-cert", action="store_true")
     parser.add_argument("-B", "--backup", action="store_true")
     parser.add_argument("-E", "--delete-in-rsync", action="store_true")
     parser.add_argument("-i", "--path-to-ssh-key", default=home+"/.ssh/id_rsa")
@@ -233,6 +240,7 @@ def main():
     services = args.services
     ssl_selfsigned = args.ssl_selfsigned
     letsencrypt = args.letsencrypt
+    test_cert = args.test_cert
     backup = args.backup
     delete_in_rsync = args.delete_in_rsync
     path_to_ssh_key = args.path_to_ssh_key
@@ -277,7 +285,7 @@ def main():
     if ssl_selfsigned:
         do_ssl_selfsigned(user, host)
     if letsencrypt:
-        do_letsencrypt(user, host, domain, email)
+        do_letsencrypt(user, host, domain, email, test_cert)
     if backup:
         do_backup(
             user,
