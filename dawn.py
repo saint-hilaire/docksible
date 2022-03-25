@@ -200,11 +200,11 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-H", "--host" )
-    parser.add_argument("-u", "--user" )
+    parser.add_argument("-U", "--user" )
 
     parser.add_argument("-P", "--database-root-password",
         default="root_password")
-    parser.add_argument("-U", "--database-user", default="wordpress")
+    parser.add_argument("-u", "--database-user", default="wordpress")
     parser.add_argument("-p", "--database-password",
         default="wordpress_password")
     parser.add_argument("-D", "--database-name", default="wordpress")
