@@ -71,6 +71,10 @@ def do_services(user, host, db_root_passwd, db_user, db_passwd, db_name):
     os.system("git restore hosts")
     
 
+# TODO: After deploying a Django app with this, you have to restart its 
+# Docker container. Otherwise, navigating to other pages throws error 500.
+# It seems that the database migration fails to run, but restarting the
+# container fixes that.
 def do_custom_service(
     user,
     host,
