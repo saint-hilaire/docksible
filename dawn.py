@@ -112,19 +112,6 @@ def do_custom_service(
     )
     os.system(ansible_cmd)
     os.system("git restore hosts")
-"""
-def do_redmine(user, host, database_root_password):
-    replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123",
-        host + "    ansible_python_interpreter=/usr/bin/python3")
-    os.chdir(dawn_path+"/ansible")
-    ansible_cmd = 'ansible-playbook -u {user} -i hosts --extra-vars \
-        "database_root_password={database_root_password}" redmine.yml'.format(
-        user=user,
-        database_root_password=database_root_password
-    )
-    os.system(ansible_cmd)
-    os.system("git restore hosts")
-"""
 
 
 def do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt):
