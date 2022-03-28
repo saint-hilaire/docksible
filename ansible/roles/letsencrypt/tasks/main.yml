@@ -24,7 +24,7 @@
 
 # TODO: Figure out a better way to handle this conditional:
 #       For WordPress, we need the domain also with www. in front,
-#       For other services (in the current case of Redmine) the
+#       For other services (Redmine, Django) the
 #       www. will break Certbot.
 - name: Load Docker-Compose file for Certbot
   template:
@@ -37,12 +37,23 @@
 #
 - name: Load Docker-Compose file for Certbot
   template:
+      src: docker-compose-certbot-django.yml.j2
+      dest: "$HOME/dawn/docker-compose-certbot.yml"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt == "django"
+#
+#
+- name: Load Docker-Compose file for Certbot
+  template:
       src: docker-compose-certbot-no-www.yml.j2
       dest: "$HOME/dawn/docker-compose-certbot.yml"
       owner: root
       group: root
       mode: '0644'
-  when: service_to_encrypt != "wordpress"
+  # TODO: Make this more like an "else".
+  when: service_to_encrypt == "redmine"
 #
 ###
 
@@ -72,6 +83,15 @@
       owner: root
       group: root
       mode: '0644'
+  when: service_to_encrypt != "django"
+- name: Load new Nginx Configuration, which uses the new certificate
+  template:
+      src: nginx.conf.django.j2
+      dest: "$HOME/dawn_docker_volumes/nginx_data/nginx.conf"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt == "django"
       
 - name: Wait another 5 seconds.
   pause:

@@ -71,6 +71,44 @@ def do_services(user, host, db_root_passwd, db_user, db_passwd, db_name):
     os.system("git restore hosts")
     
 
+def do_custom_service(
+    user,
+    host,
+    database_root_password,
+    database_user,
+    database_password,
+    database_name,
+    service_name,
+    app_name,
+    django_app_repository
+):
+    if app_name != "":
+        app_name_extravar = "app_name="+app_name
+    else:
+        app_name_extravar = ""
+    replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123",
+        host + "    ansible_python_interpreter=/usr/bin/python3")
+    os.chdir(dawn_path+"/ansible")
+    ansible_cmd = 'ansible-playbook -u {user} -i hosts --extra-vars \
+        "database_root_password={database_root_password} \
+        database_user={database_user} database_password={database_password} \
+        database_name={database_name} \
+        service_name={service_name} {app_name_extravar} \
+        django_app_repository={django_app_repository}" \
+        {service_name}.yml'.format( # TODO: Figure out how to do this
+                                    # conditionally in Ansible.
+            user=user,
+            database_root_password=database_root_password,
+            database_user=database_user,
+            database_password=database_password,
+            database_name=database_name,
+            service_name=service_name,
+            app_name_extravar=app_name_extravar,
+            django_app_repository=django_app_repository
+    )
+    os.system(ansible_cmd)
+    os.system("git restore hosts")
+"""
 def do_redmine(user, host, database_root_password):
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123",
         host + "    ansible_python_interpreter=/usr/bin/python3")
@@ -82,6 +120,7 @@ def do_redmine(user, host, database_root_password):
     )
     os.system(ansible_cmd)
     os.system("git restore hosts")
+"""
 
 
 def do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt):
@@ -105,12 +144,17 @@ def do_letsencrypt(
     email,
     service_to_encrypt="wordpress",
     port_to_encrypt="80",
-    test_cert=False
+    test_cert=False,
+    app_name=""
 ):
     if test_cert:
         test_cert = "--test-cert"
     else:
         test_cert = " "
+    if app_name != "":
+        app_name_extravar = " app_name="+app_name
+    else:
+        app_name_extravar = " "
 
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", 
         host + "    ansible_python_interpreter=/usr/bin/python3")
@@ -118,14 +162,16 @@ def do_letsencrypt(
     ansible_cmd = 'ansible-playbook -u {user} -i hosts \
         --extra-vars "domain={domain} email={email} \
         service_to_encrypt={service_to_encrypt} \
-        port_to_encrypt={port_to_encrypt} test_cert={test_cert}" \
+        port_to_encrypt={port_to_encrypt} test_cert={test_cert} \
+        {app_name_extravar}" \
         letsencrypt.yml'.format(
             user=user, 
             domain=domain,
             email=email,
             service_to_encrypt=service_to_encrypt,
             port_to_encrypt=port_to_encrypt,
-            test_cert=test_cert
+            test_cert=test_cert,
+            app_name_extravar=app_name_extravar
         )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -252,6 +298,29 @@ def main():
     parser.add_argument("-b", "--bootstrap", action="store_true")
     parser.add_argument("-s", "--services", action="store_true")
     parser.add_argument("-S", "--ssl-selfsigned", action="store_true")
+    # TODO: We should think about what we really want to do here.
+    #       When I first started this project, I mainly had WordPress in mind,
+    #       so that is 'baked in' together with the --services flag.
+    #       Then Redmine entered the picture and it was then the
+    #       -R, --redmine flag, and now that I need a Django installation, I
+    #       am changing it again, to -C, --custom-service.
+    #
+    #       It would be cool if we could specify something like --wordpress,
+    #       --redmine, --django, --irc, etc., but that would require some
+    #       serious wrangling of docker-compose files, which would all be
+    #       rather clunky. It would also be reinventing the PaaS wheel.
+    #
+    #       For the scope of this project, perhaps just implement some
+    #       ready-to-go, prepackaged environments, WordPress, Django and
+    #       Redmine being good examples. Other stuff, like IRC or FTP may or
+    #       may not be hard coded, depending on what I want to do. To truly be
+    #       able to customize your cloud services would likely be beyond the
+    #       scope of this project, you'd need a real PaaS project for that.
+    parser.add_argument("-C", "--custom-service", action="store_true")
+    # TODO
+    parser.add_argument("-n", "--service-name")
+    parser.add_argument("-a", "--app-name", default="")
+    parser.add_argument("-R", "--django-app-repository", default="")
     parser.add_argument("-l", "--letsencrypt", action="store_true")
     parser.add_argument("-t", "--test-cert", action="store_true")
     parser.add_argument("-B", "--backup", action="store_true")
@@ -265,13 +334,6 @@ def main():
     parser.add_argument("--service-to-encrypt", default="wordpress")
     parser.add_argument("--port-to-encrypt", default="80")
 
-    # TODO: This is not currently compatible with the rest of the
-    #       project.
-    #       We are just doing this to be able to quickly set up a Redmine instance.
-    #       Currently, it should just be passed together with the --bootstrap,-b flag.
-    #       Ideally, we would want to integrate it together with the rest
-    #       of the services.
-    parser.add_argument("-R", "--redmine", action="store_true" )
 
     args = parser.parse_args()
 
@@ -284,6 +346,10 @@ def main():
     database_name = args.database_name
     bootstrap = args.bootstrap
     services = args.services
+    custom_service = args.custom_service
+    service_name = args.service_name
+    app_name = args.app_name
+    django_app_repository = args.django_app_repository
     ssl_selfsigned = args.ssl_selfsigned
     letsencrypt = args.letsencrypt
     test_cert = args.test_cert
@@ -298,10 +364,12 @@ def main():
     service_to_encrypt = args.service_to_encrypt
     port_to_encrypt = args.port_to_encrypt
 
-    redmine = args.redmine
 
-    if not (bootstrap or services or ssl_selfsigned or letsencrypt or redmine or backup):
-        exit("Please specify an action (--bootstrap, --services, --ssl-selfsigned and/or --letsencrypt)")
+    if not (bootstrap or services or ssl_selfsigned or letsencrypt or 
+        custom_service or backup
+    ):
+        exit("Please specify an action (--bootstrap, --services, \
+            --custom-service, --ssl-selfsigned and/or --letsencrypt)")
 
     # Checking for required arguments
     if host is None or user is None:
@@ -320,6 +388,12 @@ def main():
         print("WARNING! Using default value for database name: 'wordpress'! \
             This is unsafe in production environments!")
 
+    if custom_service and service_name is None:
+        exit("Please specify a service name (--service-name[redmine|django])")
+    elif service_name == "django" and \
+        (app_name == "" or django_app_repository == ""):
+        exit("Please specify a name and repository for your Django app with \
+            the --app-name --django-app-repository flags")
 
     if bootstrap:
         do_bootstrap(user, host)
@@ -332,8 +406,18 @@ def main():
             database_password,
             database_name
         )
-    if redmine:
-        do_redmine(user, host, database_root_password)
+    if custom_service:
+        do_custom_service(
+            user,
+            host,
+            database_root_password,
+            database_user,
+            database_password,
+            database_name,
+            service_name,
+            app_name,
+            django_app_repository,
+        )
     if ssl_selfsigned:
         do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)
     if letsencrypt:
@@ -344,7 +428,8 @@ def main():
             email,
             service_to_encrypt,
             port_to_encrypt,
-            test_cert
+            test_cert,
+            app_name
         )
     if backup:
         do_backup(
