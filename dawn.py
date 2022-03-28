@@ -74,6 +74,7 @@ def do_services(user, host, db_root_passwd, db_user, db_passwd, db_name):
 def do_custom_service(
     user,
     host,
+    domain,
     database_root_password,
     database_user,
     database_password,
@@ -90,6 +91,8 @@ def do_custom_service(
         app_name_extravar = "app_name="+app_name
     else:
         app_name_extravar = ""
+    if domain == "" or domain is None:
+        domain = host
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123",
         host + "    ansible_python_interpreter=/usr/bin/python3")
     os.chdir(dawn_path+"/ansible")
@@ -98,10 +101,12 @@ def do_custom_service(
         database_user={database_user} database_password={database_password} \
         database_name={database_name} \
         service_name={service_name} {app_name_extravar} \
+        domain={domain} \
         django_app_repository={django_app_repository}" \
         {service_name}.yml'.format( # TODO: Figure out how to do this
                                     # conditionally in Ansible.
             user=user,
+            domain=domain,
             database_root_password=database_root_password,
             database_user=database_user,
             database_password=database_password,
@@ -318,7 +323,7 @@ def main():
     parser.add_argument("-i", "--path-to-ssh-key", default=home+"/.ssh/id_rsa")
     parser.add_argument("-L", "--local-backup-dest", default=backups_path)
 
-    parser.add_argument("-d", "--domain")
+    parser.add_argument("-d", "--domain", default="")
     parser.add_argument("-e", "--email")
 
     parser.add_argument("--service-to-encrypt", default="wordpress")
@@ -400,6 +405,7 @@ def main():
         do_custom_service(
             user,
             host,
+            domain,
             database_root_password,
             database_user,
             database_password,
