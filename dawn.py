@@ -317,7 +317,6 @@ def main():
     #       able to customize your cloud services would likely be beyond the
     #       scope of this project, you'd need a real PaaS project for that.
     parser.add_argument("-C", "--custom-service", action="store_true")
-    # TODO
     parser.add_argument("-n", "--service-name")
     parser.add_argument("-a", "--app-name", default="")
     parser.add_argument("-R", "--django-app-repository", default="")

@@ -8,7 +8,8 @@ server {
         }
 
 	location /static/ {
-		# TODO: This places serious constraints on the Django code.
+		# TODO: Parameter for where the static files are stored
+		# for a given Django app.
 		alias /app/{{ app_name }}/staticfiles;
 	}
 

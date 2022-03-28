@@ -1,5 +1,5 @@
 version: "3.9"
-    
+
 services:
 
   dawn_django:
@@ -16,7 +16,8 @@ services:
       - "DATABASE_PASSWORD=$MYSQL_PASSWORD"
       - "DATABASE_PORT=3306"
     volumes:
-      # TODO: This places serious constraints on the Django code.
+      # TODO: Parameter for where the static files are stored
+      # for a given Django app.
       - static_volume:/app/{{ app_name }}/staticfiles
 
   dawn_db:
@@ -40,7 +41,8 @@ services:
       - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
       # TODO: This "WordPress volume" is needed for Certbot?
       - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
-      # TODO: This places serious constraints on the Django code.
+      # TODO: Parameter for where the static files are stored
+      # for a given Django app.
       - static_volume:/app/{{ app_name }}/staticfiles
 
   dawn_phpmyadmin:

@@ -1,5 +1,5 @@
 version: "3.9"
-    
+
 services:
 
   dawn_webserver:
@@ -13,7 +13,8 @@ services:
       - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
       - "$HOME/dawn_docker_volumes/certbot_data:/etc/letsencrypt"
       - "$HOME/dawn_docker_volumes/{{ service_to_encrypt }}_data:/var/www/html"
-      # TODO: This places serious constraints on the Django code.
+      # TODO: Parameter for where the static files are stored
+      # for a given Django app.
       - static_volume:/app/{{ app_name }}/staticfiles
 
   dawn_certbot:

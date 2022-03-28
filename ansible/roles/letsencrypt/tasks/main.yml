@@ -28,6 +28,8 @@
 #       www. will break Certbot.
 - name: Load Docker-Compose file for Certbot
   template:
+      # TODO: Rename this file to something like "-with-www"?
+      # Depending on whether www before URLs is standard or not...
       src: docker-compose-certbot.yml.j2
       dest: "$HOME/dawn/docker-compose-certbot.yml"
       owner: root
