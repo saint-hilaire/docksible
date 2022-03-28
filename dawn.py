@@ -290,11 +290,11 @@ def main():
     parser.add_argument("-U", "--user" )
 
     parser.add_argument("-P", "--database-root-password",
-        default="root_password")
-    parser.add_argument("-u", "--database-user", default="wordpress")
+        default="db_root_password")
+    parser.add_argument("-u", "--database-user", default="db_user")
     parser.add_argument("-p", "--database-password",
-        default="wordpress_password")
-    parser.add_argument("-D", "--database-name", default="wordpress")
+        default="db_password")
+    parser.add_argument("-D", "--database-name", default="db_name")
     parser.add_argument("-b", "--bootstrap", action="store_true")
     parser.add_argument("-s", "--services", action="store_true")
     parser.add_argument("-S", "--ssl-selfsigned", action="store_true")
@@ -374,17 +374,17 @@ def main():
     if host is None or user is None:
         exit("Please specify a host and a user.")
 
-    if database_root_password == "root_password":
+    if database_root_password == "db_root_password":
         print("WARNING! Using default value for database root password: \
-            'root_password'! This is unsafe in production environments!")
-    if database_user == "wordpress":
-        print("WARNING! Using default value for database user: 'wordpress'! \
+            'db_root_password'! This is unsafe in production environments!")
+    if database_user == "db_user":
+        print("WARNING! Using default value for database user: 'db_user'! \
             This is unsafe in production environments!")
-    if database_password == "wordpress_password":
+    if database_password == "db_password":
         print("WARNING! Using default value for database password: \
-            'wordpress_password'! This is unsafe in production environments!")
-    if database_name == "wordpress":
-        print("WARNING! Using default value for database name: 'wordpress'! \
+            'db_password'! This is unsafe in production environments!")
+    if database_name == "db_name":
+        print("WARNING! Using default value for database name: 'db_name'! \
             This is unsafe in production environments!")
 
     if custom_service and service_name is None:
