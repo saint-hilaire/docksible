@@ -80,6 +80,10 @@ def do_custom_service(
     database_name,
     service_name,
     app_name,
+    # TODO: The playbook also needs to SSH-keyscan the webservice
+    # (i.e. GitHub), where the repo is hosted, so that the playbook can clone
+    # the repository. Possibly also need to load a user's SSH key, if the repo
+    # is private. Otherwise, the user needs to do this manually.
     django_app_repository
 ):
     if app_name != "":
