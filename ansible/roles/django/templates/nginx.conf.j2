@@ -7,6 +7,7 @@ server {
                 proxy_set_header X-Real-IP $remote_addr;
         }
 
+	# TODO: Consider doing something similar for /static/admin
 	location /static/ {
 		# TODO: Parameter for where the static files are stored
 		# for a given Django app.
