@@ -91,6 +91,7 @@ def do_custom_service(
     # is private. Otherwise, the user needs to do this manually.
     django_app_repository,
     django_app_git_branch,
+    django_dockerfile_path,
 ):
     if app_name != "":
         app_name_extravar = "app_name="+app_name
@@ -107,8 +108,9 @@ def do_custom_service(
         database_name={database_name} \
         service_name={service_name} {app_name_extravar} \
         domain={domain} \
-        django_app_repository={django_app_repository}" \
-        django_app_git_branch={django_app_git_branch}" \
+        django_app_repository={django_app_repository} \
+        django_app_git_branch={django_app_git_branch} \
+        django_dockerfile_path={django_dockerfile_path}" \
         {service_name}.yml'.format( # TODO: Figure out how to do this
                                     # conditionally in Ansible.
             user=user,
@@ -121,6 +123,7 @@ def do_custom_service(
             app_name_extravar=app_name_extravar,
             django_app_repository=django_app_repository,
             django_app_git_branch=django_app_git_branch,
+            django_dockerfile_path=django_dockerfile_path,
     )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -324,6 +327,7 @@ def main():
     parser.add_argument("-a", "--app-name", default="")
     parser.add_argument("-R", "--django-app-repository", default="")
     parser.add_argument("-g", "--django-app-git-branch", default="production")
+    parser.add_argument("-j", "--django-dockerfile-path", default="Dockerfile")
     parser.add_argument("-l", "--letsencrypt", action="store_true")
     parser.add_argument("-t", "--test-cert", action="store_true")
     parser.add_argument("-B", "--backup", action="store_true")
@@ -354,6 +358,7 @@ def main():
     app_name = args.app_name
     django_app_repository = args.django_app_repository
     django_app_git_branch = args.django_app_git_branch
+    django_dockerfile_path = args.django_dockerfile_path
     ssl_selfsigned = args.ssl_selfsigned
     letsencrypt = args.letsencrypt
     test_cert = args.test_cert
@@ -423,6 +428,7 @@ def main():
             app_name,
             django_app_repository,
             django_app_git_branch,
+            django_dockerfile_path,
         )
     if ssl_selfsigned:
         do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)

@@ -5,12 +5,10 @@
   git:
     repo: "{{ django_app_repository }}"
     dest: "{{ ansible_env.HOME }}/{{ app_name }}"
-    # TODO: Parameter for this.
     version: "{{ django_app_git_branch }}"
 
 - name: Build the image of our Django app.
-  # TODO: Parameter for where the Dockerfile is located, and from where the image is built
-  raw: "docker build -t {{ app_name }} -f {{ ansible_env.HOME }}/{{ app_name }}/docker/Dockerfile {{ ansible_env.HOME }}/{{ app_name }}"
+  raw: "docker build -t {{ app_name }} -f {{ ansible_env.HOME }}/{{ app_name }}/{{ django_dockerfile_path }} {{ ansible_env.HOME }}/{{ app_name }}"
   ignore_errors: yes
  
 - name: Clean up the code of our app
