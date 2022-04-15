@@ -26,7 +26,6 @@ server {
 	location /media/ {
 		alias {{ django_media_directory }};
 	}
-	# TODO: Parameters for these?
-	client_max_body_size 5m;
-	client_body_buffer_size 16K;
+	client_max_body_size {{ django_max_upload_size }};
+	client_body_buffer_size {{ django_upload_buffer_size }};
 }

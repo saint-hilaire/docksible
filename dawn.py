@@ -95,6 +95,8 @@ def do_custom_service(
     host_domain_env_var_name,
     django_staticfiles_directory,
     django_media_directory,
+    django_max_upload_size,
+    django_upload_buffer_size,
 ):
     if app_name != "":
         app_name_extravar = "app_name="+app_name
@@ -116,7 +118,9 @@ def do_custom_service(
         django_dockerfile_path={django_dockerfile_path} \
         host_domain_env_var_name={host_domain_env_var_name} \
         django_staticfiles_directory={django_staticfiles_directory} \
-        django_media_directory={django_media_directory}" \
+        django_media_directory={django_media_directory} \
+        django_max_upload_size={django_max_upload_size} \
+        django_upload_buffer_size={django_upload_buffer_size}" \
         {service_name}.yml'.format( # TODO: Figure out how to do this
                                     # conditionally in Ansible.
             user=user,
@@ -133,6 +137,8 @@ def do_custom_service(
             host_domain_env_var_name=host_domain_env_var_name,
             django_staticfiles_directory=django_staticfiles_directory,
             django_media_directory=django_media_directory,
+            django_max_upload_size=django_max_upload_size,
+            django_upload_buffer_size=django_upload_buffer_size,
     )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -340,6 +346,8 @@ def main():
     parser.add_argument("-o", "--host-domain-env-var-name", default="HOST_DOMAIN")
     parser.add_argument("-T", "--django-staticfiles-directory")
     parser.add_argument("-m", "--django-media-directory")
+    parser.add_argument("-A", "--django-max-upload-size", default="5m")
+    parser.add_argument("-F", "--django-upload-buffer-size", default="16k")
     parser.add_argument("-l", "--letsencrypt", action="store_true")
     parser.add_argument("-t", "--test-cert", action="store_true")
     parser.add_argument("-B", "--backup", action="store_true")
@@ -402,7 +410,7 @@ def main():
             args.database_root_password,
             args.database_user,
             args.database_password,
-            args.database_name
+            args.database_name,
         )
     if args.custom_service:
         do_custom_service(
@@ -421,6 +429,8 @@ def main():
             args.host_domain_env_var_name,
             args.django_staticfiles_directory,
             args.django_media_directory,
+            args.django_max_upload_size,
+            args.django_upload_buffer_size,
         )
     if args.ssl_selfsigned:
         do_ssl_selfsigned(
