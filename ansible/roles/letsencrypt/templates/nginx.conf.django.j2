@@ -25,4 +25,12 @@ server {
 		# for a given Django app.
 		alias /app/{{ app_name }}/staticfiles/;
 	}
+	location /media/ {
+		# TODO: Parameter for where the media files are stored
+		# for a given Django app.
+		alias /app/{{ app_name }}/media/;
+	}
+	# TODO: Parameters for these?
+	client_max_body_size 5m;
+	client_body_buffer_size 16K;
 }

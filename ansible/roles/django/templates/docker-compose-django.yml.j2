@@ -22,6 +22,9 @@ services:
       # TODO: Parameter for where the static files are stored
       # for a given Django app.
       - static_volume:/app/{{ app_name }}/staticfiles
+      # TODO: Parameter for where the media files are stored
+      # for a given Django app.
+      - media_volume:/app/{{ app_name }}/media
 
   dawn_db:
     image: mysql:8.0
@@ -47,6 +50,9 @@ services:
       # TODO: Parameter for where the static files are stored
       # for a given Django app.
       - static_volume:/app/{{ app_name }}/staticfiles
+      # TODO: Parameter for where the media files are stored
+      # for a given Django app.
+      - media_volume:/app/{{ app_name }}/media
 
   dawn_phpmyadmin:
     depends_on:
@@ -68,3 +74,4 @@ services:
 
 volumes:
   static_volume:
+  media_volume:
