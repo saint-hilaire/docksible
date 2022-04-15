@@ -6,14 +6,17 @@ Note the user and public IP address (or domain name) of that server, then run th
 
 `./dawn.py -h`
 
-- For everything:
+- For a WordPress site:
 
-`./dawn.py -u <USER> -H <HOST> --bootstrap --services --ssl-selfsigned`
+`./dawn.py -U <USER> -H <HOST> --bootstrap --services --ssl-selfsigned`
 
 - You can also do one of `--bootstrap`, `--services` or `--ssl-selfsigned`.
 
+You can now also incorporate a Django or a Redmine installation. See the `--help` flag.  
+To do it with SSL encryption from Letsencrypt, you have to pass the `--service-to-encrypt` and `--port-to-encrypt` flags. In that case, they are `django` and `8000`, and `redmine` and `3000`, respectively.
 
-That command will install Docker and Docker Compose onto the server, and set up the needed containers over there.
+
+This script will install Docker and Docker Compose onto the server, and set up the needed containers over there.
 
 There is a little bit of manual stuff that you need to do on the server:
 Set up a user for new people, where they can log in with a password that we give them, and copy their keys.
@@ -54,11 +57,6 @@ In case Certbot failed, for whatever reason, you can still do it manually:
 - Go back into `dawn_docker_volumes/nginx_data/nginx.conf` and reenable the configurations for port 443 and the SSL certificates. See the file `nginx.conf.j2` in the template directory for the letsencrypt Ansible role for more info.
 - Restart Nginx one more time with the same command as before.
 
-You can now also incorporate a Redmine installation for issue tracking. See the `--help` flag.  
-To do it with SSL encryption from Letsencrypt, you have to pass the `--service-to-encrypt` and `--service-to-encrypt` flags. Do something like this:
-```
-./dawn.py -H 123.123.123.123 -u someuser -P database_root_password -b -l -d some.domain.com -e some.email@domain.com --service-to-encrypt redmine --port-to-encrypt 3000 -R
-```
 
 ## Note for Redmine
 
