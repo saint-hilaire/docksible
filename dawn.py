@@ -166,10 +166,14 @@ def do_letsencrypt(
     host,
     domain,
     email,
-    service_to_encrypt="wordpress",
-    port_to_encrypt="80",
-    test_cert=False,
-    app_name=""
+    service_to_encrypt,
+    port_to_encrypt,
+    test_cert,
+    app_name,
+    django_staticfiles_directory,
+    django_media_directory,
+    django_max_upload_size,
+    django_upload_buffer_size,
 ):
     if test_cert:
         test_cert = "--test-cert"
@@ -187,7 +191,11 @@ def do_letsencrypt(
         --extra-vars "domain={domain} email={email} \
         service_to_encrypt={service_to_encrypt} \
         port_to_encrypt={port_to_encrypt} test_cert={test_cert} \
-        {app_name_extravar}" \
+        {app_name_extravar} \
+        django_staticfiles_directory={django_staticfiles_directory} \
+        django_media_directory={django_media_directory} \
+        django_max_upload_size={django_max_upload_size} \
+        django_upload_buffer_size={django_upload_buffer_size}" \
         letsencrypt.yml'.format(
             user=user, 
             domain=domain,
@@ -195,7 +203,11 @@ def do_letsencrypt(
             service_to_encrypt=service_to_encrypt,
             port_to_encrypt=port_to_encrypt,
             test_cert=test_cert,
-            app_name_extravar=app_name_extravar
+            app_name_extravar=app_name_extravar,
+            django_staticfiles_directory=django_staticfiles_directory,
+            django_media_directory=django_media_directory,
+            django_max_upload_size=django_max_upload_size,
+            django_upload_buffer_size=django_upload_buffer_size,
         )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -452,6 +464,10 @@ def main():
             args.port_to_encrypt,
             args.test_cert,
             args.app_name,
+            args.django_staticfiles_directory,
+            args.django_media_directory,
+            args.django_max_upload_size,
+            args.django_upload_buffer_size,
         )
     if args.backup:
         do_backup(
