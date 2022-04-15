@@ -92,6 +92,7 @@ def do_custom_service(
     django_app_repository,
     django_app_git_branch,
     django_dockerfile_path,
+    host_domain_env_var_name,
 ):
     if app_name != "":
         app_name_extravar = "app_name="+app_name
@@ -110,7 +111,8 @@ def do_custom_service(
         domain={domain} \
         django_app_repository={django_app_repository} \
         django_app_git_branch={django_app_git_branch} \
-        django_dockerfile_path={django_dockerfile_path}" \
+        django_dockerfile_path={django_dockerfile_path} \
+        host_domain_env_var_name={host_domain_env_var_name}" \
         {service_name}.yml'.format( # TODO: Figure out how to do this
                                     # conditionally in Ansible.
             user=user,
@@ -124,6 +126,7 @@ def do_custom_service(
             django_app_repository=django_app_repository,
             django_app_git_branch=django_app_git_branch,
             django_dockerfile_path=django_dockerfile_path,
+            host_domain_env_var_name=host_domain_env_var_name,
     )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -328,6 +331,7 @@ def main():
     parser.add_argument("-R", "--django-app-repository", default="")
     parser.add_argument("-g", "--django-app-git-branch", default="production")
     parser.add_argument("-j", "--django-dockerfile-path", default="Dockerfile")
+    parser.add_argument("-o", "--host-domain-env-var-name", default="HOST_DOMAIN")
     parser.add_argument("-l", "--letsencrypt", action="store_true")
     parser.add_argument("-t", "--test-cert", action="store_true")
     parser.add_argument("-B", "--backup", action="store_true")
@@ -359,6 +363,7 @@ def main():
     django_app_repository = args.django_app_repository
     django_app_git_branch = args.django_app_git_branch
     django_dockerfile_path = args.django_dockerfile_path
+    host_domain_env_var_name = args.host_domain_env_var_name
     ssl_selfsigned = args.ssl_selfsigned
     letsencrypt = args.letsencrypt
     test_cert = args.test_cert
@@ -429,6 +434,7 @@ def main():
             django_app_repository,
             django_app_git_branch,
             django_dockerfile_path,
+            host_domain_env_var_name,
         )
     if ssl_selfsigned:
         do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)
