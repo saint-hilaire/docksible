@@ -9,14 +9,10 @@ server {
 
 	# TODO: Consider doing something similar for /static/admin
 	location /static/ {
-		# TODO: Parameter for where the static files are stored
-		# for a given Django app.
-		alias /app/{{ app_name }}/staticfiles;
+		alias {{ django_staticfiles_directory }};
 	}
 	location /media/ {
-		# TODO: Parameter for where the media files are stored
-		# for a given Django app.
-		alias /app/{{ app_name }}/media;
+		alias {{ django_media_directory }};
 	}
 
         server_name {{ inventory_hostname }};

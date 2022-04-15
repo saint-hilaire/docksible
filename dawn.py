@@ -93,6 +93,8 @@ def do_custom_service(
     django_app_git_branch,
     django_dockerfile_path,
     host_domain_env_var_name,
+    django_staticfiles_directory,
+    django_media_directory,
 ):
     if app_name != "":
         app_name_extravar = "app_name="+app_name
@@ -112,7 +114,9 @@ def do_custom_service(
         django_app_repository={django_app_repository} \
         django_app_git_branch={django_app_git_branch} \
         django_dockerfile_path={django_dockerfile_path} \
-        host_domain_env_var_name={host_domain_env_var_name}" \
+        host_domain_env_var_name={host_domain_env_var_name} \
+        django_staticfiles_directory={django_staticfiles_directory} \
+        django_media_directory={django_media_directory}" \
         {service_name}.yml'.format( # TODO: Figure out how to do this
                                     # conditionally in Ansible.
             user=user,
@@ -127,6 +131,8 @@ def do_custom_service(
             django_app_git_branch=django_app_git_branch,
             django_dockerfile_path=django_dockerfile_path,
             host_domain_env_var_name=host_domain_env_var_name,
+            django_staticfiles_directory=django_staticfiles_directory,
+            django_media_directory=django_media_directory,
     )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -332,6 +338,8 @@ def main():
     parser.add_argument("-g", "--django-app-git-branch", default="production")
     parser.add_argument("-j", "--django-dockerfile-path", default="Dockerfile")
     parser.add_argument("-o", "--host-domain-env-var-name", default="HOST_DOMAIN")
+    parser.add_argument("-T", "--django-staticfiles-directory")
+    parser.add_argument("-m", "--django-media-directory")
     parser.add_argument("-l", "--letsencrypt", action="store_true")
     parser.add_argument("-t", "--test-cert", action="store_true")
     parser.add_argument("-B", "--backup", action="store_true")
@@ -380,6 +388,11 @@ def main():
         exit("Please specify a name and repository for your Django app with \
             the --app-name --django-app-repository flags")
 
+    if args.django_staticfiles_directory is None:
+        args.django_staticfiles_directory = "/app/" + args.app_name + "/staticfiles"
+    if args.django_media_directory is None:
+        args.django_media_directory = "/app/" + args.app_name + "/media"
+
     if args.bootstrap:
         do_bootstrap(args.user, args.host)
     if args.services:
@@ -406,6 +419,8 @@ def main():
             args.django_app_git_branch,
             args.django_dockerfile_path,
             args.host_domain_env_var_name,
+            args.django_staticfiles_directory,
+            args.django_media_directory,
         )
     if args.ssl_selfsigned:
         do_ssl_selfsigned(
