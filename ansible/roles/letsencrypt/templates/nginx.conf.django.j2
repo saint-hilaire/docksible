@@ -21,10 +21,10 @@ server {
                 proxy_set_header X-Real-IP $remote_addr;
         }
 	location /static/ {
-		alias {{ django_staticfiles_directory }};
+		alias {{ django_staticfiles_directory }}/;
 	}
 	location /media/ {
-		alias {{ django_media_directory }};
+		alias {{ django_media_directory }}/;
 	}
 	client_max_body_size {{ django_max_upload_size }};
 	client_body_buffer_size {{ django_upload_buffer_size }};

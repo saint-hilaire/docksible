@@ -9,10 +9,10 @@ server {
 
 	# TODO: Consider doing something similar for /static/admin
 	location /static/ {
-		alias {{ django_staticfiles_directory }};
+		alias {{ django_staticfiles_directory }}/;
 	}
 	location /media/ {
-		alias {{ django_media_directory }};
+		alias {{ django_media_directory }}/;
 	}
 
         server_name {{ inventory_hostname }};
