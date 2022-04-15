@@ -348,117 +348,93 @@ def main():
 
     args = parser.parse_args()
 
-    host = args.host
-    user = args.user
-
-    database_root_password = args.database_root_password
-    database_user = args.database_user
-    database_password = args.database_password
-    database_name = args.database_name
-    bootstrap = args.bootstrap
-    services = args.services
-    custom_service = args.custom_service
-    service_name = args.service_name
-    app_name = args.app_name
-    django_app_repository = args.django_app_repository
-    django_app_git_branch = args.django_app_git_branch
-    django_dockerfile_path = args.django_dockerfile_path
-    host_domain_env_var_name = args.host_domain_env_var_name
-    ssl_selfsigned = args.ssl_selfsigned
-    letsencrypt = args.letsencrypt
-    test_cert = args.test_cert
-    backup = args.backup
-    delete_in_rsync = args.delete_in_rsync
-    path_to_ssh_key = args.path_to_ssh_key
-    local_backup_dest = args.local_backup_dest
-
-    domain = args.domain
-    email = args.email
-
-    service_to_encrypt = args.service_to_encrypt
-    port_to_encrypt = args.port_to_encrypt
 
 
-    if not (bootstrap or services or ssl_selfsigned or letsencrypt or 
-        custom_service or backup
+    if not (args.bootstrap or args.services or args.ssl_selfsigned
+        or args.letsencrypt or args.custom_service or args.backup
     ):
         exit("Please specify an action (--bootstrap, --services, \
             --custom-service, --ssl-selfsigned and/or --letsencrypt)")
 
     # Checking for required arguments
-    if host is None or user is None:
+    if args.host is None or args.user is None:
         exit("Please specify a host and a user.")
 
-    if database_root_password == "db_root_password":
+    if args.database_root_password == "db_root_password":
         print("WARNING! Using default value for database root password: \
             'db_root_password'! This is unsafe in production environments!")
-    if database_user == "db_user":
+    if args.database_user == "db_user":
         print("WARNING! Using default value for database user: 'db_user'! \
             This is unsafe in production environments!")
-    if database_password == "db_password":
+    if args.database_password == "db_password":
         print("WARNING! Using default value for database password: \
             'db_password'! This is unsafe in production environments!")
-    if database_name == "db_name":
+    if args.database_name == "db_name":
         print("WARNING! Using default value for database name: 'db_name'! \
             This is unsafe in production environments!")
 
-    if custom_service and service_name is None:
+    if args.custom_service and args.service_name is None:
         exit("Please specify a service name (--service-name[redmine|django])")
-    elif service_name == "django" and \
-        (app_name == "" or django_app_repository == ""):
+    elif args.service_name == "django" and \
+        (args.app_name == "" or args.django_app_repository == ""):
         exit("Please specify a name and repository for your Django app with \
             the --app-name --django-app-repository flags")
 
-    if bootstrap:
-        do_bootstrap(user, host)
-    if services:
+    if args.bootstrap:
+        do_bootstrap(args.user, args.host)
+    if args.services:
         do_services(
-            user,
-            host,
-            database_root_password,
-            database_user,
-            database_password,
-            database_name
+            args.user,
+            args.host,
+            args.database_root_password,
+            args.database_user,
+            args.database_password,
+            args.database_name
         )
-    if custom_service:
+    if args.custom_service:
         do_custom_service(
-            user,
-            host,
-            domain,
-            database_root_password,
-            database_user,
-            database_password,
-            database_name,
-            service_name,
-            app_name,
-            django_app_repository,
-            django_app_git_branch,
-            django_dockerfile_path,
-            host_domain_env_var_name,
+            args.user,
+            args.host,
+            args.domain,
+            args.database_root_password,
+            args.database_user,
+            args.database_password,
+            args.database_name,
+            args.service_name,
+            args.app_name,
+            args.django_app_repository,
+            args.django_app_git_branch,
+            args.django_dockerfile_path,
+            args.host_domain_env_var_name,
         )
-    if ssl_selfsigned:
-        do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)
-    if letsencrypt:
+    if args.ssl_selfsigned:
+        do_ssl_selfsigned(
+            args.user,
+            args.host,
+            args.service_to_encrypt,
+            args.port_to_encrypt,
+        )
+    if args.letsencrypt:
         do_letsencrypt(
-            user,
-            host,
-            domain,
-            email,
-            service_to_encrypt,
-            port_to_encrypt,
-            test_cert,
-            app_name
+            args.user,
+            args.host,
+            args.domain,
+            args.email,
+            args.service_to_encrypt,
+            args.port_to_encrypt,
+            args.test_cert,
+            args.app_name,
         )
-    if backup:
+    if args.backup:
         do_backup(
-            user,
-            host,
-            path_to_ssh_key,
-            database_user,
-            database_password,
-            database_name,
-            local_backup_dest,
-            delete_in_rsync
+            args.user,
+            args.host,
+            args.path_to_ssh_key,
+            args.database_user,
+            args.database_password,
+            args.database_name,
+            args.local_backup_dest,
+            args.delete_in_rsync
         )
 
 if __name__ == "__main__":
