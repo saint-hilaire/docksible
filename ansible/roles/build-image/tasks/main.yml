@@ -6,7 +6,7 @@
     repo: "{{ django_app_repository }}"
     dest: "{{ ansible_env.HOME }}/{{ app_name }}"
     # TODO: Parameter for this.
-    version: production
+    version: "{{ django_app_git_branch }}"
 
 - name: Build the image of our Django app.
   # TODO: Parameter for where the Dockerfile is located, and from where the image is built

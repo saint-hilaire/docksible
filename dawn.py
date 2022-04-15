@@ -89,7 +89,8 @@ def do_custom_service(
     # (i.e. GitHub), where the repo is hosted, so that the playbook can clone
     # the repository. Possibly also need to load a user's SSH key, if the repo
     # is private. Otherwise, the user needs to do this manually.
-    django_app_repository
+    django_app_repository,
+    django_app_git_branch,
 ):
     if app_name != "":
         app_name_extravar = "app_name="+app_name
@@ -107,6 +108,7 @@ def do_custom_service(
         service_name={service_name} {app_name_extravar} \
         domain={domain} \
         django_app_repository={django_app_repository}" \
+        django_app_git_branch={django_app_git_branch}" \
         {service_name}.yml'.format( # TODO: Figure out how to do this
                                     # conditionally in Ansible.
             user=user,
@@ -117,7 +119,8 @@ def do_custom_service(
             database_name=database_name,
             service_name=service_name,
             app_name_extravar=app_name_extravar,
-            django_app_repository=django_app_repository
+            django_app_repository=django_app_repository,
+            django_app_git_branch=django_app_git_branch,
     )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -320,6 +323,7 @@ def main():
     parser.add_argument("-n", "--service-name")
     parser.add_argument("-a", "--app-name", default="")
     parser.add_argument("-R", "--django-app-repository", default="")
+    parser.add_argument("-g", "--django-app-git-branch", default="production")
     parser.add_argument("-l", "--letsencrypt", action="store_true")
     parser.add_argument("-t", "--test-cert", action="store_true")
     parser.add_argument("-B", "--backup", action="store_true")
@@ -349,6 +353,7 @@ def main():
     service_name = args.service_name
     app_name = args.app_name
     django_app_repository = args.django_app_repository
+    django_app_git_branch = args.django_app_git_branch
     ssl_selfsigned = args.ssl_selfsigned
     letsencrypt = args.letsencrypt
     test_cert = args.test_cert
@@ -417,6 +422,7 @@ def main():
             service_name,
             app_name,
             django_app_repository,
+            django_app_git_branch,
         )
     if ssl_selfsigned:
         do_ssl_selfsigned(user, host, service_to_encrypt, port_to_encrypt)
