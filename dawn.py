@@ -71,10 +71,13 @@ def do_services(user, host, db_root_passwd, db_user, db_passwd, db_name):
     os.system("git restore hosts")
     
 
-# TODO: After deploying a Django app with this, you have to restart its 
-# Docker container. Otherwise, navigating to other pages throws error 500.
-# It seems that the database migration fails to run, but restarting the
-# container fixes that.
+# TODO: This will get a Django app up and running, but it is
+# generally not maintainable. In particular, deploying new code that requires
+# database migrations poses problems. I can't get it to work without deleting
+# the whole database and starting over, which is obviously not acceptable.
+# Therefore, you should only use this for a quick and dirty temporary Django
+# deployment. Don't use this for serious production setups. For that, use a
+# proper PaaS tool.
 def do_custom_service(
     user,
     host,
