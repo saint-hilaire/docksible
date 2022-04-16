@@ -22,5 +22,5 @@ services:
     volumes:
       - "$HOME/dawn_docker_volumes/certbot_data:/etc/letsencrypt"
       - "$HOME/dawn_docker_volumes/{{ service_to_encrypt }}_data:/var/www/html"
-    command: "certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} -d www.{{ domain }} {{ test_cert }}"
+    command: "certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} {{ test_cert }}"
 

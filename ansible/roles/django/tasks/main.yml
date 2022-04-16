@@ -1,0 +1,42 @@
+---
+- name: Create the directory for Docker compose
+  file:
+      path: "{{ ansible_env.HOME }}/dawn"
+      state: directory
+      mode: '0755'
+
+- name: Copy the environment file
+  template:
+      src: ".env"
+      dest: "{{ ansible_env.HOME }}/dawn/.env"
+      owner: "{{ ansible_env.USER }}"
+      group: "{{ ansible_env.USER }}"
+      mode: '0644'
+
+- name: Create the directory tree for Docker volumes
+  file:
+      path: "{{ ansible_env.HOME }}/dawn_docker_volumes/{{ item }}"
+      state: directory
+      mode: '0755'
+  loop: [ 'db_data', 'django_data', 'nginx_data', 'ssh-proxy_data' ]
+
+
+
+- name: Copy the Nginx Configuration
+  template:
+      src: "nginx.conf.j2"
+      dest: "{{ ansible_env.HOME }}/dawn_docker_volumes/nginx_data/nginx.conf"
+      owner: "{{ ansible_env.USER }}"
+      group: "{{ ansible_env.USER }}"
+      mode: '0644'
+
+- name: Load Docker-Compose file for Django
+  template:
+      src: docker-compose-django.yml.j2
+      dest: "$HOME/dawn/docker-compose-django.yml"
+      owner: root
+      group: root
+      mode: '0644'
+
+- name: Run Django
+  raw: "cd $HOME/dawn; docker-compose -f docker-compose-django.yml up -d"

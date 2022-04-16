@@ -1,5 +1,5 @@
 version: "3.9"
-    
+
 services:
 
   dawn_webserver:
@@ -13,6 +13,8 @@ services:
       - "$HOME/dawn_docker_volumes/nginx_data:/etc/nginx/conf.d"
       - "$HOME/dawn_docker_volumes/certbot_data:/etc/letsencrypt"
       - "$HOME/dawn_docker_volumes/{{ service_to_encrypt }}_data:/var/www/html"
+      - static_volume:{{ django_staticfiles_directory }}
+      - media_volume:{{ django_media_directory }}
 
   dawn_certbot:
     depends_on:
@@ -22,5 +24,8 @@ services:
     volumes:
       - "$HOME/dawn_docker_volumes/certbot_data:/etc/letsencrypt"
       - "$HOME/dawn_docker_volumes/{{ service_to_encrypt }}_data:/var/www/html"
-    command: "certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} -d www.{{ domain }} {{ test_cert }}"
+    command: "certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} {{ test_cert }}"
 
+volumes:
+  static_volume:
+  media_volume:

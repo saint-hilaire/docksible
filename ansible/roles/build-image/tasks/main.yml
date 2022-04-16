@@ -1,0 +1,17 @@
+---
+
+# TODO: Parameterize this for SSH-proxy as well?
+- name: Pull the code of our Django app
+  git:
+    repo: "{{ django_app_repository }}"
+    dest: "{{ ansible_env.HOME }}/{{ app_name }}"
+    version: "{{ django_app_git_branch }}"
+
+- name: Build the image of our Django app.
+  raw: "docker build -t {{ app_name }} -f {{ ansible_env.HOME }}/{{ app_name }}/{{ django_dockerfile_path }} {{ ansible_env.HOME }}/{{ app_name }}"
+  ignore_errors: yes
+ 
+- name: Clean up the code of our app
+  file:
+    path: "{{ ansible_env.HOME }}/{{ app_name }}"
+    state: absent
