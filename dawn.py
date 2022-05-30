@@ -95,6 +95,8 @@ def do_custom_service(
     django_app_repository,
     django_app_git_branch,
     django_dockerfile_path,
+    django_secret_key,
+    django_secret_key_var_name,
     host_domain_env_var_name,
     django_staticfiles_directory,
     django_media_directory,
@@ -119,6 +121,8 @@ def do_custom_service(
         django_app_repository={django_app_repository} \
         django_app_git_branch={django_app_git_branch} \
         django_dockerfile_path={django_dockerfile_path} \
+        django_secret_key={django_secret_key} \
+        django_secret_key_var_name={django_secret_key_var_name} \
         host_domain_env_var_name={host_domain_env_var_name} \
         django_staticfiles_directory={django_staticfiles_directory} \
         django_media_directory={django_media_directory} \
@@ -137,6 +141,8 @@ def do_custom_service(
             django_app_repository=django_app_repository,
             django_app_git_branch=django_app_git_branch,
             django_dockerfile_path=django_dockerfile_path,
+            django_secret_key=django_secret_key,
+            django_secret_key_var_name=django_secret_key_var_name,
             host_domain_env_var_name=host_domain_env_var_name,
             django_staticfiles_directory=django_staticfiles_directory,
             django_media_directory=django_media_directory,
@@ -358,6 +364,8 @@ def main():
     parser.add_argument("-R", "--django-app-repository", default="")
     parser.add_argument("-g", "--django-app-git-branch", default="production")
     parser.add_argument("-j", "--django-dockerfile-path", default="Dockerfile")
+    parser.add_argument("-k", "--django-secret-key", default="django-insecure--nmneuq-s^zj%y0ydmb*w9926)p_oc6&0u=7%xx(t*h43j+j8c")
+    parser.add_argument("-K", "--django-secret-key-var-name", default="DJANGO_SECRET_KEY")
     parser.add_argument("-o", "--host-domain-env-var-name", default="HOST_DOMAIN")
     parser.add_argument("-T", "--django-staticfiles-directory")
     parser.add_argument("-m", "--django-media-directory")
@@ -411,6 +419,10 @@ def main():
         exit("Please specify a name and repository for your Django app with \
             the --app-name --django-app-repository flags")
 
+    if args.service_name == "django" and \
+        args.django_secret_key == "django-insecure--nmneuq-s^zj%y0ydmb*w9926)p_oc6&0u=7%xx(t*h43j+j8c":
+        print("WARNING: Using default value for --django-secret-key! This is insecure for production environments!")
+
     if args.django_staticfiles_directory is None:
         args.django_staticfiles_directory = "/app/" + args.app_name + "/staticfiles"
     if args.django_media_directory is None:
@@ -441,6 +453,8 @@ def main():
             args.django_app_repository,
             args.django_app_git_branch,
             args.django_dockerfile_path,
+            args.django_secret_key,
+            args.django_secret_key_var_name,
             args.host_domain_env_var_name,
             args.django_staticfiles_directory,
             args.django_media_directory,

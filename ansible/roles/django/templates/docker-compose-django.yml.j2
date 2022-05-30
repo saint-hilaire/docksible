@@ -16,6 +16,7 @@ services:
       - "DATABASE_PASSWORD=$MYSQL_PASSWORD"
       - "DATABASE_PORT=3306"
       - "{{ host_domain_env_var_name }}={{ domain }}"
+      - "{{ django_secret_key_var_name }}={{ django_secret_key }}"
     volumes:
       - static_volume:{{ django_staticfiles_directory }}
       - media_volume:{{ django_media_directory }}
