@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Run this script on a local machine, to deploy all the resources
-required by your website.
+             _____     __          ___   _ 
+            |  __ \   /\ \        / / \ | |
+            | |  | | /  \ \  /\  / /|  \| |
+            | |  | |/ /\ \ \/  \/ / | . ` |
+            | |__| / ____ \  /\  /  | |\  |
+            |_____/_/    \_\/  \/   |_| \_|
+            -------------------------------
+             Docker Automatic Website Now
+            -------------------------------
 
-Requirements:
-    Local:
-        - Python3
-        - Git
-        - Ansible
-    On the server:
-        - A VPS with all the ports open that you require. These are recommended:
-            - "The usual" 22, 80, 443.
-            - 2222 for the SSH-proxy
-        - SSH-access
+            Set up a dockerized website - a WordPress site or a Django app 
+            (or Redmine for issue tracking), with one single command in your 
+            terminal.
 """
 
 import os
@@ -21,6 +21,13 @@ import textwrap
 import shlex
 from subprocess import run, Popen, PIPE
 from time import sleep
+
+__author__ = "Brian St. Hilailre"
+__copyright__ = "Copyright 2022, Sanctus Technologies UG (haftungsb.)"
+__license__ = "Apache License, Version 2.0"
+__version__ = "1.0"
+__maintainer__ = "Brian St. Hilaire"
+__email__ = "brian.st-hilaire@sanctus-tech.com"
 
 home = os.environ['HOME']
 ansible_playbook_path = home+"/ansible-playbooks/docker_ubuntu1804"
