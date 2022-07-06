@@ -1,52 +1,121 @@
-Get a VPS, for example AWS or Digital Ocean.   
-The VPS needs ports 22 and 2222 open.   
-Note the user and public IP address (or domain name) of that server, then run the deployment script:   
+# DAWN - Docker Automatic Website Now
 
-- To see help:
+## What is this?
 
-`./dawn.py -h`
+This is a script that you can run on your local machine to set up a dockerized website - a WordPress site or a Django app (or Redmine for issue tracking), on a given remote server, with one single command in your terminal. 
+<br>
+The Python wrapper script will, based on the input that you give it, run a series of Ansible playbooks, setting everything up on the server, including a Docker network, managed by Docker Compose, on which your web apps run.
+<br>
+The end effect is that you run a single command in your shell, watch the script run, and when it's done, your site will be running on your new server.
+<br>
 
-- For a WordPress site:
+There are also various other features supported, such as:
 
-`./dawn.py -U <USER> -H <HOST> --bootstrap --services --ssl-selfsigned`
+- Automatic SSL certificates
+- An SSH proxy to port forward your hidden services
+- A hidden FTP server
+- A hidden IRC server
+- Command to copy your server's data to a local backup
 
-- You can also do one of `--bootstrap`, `--services` or `--ssl-selfsigned`.
+## What is this not?
 
-You can now also incorporate a Django or a Redmine installation. See the `--help` flag.  
-To do it with SSL encryption from Letsencrypt, you have to pass the `--service-to-encrypt` and `--port-to-encrypt` flags. In that case, they are `django` and `8000`, and `redmine` and `3000`, respectively.
+This is not a proper PaaS-tool or other infrastructure tool for serious production environments. You can use this to spin up a lightweight Django app, or some smaller clients' WordPress sites, or an off the cuff Redmine installation. It is not recommended, however, to use this in serious enterprise grade production environments
+
+## Installing your web app.
+
+First, you need to get a VPS, from your cloud provider of choice; this script has been tested with Digital Ocean, AWS, and OVH, but it will likely work on any other provider.
+<br>
+The VPS needs to run Ubuntu and you need at least Version 18.
+<br>
+The VPS needs to be reachable on ports 22, 80, and 443; and if you want to use SSH-proxy service for port forwarding (to connect to MySQL/phpMyAdmin, do backups, and some other cool stuff like connecting to a hidden IRC service), then you also need port 2222 open.   
+<br>
+If you are going to use a domain with your web app, which is highly recommended, then you need to log into your domain name registrar, and point the A records to the public IP address of your VPS. **Important:** In WordPress sites, if you are using example.com, you need to point example.com, as well as www.example.com, to your server's public IP address.
+
+<br>
+
+When that is all set up, you can run `dawn.py` to start your web app. For a comprehensive description of all available options, run `dawn.py --help`.
+
+<br>
+
+Setting up a WordPress site could look something like this:
+```
+./dawn.py \
+--user someuser \
+--host example.com  \
+--database-root-password s0me_r00t_p4ssw0rd \
+--database-user some_mysql_user \
+--database-password s0me_d4t4b4s3_p4ssw0rd \
+--database-name wordpress \
+--bootstrap --services \
+--letsencrypt --domain example.com --email you@example.com
+```
+
+Setting up a Django app could look something like this:
+```
+./dawn.py \
+--user someuser \
+--host example.com  \
+--database-root-password s0me_r00t_p4ssw0rd \
+--database-user some_mysql_user \
+--database-password s0me_d4t4b4s3_p4ssw0rd \
+--database-name django \
+--bootstrap --custom-service \
+--service-name django \
+--app-name someapp \
+--django-app-repository git@github.com:/you/someapp \
+--django-app-git-branch production \
+--django-dockerfile-path docker/Dockerfile \
+--django-secret-key somes3cretkeyasdfasdfasfsadfasfd13as2df132s1f32asf \
+--django-secret-key-var-name DJANGO_SECRET_KEY  \
+--host-domain-env-var-name HOST_DOMAIN \
+--django-staticfiles-directory /app/someapp/staticfiles \
+--django-media-directory /app/someapp/media  \
+--letsencrypt --domain example.com --email you@example.com \
+--service-to-encrypt django --port-to-encrypt 8000
+```
+
+After running all that, your site *should* be up and running. It normally works, but if something went wrong, it's usually because something happened with Certbot. Verify that your domains are properly set up, and run the command a second time; that usually does the trick. If it still isn't working, it is recommended that you troubleshoot by passing the  `--test-cert` flag (to avoid exhausting your rate limit with Let's Encrypt), and inspecting your Docker logs.
+
+In a Django app, you will likely want to create a super user to log into the admin. To do that, log into your server, and do something like:
+```
+docker exec -it dawn_django python manage.py createsuperuser
+```
+
+## Using the SSH-Proxy
+When your site is running, the Docker network will include a container which acts as a proxy service. You can connect to that service as the user `proxy_user` on port 2222 on your server. From there, you can port-forward some of your Docker network's hidden services to your local machine. This is useful because the included MySQL and phpMyAdmin services are not publicly exposed. To connect to them, you could do something like this:
+```
+ssh -p 2222 proxy_user@example.com -L 9000:dawn_mysql:3306
+ssh -p 2222 proxy_user@example.com -L 9001:dawn_phpmyadmin:80
+```
+
+Then, you can connect to MySQL with `mysql --user=some_user --password --host=localhost --port=9000 --protocol=TCP`, and phpMyAdmin by navigating to localhost:9001 in a web browser.
+
+**NOTE:** For this to work, you have to manually give the user `proxy_user` an `authorized_keys` file, and make that user into the owner of that file. See https://github.com/saint-hilaire/dawn/issues/3. You have to do something like this:
+```
+sudo cp ~/.ssh/authorized_keys /root/dawn_docker_volumes/ssh-proxy_data/ 
+docker exec  -it dawn_ssh-proxy bash
+chown -R proxy_user /home/proxy_user/
+```
+You only have to do this once initially.
 
 
-This script will install Docker and Docker Compose onto the server, and set up the needed containers over there.
-
-There is a little bit of manual stuff that you need to do on the server:
-Set up a user for new people, where they can log in with a password that we give them, and copy their keys.
-This is on the SSH server **on the host**.
-Switch the SSH configurations to allow/disallow passwords as needed, in `/etc/ssh/sshd_config`
-
-
-The deployment script will pull in the repository for the SSH-proxy, and in there, you should have a 
-directory into which you can copy the `authorized_keys` file, onto which the users will copy their keys, into.
-That should leave you with something like this:
-`$HOME/dawn_docker_volumes/ssh-proxy_data/authorized_keys`
-
-**TODO:** We have to manually fix the permissions of the `authorized_keys` file in the container, but fortunately, we only have to do this the first time.
-`docker exec -it dawn_ssh-proxy bash`
-`chown proxy_user:proxy_user /home/proxy_user/.ssh/authorized_keys`
-
-**TODO** Do this also for the `dawn_ftp` container. Note, there you have to do the whole user directory.  
-`chown -R proxy_user:proxy_user /home/proxy_user/`
+## Making Backups
+You can make a local backup of your site's data with a single command. This requires that the SSH-proxy is set up and working (see previous section). Doing a backup of a WordPress site, which saves a MySQL-Dump of the database, along with the contents of your site's `wp-content/` directory to your local computer, would look something like this:
+```
+./dawn.py  \
+--user someuser \
+--host example.com \
+--database-user some_mysql_user \
+--database-password s0me_d4t4b4s3_p4ssw0rd \
+--database-name wordpress \
+--backup \
+--path-to-ssh-key /home/you/.ssh/somekey_rsa \
+--local-backup-dest /home/you/backups
+```
 
 
-On your local machine:
 
-- For IRC over SSH tunnel:
-
-`ssh -i /home/user/.ssh/private_key -p 2222 -L <LOCAL_PORT>:dawn_ircd:6667 proxy_user@123.123.123.123`, where `<LOCAL_PORT>` is a port that you choose,  such as 9000, then you can connect to the IRC server with your favorite IRC client on `localhost:<LOCAL_PORT>`
-
-- For PhpMyAdmin over SSH tunnel:
-
-`ssh -i /home/user/.ssh/private_key -p 2222 -L <LOCAL_PORT>:dawn_phpmyadmin:80 proxy_user@123.123.123.123`, where `<LOCAL_PORT>` is a port that you choose,  such as 9000
-
+## Note for Certbot
 
 In case Certbot failed, for whatever reason, you can still do it manually:    
 
