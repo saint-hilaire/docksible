@@ -28,6 +28,14 @@ services:
       - "WORDPRESS_DB_USER=$MYSQL_USER"
       - "WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD"
       - "WORDPRESS_DB_NAME={{ db_name }}"
+      - "WORDPRESS_AUTH_KEY={{ wp_auth_key }}"
+      - "WORDPRESS_SECURE_AUTH_KEY={{ wp_secure_auth_key }}"
+      - "WORDPRESS_LOGGED_IN_KEY={{ wp_logged_in_key }}"
+      - "WORDPRESS_NONCE_KEY={{ wp_nonce_key }}"
+      - "WORDPRESS_AUTH_SALT={{ wp_auth_salt }}"
+      - "WORDPRESS_SECURE_AUTH_SALT={{ wp_secure_auth_salt }}"
+      - "WORDPRESS_LOGGED_IN_SALT={{ wp_logged_in_salt }}"
+      - "WORDPRESS_NONCE_SALT={{ wp_nonce_salt }}"
     volumes:
       - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
 

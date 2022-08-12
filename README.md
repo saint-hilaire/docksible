@@ -49,6 +49,16 @@ Setting up a WordPress site could look something like this:
 --bootstrap --services \
 --letsencrypt --domain example.com --email you@example.com
 ```
+Note: For the following parameters, you can also pass your own values. If you don't, Python will generate a randomized value and use that.
+- `--wp-auth-key`
+- `--wp-secure-auth-key`
+- `--wp-logged-in-key`
+- `--wp-nonce-key`
+- `--wp-auth-salt`
+- `--wp-secure-auth-salt`
+- `--wp-logged-in-salt`
+- `--wp-nonce-salt`
+
 
 Setting up a Django app could look something like this:
 ```

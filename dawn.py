@@ -21,6 +21,7 @@ import textwrap
 import shlex
 from subprocess import run, Popen, PIPE
 from time import sleep
+from secrets import token_hex
 
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2022, Sanctus Technologies UG (haftungsb.)"
@@ -61,19 +62,52 @@ def do_bootstrap(user, host):
     # so that it gets caught next time (if the host should change)
     os.system("git restore hosts")
 
-def do_services(user, host, db_root_passwd, db_user, db_passwd, db_name):
+def do_services(
+    user,
+    host,
+    db_root_passwd,
+    db_user,
+    db_passwd,
+    db_name,
+    wp_auth_key,
+    wp_secure_auth_key,
+    wp_logged_in_key,
+    wp_nonce_key,
+    wp_auth_salt,
+    wp_secure_auth_salt,
+    wp_logged_in_salt,
+    wp_nonce_salt
+):
     replace_line_in_file(dawn_path+"/ansible/hosts", "123.123.123.123", 
         host + "    ansible_python_interpreter=/usr/bin/python3")
     os.chdir(dawn_path+"/ansible")
 
     ansible_cmd = 'ansible-playbook -u {user} -i hosts playbook.yml \
         --extra-vars "db_root_passwd={db_root_passwd} \
-        db_user={db_user} db_passwd={db_passwd} db_name={db_name}"'.format(
+        db_user={db_user} \
+        db_passwd={db_passwd} \
+        db_name={db_name} \
+        wp_auth_key={wp_auth_key} \
+        wp_secure_auth_key={wp_secure_auth_key} \
+        wp_logged_in_key={wp_logged_in_key} \
+        wp_nonce_key={wp_nonce_key} \
+        wp_auth_salt={wp_auth_salt} \
+        wp_secure_auth_salt={wp_secure_auth_salt} \
+        wp_logged_in_salt={wp_logged_in_salt} \
+        wp_nonce_salt={wp_nonce_salt}"'.format(
             user=user,
             db_root_passwd=db_root_passwd,
             db_user=db_user,
             db_passwd=db_passwd,
-            db_name=db_name
+            db_name=db_name,
+            wp_auth_key=wp_auth_key,
+            wp_secure_auth_key=wp_secure_auth_key,
+            wp_logged_in_key=wp_logged_in_key,
+            wp_nonce_key=wp_nonce_key,
+            wp_auth_salt=wp_auth_salt,
+            wp_secure_auth_salt=wp_secure_auth_salt,
+            wp_logged_in_salt=wp_logged_in_salt,
+            wp_nonce_salt=wp_nonce_salt
         )
     os.system(ansible_cmd)
     os.system("git restore hosts")
@@ -425,6 +459,30 @@ def main():
         ancillary services, like phpMyAdmin, an SSH proxy for port \
         forwarding, and hidden IRC and FTP services (vestiges of some legacy \
         features of an older version of this script).")
+    parser.add_argument("--wp-auth-key", default="",
+        help="This parameter is passed into WordPress' AUTH_KEY constant. If \
+        left blank, a randomized value will be used.")
+    parser.add_argument("--wp-secure-auth-key", default="",
+        help="This parameter is passed into WordPress' SECURE_AUTH_KEY constant. If \
+        left blank, a randomized value will be used.")
+    parser.add_argument("--wp-logged-in-key", default="",
+        help="This parameter is passed into WordPress' LOGGED_IN_KEY constant. If \
+        left blank, a randomized value will be used.")
+    parser.add_argument("--wp-nonce-key", default="",
+        help="This parameter is passed into WordPress' NONCE_KEY constant. If \
+        left blank, a randomized value will be used.")
+    parser.add_argument("--wp-auth-salt", default="",
+        help="This parameter is passed into WordPress' AUTH_SALT constant. If \
+        left blank, a randomized value will be used.")
+    parser.add_argument("--wp-secure-auth-salt", default="",
+        help="This parameter is passed into WordPress' SECURE_AUTH_SALT constant. If \
+        left blank, a randomized value will be used.")
+    parser.add_argument("--wp-logged-in-salt", default="",
+        help="This parameter is passed into WordPress' LOGGED_IN_SALT constant. If \
+        left blank, a randomized value will be used.")
+    parser.add_argument("--wp-nonce-salt", default="",
+        help="This parameter is passed into WordPress' NONCE_SALT constant. If \
+        left blank, a randomized value will be used.")
     parser.add_argument("-S", "--ssl-selfsigned", action="store_true",
         help="Pass this flag to set up a self-signed SSL certificate.")
     # TODO: We should think about what we really want to do here.
@@ -677,6 +735,21 @@ def main():
     if args.django_media_directory is None:
         args.django_media_directory = "/app/" + args.app_name + "/media"
 
+    wordpress_secure_args = {
+        "wp_auth_key"        : args.wp_auth_key,
+        "wp_secure_auth_key" : args.wp_secure_auth_key,
+        "wp_logged_in_key"   : args.wp_logged_in_key,
+        "wp_nonce_key"       : args.wp_nonce_key,
+        "wp_auth_salt"       : args.wp_auth_salt,
+        "wp_secure_auth_salt": args.wp_secure_auth_salt,
+        "wp_logged_in_salt"  : args.wp_logged_in_salt,
+        "wp_nonce_salt"      : args.wp_nonce_salt,
+    }
+    for key, val in wordpress_secure_args.items():
+        if wordpress_secure_args[key] == "":
+            wordpress_secure_args[key] = token_hex(64)
+
+
     if args.bootstrap:
         do_bootstrap(args.user, args.host)
     if args.services:
@@ -687,6 +760,14 @@ def main():
             args.database_user,
             args.database_password,
             args.database_name,
+            wordpress_secure_args['wp_auth_key'],
+            wordpress_secure_args['wp_secure_auth_key'],
+            wordpress_secure_args['wp_logged_in_key'],
+            wordpress_secure_args['wp_nonce_key'],
+            wordpress_secure_args['wp_auth_salt'],
+            wordpress_secure_args['wp_secure_auth_salt'],
+            wordpress_secure_args['wp_logged_in_salt'],
+            wordpress_secure_args['wp_nonce_salt']
         )
     if args.custom_service:
         do_custom_service(
