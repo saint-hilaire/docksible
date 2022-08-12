@@ -21,7 +21,7 @@ import textwrap
 import shlex
 from subprocess import run, Popen, PIPE
 from time import sleep
-from random import getrandbits
+from secrets import token_hex
 
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2022, Sanctus Technologies UG (haftungsb.)"
@@ -747,7 +747,7 @@ def main():
     }
     for key, val in wordpress_secure_args.items():
         if wordpress_secure_args[key] == "":
-            wordpress_secure_args[key] = getrandbits(128)
+            wordpress_secure_args[key] = token_hex(64)
 
 
     if args.bootstrap:
