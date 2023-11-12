@@ -120,7 +120,7 @@ You can make a local backup of your site's data with a single command. This requ
 --database-name wordpress \
 --backup \
 --path-to-ssh-key /home/you/.ssh/somekey_rsa \
---local-backup-dest /home/you/backups
+--local-backup-dest /home/you/backups/directory-for-your-site
 ```
 
 
@@ -129,9 +129,9 @@ You can make a local backup of your site's data with a single command. This requ
 
 In case Certbot failed, for whatever reason, you can still do it manually:    
 
-- Edit `dawn_docker_volumes/nginx_data/nginx.conf`, get rid of the lines that tell to the server to listen on port 443, and to use any SSL certificates.
-- Restart Nginx with `docker-compose -f docker-compose-certbot.yml restart dawn_webserver`.
-- Verify that Nginx is running with `docker ps`.
+- Edit `dawn_docker_volumes/nginx_data/nginx.conf`, get rid of the line that tells the server to listen on port 443, and to use any SSL certificates. Also copy the block `location ~ /.well-known` to the server block for port 80.
+- Restart Nginx with `docker-compose -f docker-compose-certbot.yml restart dawn_webserver`
+- Verify that Nginx is running with `docker ps`
 - Run the Certbot container with `docker-compose -f docker-compose-certbot.yml up dawn_certbot`
 - Go back into `dawn_docker_volumes/nginx_data/nginx.conf` and reenable the configurations for port 443 and the SSL certificates. See the file `nginx.conf.j2` in the template directory for the letsencrypt Ansible role for more info.
 - Restart Nginx one more time with the same command as before.
