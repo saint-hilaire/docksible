@@ -15,7 +15,7 @@ from ansible_runner import Runner, RunnerConfig
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2022, Sanctus Technologies UG (haftungsb.)"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.1"
+__version__ = "0.2"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
 
