@@ -15,6 +15,13 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+/***************************************************************** 
+    TODO: WARNING! DO NOT USE THIS FILE, BECAUSE IT WILL
+    LIKELY BREAK YOUR REDMINE DATABASE, DEPENDING ON WHICH VERSION
+    YOU ARE USING.
+    THIS WILL BE REMOVED IN A FUTURE VERSION, IN FAVOR OF SOME
+    RUBY ON RAILS DATABASE API.
+******************************************************************/
 --
 -- Table structure for table `ar_internal_metadata`
 --

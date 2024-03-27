@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+    "setuptools>=69.0",
+    "setuptools-scm>=8.0"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docksible"
+version = "0.1.0"
+authors = [
+    {name="Brian St. Hilaire", email="brian.st-hilaire@sanctus-tech.com"}
+]
+description = "Deploy and set up Docker Compose based web apps with Ansible"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "ansible-core",
+    "ansible-runner",
+    "docker",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Framework :: Ansible",
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+]
+
+[project.scripts]
+# TODO: Improve this.
+docksible = "docksible:docksible.main"
+
+[project.urls]
+Homepage = "https://github.com/saint-hilaire/docksible"
+Issues = "https://github.com/saint-hilaire/docksible/issues"
+
+# TODO: It may be possible without the following 2 tables.
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
