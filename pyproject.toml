@@ -17,7 +17,8 @@ requires-python = ">=3.8"
 dependencies = [
     "ansible-core",
     "ansible-runner",
-    "docker",
+    # "docker",
+    "fqdn",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

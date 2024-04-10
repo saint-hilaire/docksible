@@ -1,6 +1,10 @@
 import os
 import argparse
-import textwrap
+
+# TODO: Won't need this, after we have "The Library".
+from sys import path as sys_path
+
+from getpass import getpass
 from ansible_runner import Runner, RunnerConfig
 
 # Shouldn't need these.
@@ -11,6 +15,12 @@ from ansible_runner import Runner, RunnerConfig
 # Will probably need this later.
 # from secrets import token_hex
 
+# TODO: This will need to be improved!
+# I copy-pasted from another project, but I want to that stuff
+# in a dedicated library - that's what the other comments
+# about "The Library" are about.
+from docksible.constants import *
+from docksible.arg_validator import ArgValidator
 
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2022, Sanctus Technologies UG (haftungsb.)"
@@ -18,9 +28,6 @@ __license__ = "Apache License, Version 2.0"
 __version__ = "0.2"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
-
-USER_HOME_DIR = os.path.expanduser('~')
-DEFAULT_PRIVATE_DATA_DIR = os.path.join(USER_HOME_DIR, '.docksible')
 
 
 # TODO
@@ -37,17 +44,45 @@ def prepare_inventory(user, host):
     return '{}@{},'.format(user, host)
 
 
+# TODO: Copy-pasted from Lampsible.
+# We need "The Library" for stuff like this.
+def init_project_dir(project_dir):
+    if project_dir == '':
+        return find_package_project_dir()
+    return project_dir
+
+
+def find_package_project_dir():
+    for path_str in sys_path:
+        try:
+            try_path = os.path.join(path_str, 'docksible', 'project')
+            assert os.path.isdir(try_path)
+            return try_path
+        except AssertionError:
+            pass
+    raise RuntimeError("Got no user supplied --project-dir, and could not find one in expected package location. Your Docksible installation is likely broken. However, if you are running this code directly from source, this is expected behavior. You probably forgot to pass the '--project-dir' flag. The directoy you're looking for is 'src/docksible/project/'.")
+
+
 # TODO: Refactor this into the library - see Lampsible.
 # Obviously, improve this!
 def cleanup_private_data_dir(path):
     os.system('rm -r ' + path)
 
 
-# @deprecated
-def do_bootstrap(user, host):
-    pass
+# TODO: Copypasted from Lampsible. This also belongs in "The Library".
+def get_pass_and_check(prompt, min_length):
+    password = getpass(prompt)
+    while len(password) < min_length:
+        password = getpass('That password is too short. Please enter another password: ')
+    double_check = getpass('Please retype password: ')
+    if password == double_check:
+        return password
+    else:
+        print('Passwords don\'t match. Please try again.')
+        return get_pass_and_check(prompt, min_length)
 
 
+# This is basically WordPress, and also IRC and FTP on the side...
 def do_services(
     user,
     host,
@@ -348,24 +383,13 @@ def proxy_connection(
 
 def main():
 
-    dawn_banner = """\
-             _____     __          ___   _ 
-            |  __ \   /\ \        / / \ | |
-            | |  | | /  \ \  /\  / /|  \| |
-            | |  | |/ /\ \ \/  \/ / | . ` |
-            | |__| / ____ \  /\  /  | |\  |
-            |_____/_/    \_\/  \/   |_| \_|
-            -------------------------------
-             Docker Automatic Website Now
-            -------------------------------
-    """
     parser = argparse.ArgumentParser(
         prog='docksible',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=textwrap.dedent(dawn_banner + """\
+        # formatter_class=argparse.RawDescriptionHelpFormatter,
+        # description=textwrap.dedent(dawn_banner + """\
 
-            Set up a dockerized website - a WordPress site or a Django app (or Redmine for issue tracking), with one single command in your terminal. 
-            """),
+        #     Set up a dockerized website - a WordPress site or a Django app (or Redmine for issue tracking), with one single command in your terminal. 
+        #     """),
             # To set up a WordPress site:
 
             # ./dawn.py \\
@@ -422,26 +446,36 @@ def main():
         epilog='Work in progress...'
     )
 
-    parser.add_argument('user')
-    parser.add_argument('host')
-    # TODO: Put this back in later.
-    # parser.add_argument('action', choices=[
-    #         'basic-docker-compose',
-    #     ],
-    #     default='basic-docker-compose'
-    # )
-    # TODO: Should be optional in the future, but for now, we need it.
-    parser.add_argument('--project-dir', '-p', required=True)
+    parser.add_argument('user', help="The user as whom you \
+        (or rather, Ansible) will SSH into the server. For example: \
+        root, azureuser, etc.")
+    parser.add_argument('host', help="The server on which you deploy \
+        your web service. For example: 123.123.123.123 or example.com")
+    parser.add_argument('action', choices=[
+        'setup-docker-compose',
+        'redmine',
+        'wordpress',
+    ])
+
+    parser.add_argument('--ask-remote-sudo', action='store_true')
+    parser.add_argument('--insecure-cli-password', action='store_true')
+    parser.add_argument('--remote-sudo-password')
+    parser.add_argument('--database-root-password')
+    parser.add_argument('--database-username')
+    parser.add_argument('--database-password')
+    parser.add_argument('--database-name')
+    parser.add_argument('--database-table-prefix')
+    parser.add_argument('--letsencrypt', '-l', action='store_true')
+    parser.add_argument('--domain', '-d')
+    parser.add_argument('--email',  '-e')
+    parser.add_argument('--test-cert', '-t', action='store_true')
+
+    parser.add_argument('--project-dir', '-p', default='')
 
     ##########################################
     # TODO Refactor this entire application! #
     ##########################################
 
-    # parser.add_argument("-H", "--host", help="The server on which you deploy \
-    #     your web service. For example: 123.123.123.123 or example.com")
-    # parser.add_argument("-U", "--user", help="The user as whom you \
-    #     (or rather, Ansible) will SSH into the server. For example: \
-    #     root, azureuser, or ubuntu")
 
     # parser.add_argument("-P", "--database-root-password",
     #     default="db_root_password", help="The database root password")
@@ -456,15 +490,6 @@ def main():
     #     help="The database password. Used for setting \
     #     up MySQL initially, and for connecting your web app with the \
     #     database.")
-    # parser.add_argument("-b", "--bootstrap", action="store_true",
-    #     help="Pass this flag if you have a brand new and fresh server. This \
-    #     flag will install Docker Compose on your server, so that you can \
-    #     install the other services supported by this script.")
-    # parser.add_argument("-s", "--services", action="store_true",
-    #     help="This flag will set up a WordPress site, along with some \
-    #     ancillary services, like phpMyAdmin, an SSH proxy for port \
-    #     forwarding, and hidden IRC and FTP services (vestiges of some legacy \
-    #     features of an older version of this script).")
     # parser.add_argument("--wp-auth-key", default="",
     #     help="This parameter is passed into WordPress' AUTH_KEY constant. If \
     #     left blank, a randomized value will be used.")
@@ -682,14 +707,50 @@ def main():
 
     args = parser.parse_args()
 
-    print(dawn_banner)
+    validator = ArgValidator(args)
+    if validator.validate_args() != 0:
+        print('FATAL! Bad args')
+        return 1
+    args = validator.get_args()
+
 
     private_data_dir = init_private_data_dir()
+    project_dir = init_project_dir(args.project_dir)
+    inventory = prepare_inventory(args.user, args.host)
+    
+    # TODO: Improve this validation - this is just rudimentary.
+    # if args.action == 'redmine':
+    #     database_root_password = get_pass_and_check(
+    #         'Please enter a database root password',
+    #         7
+    #     )
+    # else:
+    #     database_root_password = None
+
+    playbook = '{}.yml'.format(args.action)
+
+    extravars = {
+        'database_root_password': args.database_root_password,
+        'database_username': args.database_username,
+        'database_password': args.database_password,
+        'database_name': args.database_name,
+        # TODO: This is an antipattern. Normally this variable would
+        # be supplied by Ansible, but we're not doing inventories
+        # completely the right way, which would be a little tricky.
+        # (So ansible_host equals 'user@server' when I just want it to be
+        # 'server')
+        # See the large essay I wrote in the comment in the function
+        # prepare_inventory in Lampsible.
+        'server_name': args.host,
+    }
+
+    if args.action == 'wordpress':
+        extravars['wordpress_auth_vars'] = validator.get_wordpress_auth_vars()
 
     rc = RunnerConfig(
         private_data_dir=private_data_dir,
-        project_dir=args.project_dir,
-        inventory=prepare_inventory(args.user, args.host),
+        project_dir=project_dir,
+        inventory=inventory,
         # TODO: Something like this would be the better way to do this.
         # Not only should we take it from Lampsible, but we should write
         # some small library for this type of stuff, and then use that in
@@ -697,12 +758,55 @@ def main():
         # project_dir=init_project_dir(),
 
         # TODO: Improve this.
-        playbook='basic-docker-compose.yml'
+        playbook=playbook,
+        extravars=extravars
     )
 
     rc.prepare()
     r = Runner(config=rc)
     r.run()
+
+    if args.letsencrypt:
+
+        # TODO: Validation...
+        if args.domain is None:
+            args.domain = args.host
+
+        while args.email is None:
+            args.email = input('Please enter an email address: ')
+
+        # TODO: This is very rudimentary! In the future, we shouldn't
+        # need to run a second play for this. Instead, do it all in one go.
+
+        if args.action == 'redmine':
+            port_to_encrypt = '3000'
+        else:
+            port_to_encrypt = '80'
+
+        rc = RunnerConfig(
+            private_data_dir=private_data_dir,
+            project_dir=project_dir,
+            inventory=inventory,
+            # TODO: Something like this would be the better way to do this.
+            # Not only should we take it from Lampsible, but we should write
+            # some small library for this type of stuff, and then use that in
+            # Lampsible and in this application as well.
+            # project_dir=init_project_dir(),
+
+            # TODO: Improve this.
+            playbook='letsencrypt.yml',
+            extravars={
+                'domain': args.domain,
+                'email':  args.email,
+                'service_to_encrypt': args.action,
+                'port_to_encrypt':    port_to_encrypt,
+                'test_cert': '--test-cert' if args.test_cert else ' ',
+            }
+        )
+
+        rc.prepare()
+        r = Runner(config=rc)
+        r.run()
 
     cleanup_private_data_dir(private_data_dir)
 

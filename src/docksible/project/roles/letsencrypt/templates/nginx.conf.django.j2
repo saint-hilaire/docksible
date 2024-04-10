@@ -1,0 +1,31 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {{ domain }} www.{{ domain }};
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name {{ domain }} www.{{ domain }};
+    location ~ /.well-known/ {
+        allow all;
+        root /var/www/html;
+    }
+    ssl_certificate /etc/letsencrypt/live/{{ domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ domain }}/privkey.pem;
+    location / {
+        proxy_pass  http://docksible_{{ service_to_encrypt }}:{{ port_to_encrypt }};
+        proxy_set_header Host      $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    location /static/ {
+        alias {{ django_staticfiles_directory }}/;
+    }
+    location /media/ {
+        alias {{ django_media_directory }}/;
+    }
+    client_max_body_size {{ django_max_upload_size }};
+    client_body_buffer_size {{ django_upload_buffer_size }};
+}

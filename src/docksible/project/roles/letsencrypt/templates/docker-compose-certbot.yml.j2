@@ -1,0 +1,26 @@
+version: "3.3"
+    
+services:
+
+  docksible_webserver:
+    image: nginx:latest
+    container_name: docksible_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/docksible-volumes/nginx_data:/etc/nginx/conf.d"
+      - "$HOME/docksible-volumes/certbot_data:/etc/letsencrypt"
+      - "$HOME/docksible-volumes/{{ service_to_encrypt }}_data:/var/www/html"
+
+  docksible_certbot:
+    depends_on:
+      - docksible_webserver
+    image: certbot/certbot
+    container_name: docksible_certbot
+    volumes:
+      - "$HOME/docksible-volumes/certbot_data:/etc/letsencrypt"
+      - "$HOME/docksible-volumes/{{ service_to_encrypt }}_data:/var/www/html"
+    command: "certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} -d www.{{ domain }} {{ test_cert }}"
+

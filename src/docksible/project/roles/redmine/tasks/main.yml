@@ -1,0 +1,34 @@
+---
+- name: Create the directory for Docker compose
+  file:
+    path: "{{ ansible_env.HOME }}/docksible"
+    state: directory
+    mode: '0755'
+
+- name: Create the directory tree for Docker volumes
+  file:
+    path: "{{ ansible_env.HOME }}/docksible-volumes/{{ item }}"
+    state: directory
+    mode: '0755'
+                                                   # TODO: Do the proxy service also??!
+  # TODO: dashes in filepaths
+  loop: [ 'db_data', 'redmine_data', 'nginx_data', 'ssh-proxy_data' ]
+
+- name: Copy the Nginx Configuration
+  template:
+      src: "nginx.conf.j2"
+      dest: "{{ ansible_env.HOME }}/docksible-volumes/nginx_data/nginx.conf"
+      owner: "{{ ansible_env.USER }}"
+      group: "{{ ansible_env.USER }}"
+      mode: '0644'
+
+- name: Load Docker-Compose file for Redmine
+  template:
+      src: docker-compose-redmine.yml.j2
+      dest: "$HOME/docksible/docker-compose-redmine.yml"
+      owner: root
+      group: root
+      mode: '0644'
+
+- name: Run Redmine
+  raw: "cd $HOME/docksible; docker-compose -f docker-compose-redmine.yml up -d"

@@ -1,0 +1,7 @@
+---
+
+# TODO: This needs to be improved.
+- name: Pull the SSH-proxy from Github
+  git:
+    repo: "https://github.com/sanctus91/simple-docker-ssh-proxy.git"
+    dest: "{{ ansible_env.HOME }}/ssh-proxy"

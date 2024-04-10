@@ -1,0 +1,111 @@
+---
+- name: Prepare directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "$HOME/docksible-volumes/certbot_data"
+    - "$HOME/docksible-volumes/{{ service_to_encrypt }}_data"
+
+- name: Delete unneeded directories
+  file:
+      path: "{{ item }}"
+      state: absent
+  loop:
+      - "$HOME/docksible-volumes/nginx_data/ssl/certs"
+      - "$HOME/docksible-volumes/nginx_data/ssl/private"
+      - "$HOME/docksible-volumes/nginx_data/ssl/csr"
+      - "$HOME/docksible-volumes/nginx_data/snippets"
+
+
+# TODO: Figure out a better way to handle this conditional:
+#       For WordPress, we need the domain also with www. in front,
+#       For other services (Redmine, Django) the
+#       www. will break Certbot.
+- name: Load Docker-Compose file for Certbot
+  template:
+      # TODO: Rename this file to something like "-with-www"?
+      # Depending on whether www before URLs is standard or not...
+      src: docker-compose-certbot.yml.j2
+      dest: "$HOME/docksible/docker-compose-certbot.yml"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt == "wordpress"
+#
+- name: Load Docker-Compose file for Certbot
+  template:
+      src: docker-compose-certbot-django.yml.j2
+      dest: "$HOME/docksible/docker-compose-certbot.yml"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt == "django"
+#
+#
+- name: Load Docker-Compose file for Certbot
+  template:
+      src: docker-compose-certbot-no-www.yml.j2
+      dest: "$HOME/docksible/docker-compose-certbot.yml"
+      owner: root
+      group: root
+      mode: '0644'
+  # TODO: Make this more like an "else".
+  when: service_to_encrypt == "redmine"
+#
+###
+
+- name: Load preliminary Nginx Configuration, with domain set up, but no SSL stuff
+  template:
+      src: nginx.conf.1.j2
+      dest: "$HOME/docksible-volumes/nginx_data/nginx.conf"
+      owner: root
+      group: root
+      mode: '0644'
+
+- name: Adjust and restart webserver
+  raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
+
+- name: Give the Nginx container 10 seconds to start up.
+  pause:
+      seconds: 10
+
+- name: Run Certbot
+  raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml up docksible_certbot"
+
+
+- name: Load new Nginx Configuration, which uses the new certificate
+  template:
+      src: nginx.conf.j2
+      dest: "$HOME/docksible-volumes/nginx_data/nginx.conf"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt != "django"
+- name: Load new Nginx Configuration, which uses the new certificate
+  template:
+      src: nginx.conf.django.j2
+      dest: "$HOME/docksible-volumes/nginx_data/nginx.conf"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt == "django"
+      
+- name: Wait another 5 seconds.
+  pause:
+      seconds: 5
+
+- name: Restart Nginx
+  raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
+
+- name: Force WordPress to use HTTPS
+  template:
+      src: wp-config.php
+      dest: "$HOME/docksible-volumes/wordpress_data/wp-config.php"
+      owner: root
+      group: root
+      mode: '0644'
+  when: service_to_encrypt == "wordpress"
