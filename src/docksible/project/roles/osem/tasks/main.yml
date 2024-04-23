@@ -1,0 +1,53 @@
+---
+- name: Create the directory for Docker compose
+  file:
+    path: "{{ ansible_env.HOME }}/docksible"
+    state: directory
+    mode: '0755'
+
+# TODO: According to docker-compose docs, it should be possible to build
+# directly from a remote repository, but I can't get it to work - so we
+# need it locally.
+- name: Get the OSEM code
+  git:
+    repo: 'https://github.com/openSUSE/osem'
+    dest: "$HOME/osem"
+
+- name: Create the directory tree for Docker volumes
+  file:
+    path: "{{ ansible_env.HOME }}/docksible-volumes/{{ item }}"
+    state: directory
+    mode: '0755'
+                                                   # TODO: Do the proxy service also??!
+  # TODO: dashes in filepaths
+  loop: [ 'db_data', 'osem_data', 'nginx_data', 'ssh-proxy_data' ]
+
+- name: Copy the Nginx Configuration
+  template:
+      src: "nginx.conf.j2"
+      dest: "{{ ansible_env.HOME }}/docksible-volumes/nginx_data/nginx.conf"
+      owner: "{{ ansible_env.USER }}"
+      group: "{{ ansible_env.USER }}"
+      mode: '0644'
+
+- name: Load Docker-Compose file for OSEM
+  template:
+      src: docker-compose-osem.yml.j2
+      dest: "$HOME/docksible/docker-compose-osem.yml"
+      owner: root
+      group: root
+      mode: '0644'
+ 
+# This is more involved - see https://github.com/openSUSE/osem/blob/master/INSTALL.md
+- name: Build OSEM
+  raw: "cd $HOME/docksible; docker-compose -f docker-compose-osem.yml build"
+  ignore_errors: true
+
+# TODO: Not working because postgres fails to start.
+- name: Set up OSEM database
+  raw: "cd $HOME/docksible; docker-compose -f docker-compose-osem.yml run --rm docksible_osem bundle exec rake db:bootstrap"
+  ignore_errors: true
+
+- name: Run OSEM
+  raw: "cd $HOME/docksible; docker-compose -f docker-compose-osem.yml up -d"
+  ignore_errors: true

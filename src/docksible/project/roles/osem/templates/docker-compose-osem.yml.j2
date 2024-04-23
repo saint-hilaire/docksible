@@ -1,0 +1,72 @@
+version: "3.3"
+    
+services:
+
+  docksible_osem:
+    # TODO: According to docs, it should be possible to specify
+    # a remote repository, but I can't get it to work.
+    build:
+      context: ../osem
+      dockerfile: Dockerfile.production
+    depends_on:
+      - docksible_db
+    container_name: docksible_osem
+    # restart: always
+    environment:
+      SECRET_KEY_BASE: {{ osem_secret_key_base }}
+      OSEM_DB_ADAPTER: postgresql
+      OSEM_DB_HOST: docksible_db
+      OSEM_DB_PORT: 5432
+      OSEM_DB_PASSWORD: {{ database_password }}
+      OSEM_DB_NAME: {{ database_name }}
+    command: foreman start -p 3000
+    volumes:
+      - osem_production_web_data:/osem/public/system
+      - osem_production_web_assets:/osem/public/assets
+      - osem_production_web_logs:/osem/log
+
+  docksible_db:
+    image: postgres:12-alpine
+    container_name: docksible_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: {{ database_password }}
+      POSTGRES_DB: {{ database_name}}
+    volumes:
+      - osem_production_database:/var/lib/postgresql/data/pgdata
+
+  docksible_webserver:
+    image: nginx:latest
+    container_name: docksible_webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$HOME/docksible-volumes/nginx_data:/etc/nginx/conf.d"
+      # TODO: This "WordPress volume" is needed for Certbot?
+      - "$HOME/docksible-volumes/wordpress_data:/var/www/html"
+
+  # docksible_phpmyadmin:
+  #   depends_on:
+  #     - docksible_db
+  #   image: phpmyadmin
+  #   container_name: docksible_phpmyadmin
+  #   restart: unless-stopped
+  #   environment:
+  #     - "PMA_HOST=docksible_db"
+
+  # docksible_ssh-proxy:
+  #   build: "$HOME/ssh-proxy"
+  #   ports:
+  #           - "2222:22"
+  #   volumes:
+  #           - "$HOME/docksible-volumes/ssh-proxy_data:/home/proxy_user/.ssh"
+  #   restart: always
+  #   container_name: docksible_ssh-proxy
+
+volumes:
+  osem_production_database:
+  osem_production_web_data:
+  osem_production_web_assets:
+  osem_production_web_logs:
