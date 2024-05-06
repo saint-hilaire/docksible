@@ -225,6 +225,20 @@ class ArgValidator():
                 True
             )
 
+        if self.args.action == 'backup':
+            self.handle_defaults([
+                {
+                    'arg_name': 'database_name',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_DATABASE_NAME,
+                },
+                {
+                    'arg_name': 'database_username',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_DATABASE_USERNAME,
+                },
+            ], True, True)
+
         if self.args.database_username and not self.args.database_password:
             self.args.database_password = self.get_pass_and_check(
                 'Please enter a database password: ',
