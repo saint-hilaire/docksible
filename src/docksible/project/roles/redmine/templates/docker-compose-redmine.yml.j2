@@ -13,7 +13,7 @@ services:
       - seccomp:unconfined
 
   docksible_db:
-    image: mysql:latest
+    image: mysql:8.3
     container_name: docksible_db
     restart: always
     environment:

@@ -10,5 +10,6 @@ server {
         proxy_pass  http://docksible_{{ service_to_encrypt}}:{{ port_to_encrypt }};
         proxy_set_header Host      $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
