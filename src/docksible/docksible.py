@@ -1,24 +1,15 @@
 import os
 import argparse
-
-# TODO: Won't need this, after we have "The Library".
 from sys import path as sys_path
-
 from getpass import getpass
 from ansible_runner import Runner, RunnerConfig
+from ansible_directory_helper.private_data import PrivateData
 
 # Shouldn't need these.
 import shlex
 from subprocess import run, Popen, PIPE
 from time import sleep
 
-# Will probably need this later.
-# from secrets import token_hex
-
-# TODO: This will need to be improved!
-# I copy-pasted from another project, but I want to that stuff
-# in a dedicated library - that's what the other comments
-# about "The Library" are about.
 from docksible.constants import *
 from docksible.arg_validator import ArgValidator
 
@@ -28,28 +19,6 @@ __license__ = "Apache License, Version 2.0"
 __version__ = "0.4.0"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
-
-
-# TODO
-def init_private_data_dir():
-    try:
-        os.makedirs(DEFAULT_PRIVATE_DATA_DIR)
-    except FileExistsError:
-        pass
-    return DEFAULT_PRIVATE_DATA_DIR
-
-
-# TODO: Refactor this into the library - see Lampsible.
-def prepare_inventory(user, host):
-    return '{}@{},'.format(user, host)
-
-
-# TODO: Copy-pasted from Lampsible.
-# We need "The Library" for stuff like this.
-def init_project_dir(project_dir):
-    if project_dir == '':
-        return find_package_project_dir()
-    return project_dir
 
 
 def find_package_project_dir():
@@ -63,13 +32,6 @@ def find_package_project_dir():
     raise RuntimeError("Got no user supplied --project-dir, and could not find one in expected package location. Your Docksible installation is likely broken. However, if you are running this code directly from source, this is expected behavior. You probably forgot to pass the '--project-dir' flag. The directoy you're looking for is 'src/docksible/project/'.")
 
 
-# TODO: Refactor this into the library - see Lampsible.
-# Obviously, improve this!
-def cleanup_private_data_dir(path):
-    os.system('rm -r ' + path)
-
-
-# TODO: Copypasted from Lampsible. This also belongs in "The Library".
 def get_pass_and_check(prompt, min_length):
     password = getpass(prompt)
     while len(password) < min_length:
@@ -213,7 +175,6 @@ def main():
     parser.add_argument('--domain', '-d')
     parser.add_argument('--email',  '-e')
     parser.add_argument('--test-cert', '-t', action='store_true')
-    parser.add_argument('--project-dir', '-p', default='')
     parser.add_argument('--version', '-V', action='version', version=__version__)
 
     args = parser.parse_args()
@@ -225,10 +186,18 @@ def main():
     args = validator.get_args()
 
 
-    private_data_dir = init_private_data_dir()
-    project_dir = init_project_dir(args.project_dir)
-    inventory = prepare_inventory(args.user, args.host)
-    
+    private_data_dir = DEFAULT_PRIVATE_DATA_DIR
+    project_dir = find_package_project_dir()
+
+    private_data_obj = PrivateData(private_data_dir)
+
+    private_data_obj.add_inventory_groups([
+        'all',
+    ])
+    private_data_obj.add_inventory_host(args.host, 'all')
+    private_data_obj.set_inventory_ansible_user(args.host, args.user)
+    private_data_obj.write_inventory()
+
     # TODO: Improve this validation - this is just rudimentary.
     # if args.action == 'redmine':
     #     database_root_password = get_pass_and_check(
@@ -256,14 +225,9 @@ def main():
             'database_username': args.database_username,
             'database_password': args.database_password,
             'database_name': args.database_name,
-            # TODO: This is an antipattern. Normally this variable would
-            # be supplied by Ansible, but we're not doing inventories
-            # completely the right way, which would be a little tricky.
-            # (So ansible_host equals 'user@server' when I just want it to be
-            # 'server')
-            # See the large essay I wrote in the comment in the function
-            # prepare_inventory in Lampsible.
-            'server_name': args.host,
+            # TODO: Don't need this anymore because now we fixed the antipattern
+            # so we can just use 'ansible_host' in our playbook?
+            # 'server_name': args.host,
         }
 
         if args.action == 'wordpress':
@@ -272,13 +236,6 @@ def main():
         rc = RunnerConfig(
             private_data_dir=private_data_dir,
             project_dir=project_dir,
-            inventory=inventory,
-            # TODO: Something like this would be the better way to do this.
-            # Not only should we take it from Lampsible, but we should write
-            # some small library for this type of stuff, and then use that in
-            # Lampsible and in this application as well.
-            # project_dir=init_project_dir(),
-
             # TODO: Improve this.
             playbook=playbook,
             extravars=extravars
@@ -308,13 +265,6 @@ def main():
         rc = RunnerConfig(
             private_data_dir=private_data_dir,
             project_dir=project_dir,
-            inventory=inventory,
-            # TODO: Something like this would be the better way to do this.
-            # Not only should we take it from Lampsible, but we should write
-            # some small library for this type of stuff, and then use that in
-            # Lampsible and in this application as well.
-            # project_dir=init_project_dir(),
-
             # TODO: Improve this.
             playbook='letsencrypt.yml',
             extravars={
@@ -330,7 +280,7 @@ def main():
         r = Runner(config=rc)
         r.run()
 
-    cleanup_private_data_dir(private_data_dir)
+    private_data_obj.cleanup_dir()
 
     return 0
 

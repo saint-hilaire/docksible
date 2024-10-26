@@ -1,8 +1,3 @@
-# TODO: This will need to be improved!
-# I copy-pasted from another project, but I want to that stuff
-# in a dedicated library - that's what the other comments
-# about "The Library" are about.
-
 from re import match
 from copy import copy
 from secrets import token_hex
