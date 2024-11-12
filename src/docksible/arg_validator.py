@@ -1,6 +1,5 @@
 from re import match
 from copy import copy
-from secrets import token_hex
 from warnings import warn
 from getpass import getpass
 from fqdn import FQDN
@@ -11,71 +10,16 @@ INSECURE_CLI_PASS_WARNING = 'It\'s insecure to pass passwords via CLI args! If y
 class ArgValidator():
 
     def __init__(self, args):
-        self.args = args
+        self.raw_args       = args
+        self.validated_args = args
 
 
-    def get_args(self):
-        return self.args
+    def get_raw_args(self):
+        return self.raw_args
 
 
-    # TODO?
-    def get_wordpress_auth_vars(self):
-        auth_var_names = [
-            'auth_key',
-            'secure_auth_key',
-            'logged_in_key',
-            'nonce_key',
-            'auth_salt',
-            'secure_auth_salt',
-            'logged_in_salt',
-            'nonce_salt',
-        ]
-        auth_vars = {}
-
-        for var in auth_var_names:
-            # must_generate = False
-            # warn_user     = False
-
-            # if not getattr(self.args, 'wordpress_{}'.format(var)):
-            #     must_generate = True
-            # elif len(getattr(self.args, 'wordpress_{}'.format(var))) < 32:
-            #     must_generate = True
-            #     warn_user     = True
-
-            # if must_generate:
-            #     auth_vars[var.upper()] = token_hex(64)
-            # else:
-            #     auth_vars[var.upper()] = getattr(
-            #         self.args,
-            #         'wordpress_{}'.format(var)
-            #     )
-
-            # if warn_user:
-            #     print('The value you passed for {} is too short! I will automatically generate a value for you, and use that. If in doubt, you should leave this argument blank, to use automatically generated values. See the file wp-config.php on your server.'.format(
-            #         self.var_name_to_cli_arg('wordpress_{}'.format(var))
-            #     ))
-
-            # TODO: In the future, let the user optionally define these
-            # values, using the old commented out code above from Lampsible,
-            # which we shouldn't be copy-pasting around like this anyway,
-            # but for now, always generate it automatically...
-            auth_vars['WORDPRESS_{}'.format(var.upper())] = token_hex(64)
-
-
-        return auth_vars
-
-
-    # TODO?
-    def get_certbot_domains_string(self):
-        try:
-            return '-d {}'.format(' -d '.join(self.args.domains_for_ssl))
-        except TypeError:
-            return ''
-
-
-    # TODO?
-    def get_certbot_test_cert_string(self):
-        return '--test-cert' if self.args.test_cert else ''
+    def get_validated_args(self):
+        return self.validated_args
 
 
     # TODO?
@@ -121,7 +65,7 @@ class ArgValidator():
                 default_value = arg_dict['override_default_value']
             except KeyError:
                 default_value = arg_dict['cli_default_value']
-            user_value = getattr(self.args, arg_dict['arg_name'])
+            user_value = getattr(self.raw_args, arg_dict['arg_name'])
 
             if user_value == arg_dict['cli_default_value']:
                 if ask_user:
@@ -137,7 +81,7 @@ class ArgValidator():
                     default_value = tmp_val
 
                 setattr(
-                    self.args,
+                    self.validated_args,
                     arg_dict['arg_name'],
                     default_value
                 )
@@ -169,21 +113,29 @@ class ArgValidator():
 
 
     def validate_ansible_runner_args(self):
-        if self.args.remote_sudo_password \
-            and not self.args.insecure_cli_password:
+        try:
+            user_at_host_split = self.raw_args.user_at_host.split('@')
+            assert len(user_at_host_split) == 2
+            self.validated_args.user = user_at_host_split[0]
+            self.validated_args.host = user_at_host_split[1]
+        except AssertionError:
+            print("FATAL! First positional argument must be in the format 'user@host'.")
+            return 1
+        if self.raw_args.remote_sudo_password \
+            and not self.raw_args.insecure_cli_password:
             print(INSECURE_CLI_PASS_WARNING)
             return 1
-        if self.args.ask_remote_sudo:
-            self.args.remote_sudo_password = self.get_pass_and_check(
+        if self.raw_args.ask_remote_sudo:
+            self.validated_args.remote_sudo_password = self.get_pass_and_check(
                 'Please enter sudo password for remote host: ')
         return 0
 
 
     def validate_database_args(self):
 
-        if not self.args.insecure_cli_password \
-            and (self.args.database_password \
-                or self.args.database_root_password
+        if not self.raw_args.insecure_cli_password \
+            and (self.raw_args.database_password \
+                or self.raw_args.database_root_password
             ):
 
             print(INSECURE_CLI_PASS_WARNING)
@@ -193,7 +145,7 @@ class ArgValidator():
         # experience. Otherwise, the user would always be asked about defaulting
         # to 'wordpress' and 'wp_' for database name and table prefix, which
         # might be a little annoying.
-        if self.args.action == 'wordpress':
+        if self.raw_args.action == 'wordpress':
             self.handle_defaults([
                 {
                     'arg_name': 'database_name',
@@ -212,15 +164,15 @@ class ArgValidator():
                 },
             ], True, True)
 
-        if not self.args.database_root_password:
+        if not self.raw_args.database_root_password:
 
-            self.args.database_root_password = self.get_pass_and_check(
+            self.validated_args.database_root_password = self.get_pass_and_check(
                 'Please enter a database root password: ',
                 0,
                 True
             )
 
-        if self.args.action == 'backup':
+        if self.raw_args.action == 'backup':
             self.handle_defaults([
                 {
                     'arg_name': 'database_name',
@@ -234,8 +186,8 @@ class ArgValidator():
                 },
             ], True, True)
 
-        if self.args.database_username and not self.args.database_password:
-            self.args.database_password = self.get_pass_and_check(
+        if self.raw_args.database_username and not self.raw_args.database_password:
+            self.validated_args.database_password = self.get_pass_and_check(
                 'Please enter a database password: ',
                 0,
                 True
@@ -246,42 +198,16 @@ class ArgValidator():
 
     def validate_ssl_args(self):
 
-        if self.args.ssl_certbot:
-            ssl_action = 'certbot'
-        elif self.args.ssl_selfsigned:
-            ssl_action = 'selfsigned'
-        else:
-            ssl_action = None
+        if not self.raw_args.letsencrypt:
+            return 0
 
-        if ssl_action == 'certbot':
-            self.handle_defaults([
-                {
-                    'arg_name': 'domains_for_ssl',
-                    'cli_default_value': None,
-                    'override_default_value': [self.args.host],
-                },
-                {
-                    'arg_name': 'email_for_ssl',
-                    'cli_default_value': None,
-                    'override_default_value': self.args.apache_server_admin,
-                },
-            ])
+        if self.raw_args.domain is None:
+            self.validated_args.domain = self.validated_args.host
 
-            if not match(r"[^@]+@[^@]+\.[^@]+", self.args.email_for_ssl):
-                print("FATAL! --email-for-ssl needs to be valid. Got '{}'. Aborting.".format(
-                    self.args.email_for_ssl))
-                return 1
-
-            if self.args.action == 'wordpress':
-                if self.args.host[:4] == 'www.':
-                    www_domain = self.args.host
-                else:
-                    www_domain = 'www.{}'.format(self.args.host)
-
-                if www_domain not in self.args.domains_for_ssl:
-                    self.args.domains_for_ssl.append(www_domain)
-
-                self.domain_for_wordpress = www_domain
+        while self.validated_args.email is None \
+                or not match(r"[^@]+@[^@]+\.[^@]+", self.validated_args.email
+                ):
+            self.validated_args.email = input('Please enter a valid email address: ')
 
         return 0
 
@@ -290,8 +216,7 @@ class ArgValidator():
         validate_methods = [
             'validate_ansible_runner_args',
             'validate_database_args',
-            # TODO?
-            # 'validate_ssl_args',
+            'validate_ssl_args',
         ]
         for method_name in validate_methods:
             method = getattr(self, method_name)

@@ -1,9 +1,0 @@
----
-
-
-- hosts: all
-  become: true
-
-  roles:
-          - ssh-proxy
-          - docker-compose
