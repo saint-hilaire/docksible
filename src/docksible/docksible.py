@@ -16,7 +16,7 @@ from docksible.arg_validator import ArgValidator
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2022, Sanctus Technologies UG (haftungsb.)"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
 
