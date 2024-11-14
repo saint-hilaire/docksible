@@ -147,7 +147,7 @@ def main():
     parser.add_argument('--database-username')
     parser.add_argument('--database-password')
     parser.add_argument('--database-name')
-    parser.add_argument('--database-table-prefix')
+    parser.add_argument('--database-table-prefix', default=DEFAULT_DATABASE_TABLE_PREFIX)
     parser.add_argument('--letsencrypt', '-l', action='store_true')
     parser.add_argument('--domain', '-d')
     parser.add_argument('--email',  '-e')

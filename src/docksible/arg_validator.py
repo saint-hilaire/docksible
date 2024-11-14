@@ -1,5 +1,5 @@
 from re import match
-from copy import copy
+from copy import deepcopy
 from warnings import warn
 from getpass import getpass
 from fqdn import FQDN
@@ -10,8 +10,8 @@ INSECURE_CLI_PASS_WARNING = 'It\'s insecure to pass passwords via CLI args! If y
 class ArgValidator():
 
     def __init__(self, args):
-        self.raw_args       = args
-        self.validated_args = args
+        self.raw_args       = deepcopy(args)
+        self.validated_args = deepcopy(args)
 
 
     def get_raw_args(self):
@@ -186,7 +186,7 @@ class ArgValidator():
                 },
             ], True, True)
 
-        if self.raw_args.database_username and not self.raw_args.database_password:
+        if self.validated_args.database_username and not self.validated_args.database_password:
             self.validated_args.database_password = self.get_pass_and_check(
                 'Please enter a database password: ',
                 0,
