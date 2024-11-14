@@ -1,17 +1,23 @@
 server {
-        listen 80;
-        listen [::]:80;
-        location / {
-                proxy_pass  http://docksible_wordpress:80;
-                proxy_set_header Host      $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-Proto $scheme;
-        }
+    listen 80;
+    listen [::]:80;
 
-        server_name {{ ansible_host }};
-        location ~ /.well-known/ {
-                allow all;
-		root /var/www/html;
-        }
+    location / {
+        proxy_pass  http://docksible_wordpress:80;
+        proxy_set_header Host      $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 
+    server_name {{ ansible_host }};
+
+    location ~ /.well-known/ {
+        allow all;
+        root /var/www/html;
+    }
+
+    location = /xmlrpc.php {
+        deny all;
+        access_log off;
+    }
 }

@@ -21,4 +21,8 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+    location = /xmlrpc.php {
+        deny all;
+        access_log off;
+    }
 }
