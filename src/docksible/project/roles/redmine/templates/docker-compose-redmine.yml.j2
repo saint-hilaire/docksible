@@ -3,6 +3,8 @@ version: "3.3"
 services:
 
   docksible_redmine:
+    depends_on:
+      - docksible_db
     image: redmine
     container_name: docksible_redmine
     restart: always
@@ -13,7 +15,7 @@ services:
       - seccomp:unconfined
 
   docksible_db:
-    image: mysql:8.3
+    image: mysql:latest
     container_name: docksible_db
     restart: always
     environment:
@@ -21,6 +23,7 @@ services:
       MYSQL_DATABASE: redmine
     volumes:
       - "$HOME/docksible-volumes/db_data:/var/lib/mysql"
+    command: '--default-authentication-plugin=mysql_native_password'
 
   docksible_webserver:
     image: nginx:latest
