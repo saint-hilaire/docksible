@@ -17,7 +17,7 @@ requires-python = ">=3.11"
 dependencies = [
     "ansible-core",
     "ansible-runner",
-    "ansible-directory-helper>=0.2",
+    "ansible-directory-helper>=0.3",
     "fqdn",
 ]
 classifiers = [
