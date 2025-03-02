@@ -1,7 +1,7 @@
 from re import match
 from copy import deepcopy
 from warnings import warn
-from getpass import getpass
+from getpass import getpass, getuser
 from fqdn import FQDN
 from docksible.constants import *
 
@@ -115,17 +115,25 @@ class ArgValidator():
     def validate_ansible_runner_args(self):
         try:
             user_at_host_split = self.raw_args.user_at_host.split('@')
-            assert len(user_at_host_split) == 2
+            assert len(user_at_host_split) <= 2
             self.validated_args.user = user_at_host_split[0]
             self.validated_args.host = user_at_host_split[1]
         except AssertionError:
-            print("FATAL! First positional argument must be in the format 'user@host'.")
+            print("FATAL! First positional argument is invalid.")
             return 1
+        except IndexError:
+            self.validated_args.host = user_at_host_split[0]
+            if self.validated_args.host not in ['localhost', '127.0.0.1']:
+                print("FATAL! User can only be omitted when running locally.")
+                return 1
+            self.validated_args.user = getuser()
+            self.validated_args.ask_remote_sudo = os.geteuid() != 0
+
         if self.raw_args.remote_sudo_password \
             and not self.raw_args.insecure_cli_password:
             print(INSECURE_CLI_PASS_WARNING)
             return 1
-        if self.raw_args.ask_remote_sudo:
+        if self.validated_args.ask_remote_sudo:
             self.validated_args.remote_sudo_password = self.get_pass_and_check(
                 'Please enter sudo password for remote host: ')
         return 0

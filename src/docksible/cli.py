@@ -131,8 +131,14 @@ def main():
         prog='docksible'
     )
 
-    parser.add_argument('user_at_host', help="user and host where you want to \
-        install your app. example: user@example.com, root@192.168.0.2, etc.")
+    parser.add_argument('user_at_host',
+        help="""
+        user and host where you want to \
+        install your app. example: user@example.com, root@192.168.0.2, etc.
+        If running locally, you can omit the user and simply pass in
+        localhost, 127.0.0.1, etc.
+        """
+        )
     parser.add_argument('action', choices=[
         'setup-docker-compose',
         'redmine',
@@ -173,6 +179,7 @@ def main():
         database_username=args.database_username,
         database_password=args.database_password,
         database_name=args.database_name,
+        sudo_password=args.remote_sudo_password,
     )
 
     if args.action == 'wordpress':

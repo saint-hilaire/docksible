@@ -12,7 +12,8 @@ class Docksible:
             letsencrypt=False,
             wordpress_auth_vars=None,
             domain=None, email=None,
-            test_cert=False
+            test_cert=False,
+            sudo_password=None
         ):
         self.user   = user
         self.host   = host
@@ -36,6 +37,7 @@ class Docksible:
         self.domain = domain
         self.email = email
         self.test_cert = test_cert
+        self.sudo_password = sudo_password
 
 
     def _init_inventory(self):
@@ -56,6 +58,7 @@ class Docksible:
             'email',
             'service_to_encrypt',
             'test_cert',
+            'ansible_sudo_pass',
         ]
         for varname in extravars:
             try:
@@ -72,6 +75,11 @@ class Docksible:
                         value = self.host
                     else:
                         value = self.domain
+                elif varname == 'ansible_sudo_pass':
+                    if self.sudo_password:
+                        value = self.sudo_password
+                    else:
+                        continue
                 else:
                     value = getattr(self, varname)
 
