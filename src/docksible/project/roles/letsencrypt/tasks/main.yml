@@ -66,12 +66,18 @@
       group: root
       mode: '0644'
 
+- name: Remove unknown AppArmor profiles (they recently cause problems with Docker)
+  raw: aa-remove-unknown
+
 - name: Adjust and restart webserver
   raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
 
 - name: Give the Nginx container 10 seconds to start up.
   pause:
       seconds: 10
+
+- name: Remove unknown AppArmor profiles (they recently cause problems with Docker)
+  raw: aa-remove-unknown
 
 - name: Run Certbot
   raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml up docksible_certbot"
@@ -97,6 +103,9 @@
 - name: Wait another 5 seconds.
   pause:
       seconds: 5
+
+- name: Remove unknown AppArmor profiles (they recently cause problems with Docker)
+  raw: aa-remove-unknown
 
 - name: Restart Nginx
   raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
