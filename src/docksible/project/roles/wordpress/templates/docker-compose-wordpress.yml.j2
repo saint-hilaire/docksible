@@ -28,7 +28,7 @@ services:
       - "{{ item.key }}={{ item.value }}"
 {% endfor %}
     volumes:
-      - "$HOME/dawn_docker_volumes/wordpress_data:/var/www/html"
+      - "$HOME/docksible-volumes/wordpress_data:/var/www/html"
   
   docksible_webserver:
     image: nginx:latest
