@@ -127,6 +127,8 @@ class ArgValidator():
                 print("FATAL! User can only be omitted when running locally.")
                 return 1
             self.validated_args.user = getuser()
+
+        if self.validated_args.host in ['localhost', '127.0.0.1']:
             self.validated_args.ask_remote_sudo = os.geteuid() != 0
 
         if self.raw_args.remote_sudo_password \
