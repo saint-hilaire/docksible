@@ -2,7 +2,6 @@ import os
 import argparse
 from getpass import getpass
 from ansible_runner import Runner, RunnerConfig
-from ansible_directory_helper.private_data import PrivateData
 
 # Shouldn't need these.
 import shlex
