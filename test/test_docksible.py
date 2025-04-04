@@ -40,7 +40,12 @@ class TestDocksible(unittest.TestCase):
         else:
             self.docksible.letsencrypt = True
             self.docksible.domain = host
-            self.docksible.email = 'user@example.com'
+            # 'user@example.com' will be rejected by Let's Encrypt,
+            # but 'me@me.me' seems OK...
+            # And Docksible fails silently... we could maybe
+            # improve that as well...
+            #self.docksible.email = 'user@example.com'
+            self.docksible.email = 'me@me.me'
             self.docksible.test_cert = True
 
 
