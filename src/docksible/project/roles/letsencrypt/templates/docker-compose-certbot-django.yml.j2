@@ -22,7 +22,7 @@ services:
     volumes:
       - "$HOME/docksible-volumes/certbot_data:/etc/letsencrypt"
       - "$HOME/docksible-volumes/{{ service_to_encrypt }}_data:/var/www/html"
-    command: "certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} {{ test_cert }}"
+    command: "certonly --non-interactive --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} {{ test_cert }}"
 
 volumes:
   static_volume:
