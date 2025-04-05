@@ -1,7 +1,5 @@
 import os
 import argparse
-from getpass import getpass
-from ansible_runner import Runner, RunnerConfig
 
 # Shouldn't need these.
 import shlex
@@ -194,15 +192,13 @@ def main():
             args.database_name,
             DEFAULT_BACKUPS_DIR
         )
+        return NotImplemented
     else:
-        docksible.set_playbook('{}.yml'.format(args.action))
         docksible.letsencrypt = args.letsencrypt
         docksible.domain = args.domain
         docksible.email = args.email
         docksible.test_cert = args.test_cert
-        docksible.run()
-
-    return 0
+        return docksible.run()
 
 
 if __name__ == "__main__":

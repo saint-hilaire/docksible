@@ -52,8 +52,6 @@ class TestDocksible(unittest.TestCase):
     def test_wordpress(self):
         self.docksible.database_name = 'wordpress'
         self.docksible.action = 'wordpress'
-        # TODO: Improve this.
-        self.docksible.set_playbook('wordpress.yml')
         # TODO: Get rid of this.
         self.docksible.wordpress_auth_vars = get_wordpress_auth_vars()
         self._do_test_run()
@@ -62,16 +60,8 @@ class TestDocksible(unittest.TestCase):
     def test_redmine(self):
         self.docksible.database_name = 'redmine'
         self.docksible.action = 'redmine'
-        # TODO: Improve this.
-        self.docksible.set_playbook('redmine.yml')
         self._do_test_run()
 
 
     def _do_test_run(self):
-        self.docksible.run()
-        # TODO
-        assert 0 == 0
-
-
-    def tearDown(self):
-        self.docksible.cleanup_private_data()
+        self.assertEqual(self.docksible.run(), 0)
