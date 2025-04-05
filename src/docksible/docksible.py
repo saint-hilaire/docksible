@@ -1,5 +1,5 @@
-from ansible_runner import Runner, RunnerConfig
-from ansible_directory_helper.private_data import PrivateData
+from shutil import rmtree
+from ansible_runner import interface as runner_interface
 from .constants import *
 
 
@@ -15,18 +15,29 @@ class Docksible:
             test_cert=False,
             sudo_password=None
         ):
+        self.private_data_dir = private_data_dir
+        try:
+            os.makedirs(self.private_data_dir)
+        except FileExistsError:
+            pass
+
         self.user   = user
         self.host   = host
+
+        host_dict = {'ansible_user': self.user}
+        if self.host in ['localhost', '127.0.0.1']:
+            host_dict['ansible_connection'] = 'local'
+
+        self.inventory = {
+            'all': {
+                'hosts': {
+                    self.host: host_dict,
+                },
+            },
+            'ungrouped': {'hosts': {}},
+        }
+
         self.action = action
-
-        self.private_data_helper = PrivateData(private_data_dir)
-        self._init_inventory()
-
-        self.runner_config = RunnerConfig(
-            private_data_dir=private_data_dir,
-            project_dir=PROJECT_DIR
-        )
-        self.runner = Runner(self.runner_config)
 
         self.database_root_password = database_root_password
         self.database_username = database_username
@@ -39,12 +50,7 @@ class Docksible:
         self.test_cert = test_cert
         self.sudo_password = sudo_password
 
-
-    def _init_inventory(self):
-        self.private_data_helper.add_inventory_groups('all')
-        self.private_data_helper.add_inventory_host(self.host, 'all')
-        self.private_data_helper.set_inventory_ansible_user(self.host, self.user)
-        self.private_data_helper.write_inventory()
+        self.extravars = {}
 
 
     def _update_env(self):
@@ -61,60 +67,61 @@ class Docksible:
             'ansible_sudo_pass',
         ]
         for varname in extravars:
-            try:
-                if varname == 'service_to_encrypt':
-                    value = self.action
-                    if value == 'redmine':
-                        self.private_data_helper.set_extravar('port_to_encrypt', 3000)
-                    else:
-                        self.private_data_helper.set_extravar('port_to_encrypt', 80)
-                elif varname == 'test_cert':
-                    value = self.get_certbot_test_cert_string()
-                elif varname == 'domain':
-                    if not self.domain:
-                        value = self.host
-                    else:
-                        value = self.domain
-                elif varname == 'ansible_sudo_pass':
-                    if self.sudo_password:
-                        value = self.sudo_password
-                    else:
-                        continue
+            if varname == 'service_to_encrypt':
+                value = self.action
+                if value == 'redmine':
+                    self.extravars['port_to_encrypt'] = 3000
                 else:
-                    value = getattr(self, varname)
+                    self.extravars['port_to_encrypt'] = 80
+            elif varname == 'test_cert':
+                value = self.get_certbot_test_cert_string()
+            elif varname == 'domain':
+                if not self.domain:
+                    value = self.host
+                else:
+                    value = self.domain
+            elif varname == 'ansible_sudo_pass':
+                if self.sudo_password:
+                    value = self.sudo_password
+                else:
+                    continue
+            else:
+                value = getattr(self, varname)
 
-                self.private_data_helper.set_extravar(varname, value)
-            except AttributeError:
-                pass
-        self.private_data_helper.write_env()
-
-
-    def set_runner_config_var(self, var, val):
-        setattr(self.runner_config, var, val)
-
-
-    def set_playbook(self, playbook):
-        self.set_runner_config_var('playbook', playbook)
-
-
-    def _prepare_config(self):
-        self.runner_config.prepare()
+            self.extravars[varname] = value
 
 
     def run(self):
         self._update_env()
-        self._prepare_config()
-        self.runner.run()
+        runner = runner_interface.run(
+            private_data_dir=self.private_data_dir,
+            playbook=f'{self.action}.yml',
+            inventory=self.inventory,
+            extravars=self.extravars,
+            project_dir=PROJECT_DIR,
+        )
+        if runner.rc != 0:
+            self.cleanup_private_data()
+            return runner.rc
 
         if self.letsencrypt:
-            self.set_playbook('letsencrypt.yml')
-            self._update_env()
-            self._prepare_config()
-            self.runner.run()
+            runner = runner_interface.run(
+                private_data_dir=self.private_data_dir,
+                playbook='letsencrypt.yml',
+                inventory=self.inventory,
+                extravars=self.extravars,
+                project_dir=PROJECT_DIR,
+            )
+            if runner.rc != 0:
+                self.cleanup_private_data()
+                return runner.rc
+
+        self.cleanup_private_data()
+        return runner.rc
 
 
     def cleanup_private_data(self):
-        self.private_data_helper.cleanup_dir()
+        rmtree(self.private_data_dir)
 
 
     # TODO: Looks like this isn't being used yet.
