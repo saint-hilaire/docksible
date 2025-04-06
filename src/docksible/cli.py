@@ -155,6 +155,7 @@ def main():
     parser.add_argument('--domain', '-d')
     parser.add_argument('--email',  '-e')
     parser.add_argument('--test-cert', '-t', action='store_true')
+    parser.add_argument('--apparmor-workaround', action='store_true')
     parser.add_argument('--private-data-dir', default=DEFAULT_PRIVATE_DATA_DIR)
     parser.add_argument('--version', '-V', action='version', version=__version__)
 
@@ -177,6 +178,7 @@ def main():
         database_password=args.database_password,
         database_name=args.database_name,
         sudo_password=args.remote_sudo_password,
+        apparmor_workaround=args.apparmor_workaround,
     )
 
     if args.action == 'wordpress':
