@@ -1,9 +1,7 @@
 from re import match
 from copy import deepcopy
-from warnings import warn
 from getpass import getpass, getuser
-from fqdn import FQDN
-from docksible.constants import *
+from .constants import *
 
 INSECURE_CLI_PASS_WARNING = 'It\'s insecure to pass passwords via CLI args! If you are sure that you want to do this, rerun this command with the --insecure-cli-password flag.'
 

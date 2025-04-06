@@ -1,8 +1,5 @@
 import os
 import argparse
-from getpass import getpass
-from ansible_runner import Runner, RunnerConfig
-from ansible_directory_helper.private_data import PrivateData
 
 # Shouldn't need these.
 import shlex
@@ -16,7 +13,7 @@ from .docksible import Docksible
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2024 - 2025, Sanctus Technologies UG (haftungsb.)"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.7.1"
+__version__ = "0.8.0"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
 
@@ -158,6 +155,7 @@ def main():
     parser.add_argument('--domain', '-d')
     parser.add_argument('--email',  '-e')
     parser.add_argument('--test-cert', '-t', action='store_true')
+    parser.add_argument('--apparmor-workaround', action='store_true')
     parser.add_argument('--private-data-dir', default=DEFAULT_PRIVATE_DATA_DIR)
     parser.add_argument('--version', '-V', action='version', version=__version__)
 
@@ -180,6 +178,7 @@ def main():
         database_password=args.database_password,
         database_name=args.database_name,
         sudo_password=args.remote_sudo_password,
+        apparmor_workaround=args.apparmor_workaround,
     )
 
     if args.action == 'wordpress':
@@ -195,15 +194,13 @@ def main():
             args.database_name,
             DEFAULT_BACKUPS_DIR
         )
+        return NotImplemented
     else:
-        docksible.set_playbook('{}.yml'.format(args.action))
         docksible.letsencrypt = args.letsencrypt
         docksible.domain = args.domain
         docksible.email = args.email
         docksible.test_cert = args.test_cert
-        docksible.run()
-
-    return 0
+        return docksible.run()
 
 
 if __name__ == "__main__":

@@ -7,18 +7,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "docksible"
-version = "0.7.1"
+version = "0.8.0"
 authors = [
     {name="Brian St. Hilaire", email="brian.st-hilaire@sanctus-tech.com"}
 ]
 description = "Deploy and set up Docker Compose based web apps with Ansible"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
-    "ansible-core",
-    "ansible-runner",
-    "ansible-directory-helper>=0.3",
-    "fqdn",
+    "ansible-core>=2.15",
+    "ansible-runner>=2.4",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

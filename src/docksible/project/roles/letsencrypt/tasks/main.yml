@@ -68,6 +68,7 @@
 
 - name: Remove unknown AppArmor profiles (they recently cause problems with Docker)
   raw: aa-remove-unknown
+  when: apparmor_workaround
 
 - name: Adjust and restart webserver
   raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
@@ -78,6 +79,7 @@
 
 - name: Remove unknown AppArmor profiles (they recently cause problems with Docker)
   raw: aa-remove-unknown
+  when: apparmor_workaround
 
 - name: Run Certbot
   raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml up docksible_certbot"
@@ -106,6 +108,7 @@
 
 - name: Remove unknown AppArmor profiles (they recently cause problems with Docker)
   raw: aa-remove-unknown
+  when: apparmor_workaround
 
 - name: Restart Nginx
   raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
