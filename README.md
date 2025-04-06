@@ -6,6 +6,11 @@ This is a tool you can run locally to install a given web app via Docker Compose
 Though not recommended for serious enterprise grade production environments, it is well suited
 to quickly spin up an off the cuff demo server, or even a small production server.
 
+### Warning
+
+This tool is still under development and not stable yet.
+Until version 1.0 becomes available, things can and will break between releases.
+
 ## Features
 
 * WordPress
@@ -15,7 +20,7 @@ to quickly spin up an off the cuff demo server, or even a small production serve
 
 ## Requirements
 
-* Local: Unix with Python 3.11 or newer. Tested this on Gentoo and Ubuntu Linux.
+* Local: Unix with Python 3.9 or newer. Tested this on Gentoo and Ubuntu Linux.
   Might work on macOS, but I don't know. Won't work on Windows, because it uses
   Ansible under the hood, which AFAIK is not supported for Windows.
 * Remote: VPS running Ubuntu, or maybe other Debian based flavor, reachable via SSH.
