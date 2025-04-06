@@ -13,7 +13,8 @@ class Docksible:
             wordpress_auth_vars=None,
             domain=None, email=None,
             test_cert=False,
-            sudo_password=None
+            sudo_password=None,
+            apparmor_workaround=False,
         ):
         self.private_data_dir = private_data_dir
         try:
@@ -52,6 +53,8 @@ class Docksible:
 
         self.extravars = {}
 
+        self.apparmor_workaround = apparmor_workaround
+
 
     def _update_env(self):
         extravars = [
@@ -65,6 +68,7 @@ class Docksible:
             'service_to_encrypt',
             'test_cert',
             'ansible_sudo_pass',
+            'apparmor_workaround',
         ]
         for varname in extravars:
             if varname == 'service_to_encrypt':
