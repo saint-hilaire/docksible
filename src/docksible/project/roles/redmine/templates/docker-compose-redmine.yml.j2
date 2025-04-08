@@ -1,7 +1,7 @@
 services:
 
   docksible_redmine:
-    image: redmine
+    image: "redmine:{{ app_version }}"
     container_name: docksible_redmine
     restart: always
     environment:

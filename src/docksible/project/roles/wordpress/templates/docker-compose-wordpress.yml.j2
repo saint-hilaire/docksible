@@ -17,7 +17,7 @@ services:
     depends_on:
       - docksible_db
     container_name: docksible_wordpress
-    image: wordpress:latest
+    image: "wordpress:{{ app_version }}"
     restart: unless-stopped
     environment:
       - "WORDPRESS_DB_HOST=docksible_db:3306"

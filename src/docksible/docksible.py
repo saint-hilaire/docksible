@@ -7,6 +7,7 @@ class Docksible:
 
     def __init__(self, user, host, action,
             private_data_dir=DEFAULT_PRIVATE_DATA_DIR,
+            app_version='latest',
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
             letsencrypt=False,
@@ -40,6 +41,8 @@ class Docksible:
 
         self.action = action
 
+        self.app_version = app_version
+
         self.database_root_password = database_root_password
         self.database_username = database_username
         self.database_password = database_password
@@ -58,6 +61,7 @@ class Docksible:
 
     def _update_env(self):
         extravars = [
+            'app_version',
             'database_root_password',
             'database_username',
             'database_password',
