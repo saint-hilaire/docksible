@@ -18,8 +18,8 @@
   template:
       src: "nginx.conf.j2"
       dest: "{{ ansible_env.HOME }}/docksible-volumes/nginx_data/nginx.conf"
-      owner: "{{ ansible_env.USER }}"
-      group: "{{ ansible_env.USER }}"
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
       mode: '0644'
 
 - name: Load Docker-Compose file for WordPress
