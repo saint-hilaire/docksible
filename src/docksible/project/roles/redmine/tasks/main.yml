@@ -10,7 +10,6 @@
     path: "{{ ansible_env.HOME }}/docksible-volumes/{{ item }}"
     state: directory
     mode: '0755'
-                                                   # TODO: Do the proxy service also??!
   # TODO: dashes in filepaths
   loop: [ 'db_data', 'redmine_data', 'nginx_data', 'ssh-proxy_data' ]
 
@@ -26,9 +25,9 @@
   template:
       src: docker-compose-redmine.yml.j2
       dest: "$HOME/docksible/docker-compose-redmine.yml"
-      owner: root
-      group: root
-      mode: '0644'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
 
 - name: Run Redmine
   raw: "cd $HOME/docksible; docker-compose -f docker-compose-redmine.yml up -d"
