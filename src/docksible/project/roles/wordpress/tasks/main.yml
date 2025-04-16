@@ -29,5 +29,6 @@
       group: "{{ ansible_user }}"
       mode: '0600'
 
+  # TODO: See GH #45.
 - name: Run WordPress
-  raw: "cd $HOME/docksible; docker-compose -f docker-compose-wordpress.yml up -d"
+  raw: "docker-compose -f {{ ansible_env.HOME }}/docksible/docker-compose-wordpress.yml up -d"

@@ -111,13 +111,4 @@
   when: apparmor_workaround
 
 - name: Restart Nginx
-  raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
-
-- name: Force WordPress to use HTTPS
-  template:
-      src: wp-config.php
-      dest: "$HOME/docksible-volumes/wordpress_data/wp-config.php"
-      owner: "{{ ansible_user }}"
-      group: "{{ ansible_user }}"
-      mode: '0600'
-  when: service_to_encrypt == "wordpress"
+  raw: "docker-compose -f {{ ansible_env.HOME }}/docksible/docker-compose-certbot.yml restart docksible_webserver"
