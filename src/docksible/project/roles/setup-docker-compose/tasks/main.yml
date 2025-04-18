@@ -38,15 +38,15 @@
     state: present
     update_cache: yes
 
-# - name: Add remote "ubuntu" user to "docker" group
-#   user:
-#     name: "ubuntu"
-#     group: "docker"
-#     append: yes
+- name: Add remote user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
 
 - name: Install docker-compose
   get_url: 
-    # TODO: Some parameter to specify the desired version.
+    # TODO: See GH #43.
     url : https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-linux-x86_64
     dest: /usr/local/bin/docker-compose
     mode: 'u+x,g+x'

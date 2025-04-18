@@ -31,18 +31,18 @@
       # Depending on whether www before URLs is standard or not...
       src: docker-compose-certbot.yml.j2
       dest: "$HOME/docksible/docker-compose-certbot.yml"
-      owner: root
-      group: root
-      mode: '0644'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
   when: service_to_encrypt == "wordpress"
 #
 - name: Load Docker-Compose file for Certbot
   template:
       src: docker-compose-certbot-django.yml.j2
       dest: "$HOME/docksible/docker-compose-certbot.yml"
-      owner: root
-      group: root
-      mode: '0644'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
   when: service_to_encrypt == "django"
 #
 #
@@ -50,9 +50,9 @@
   template:
       src: docker-compose-certbot-no-www.yml.j2
       dest: "$HOME/docksible/docker-compose-certbot.yml"
-      owner: root
-      group: root
-      mode: '0644'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
   # TODO: Make this more like an "else".
   when: service_to_encrypt == "redmine"
 #
@@ -62,9 +62,9 @@
   template:
       src: nginx.conf.1.j2
       dest: "$HOME/docksible-volumes/nginx_data/nginx.conf"
-      owner: root
-      group: root
-      mode: '0644'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
 
 - name: Remove unknown AppArmor profiles (they recently cause problems with Docker)
   raw: aa-remove-unknown
@@ -89,17 +89,17 @@
   template:
       src: nginx.conf.j2
       dest: "$HOME/docksible-volumes/nginx_data/nginx.conf"
-      owner: root
-      group: root
-      mode: '0644'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
   when: service_to_encrypt != "django"
 - name: Load new Nginx Configuration, which uses the new certificate
   template:
       src: nginx.conf.django.j2
       dest: "$HOME/docksible-volumes/nginx_data/nginx.conf"
-      owner: root
-      group: root
-      mode: '0644'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
   when: service_to_encrypt == "django"
       
 - name: Wait another 5 seconds.
@@ -111,13 +111,4 @@
   when: apparmor_workaround
 
 - name: Restart Nginx
-  raw: "cd $HOME/docksible; docker-compose -f docker-compose-certbot.yml restart docksible_webserver"
-
-- name: Force WordPress to use HTTPS
-  template:
-      src: wp-config.php
-      dest: "$HOME/docksible-volumes/wordpress_data/wp-config.php"
-      owner: root
-      group: root
-      mode: '0644'
-  when: service_to_encrypt == "wordpress"
+  raw: "docker-compose -f {{ ansible_env.HOME }}/docksible/docker-compose-certbot.yml restart docksible_webserver"
