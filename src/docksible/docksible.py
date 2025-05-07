@@ -13,6 +13,7 @@ class Docksible:
             wordpress_auth_vars=None,
             domain=None, email=None,
             test_cert=False,
+            ssh_proxy=False,
             sudo_password=None,
             apparmor_workaround=False,
         ):
@@ -49,6 +50,7 @@ class Docksible:
         self.domain = domain
         self.email = email
         self.test_cert = test_cert
+        self.ssh_proxy = ssh_proxy
         self.sudo_password = sudo_password
 
         self.extravars = {}
@@ -67,6 +69,7 @@ class Docksible:
             'email',
             'service_to_encrypt',
             'test_cert',
+            'ssh_proxy',
             'ansible_sudo_pass',
             'apparmor_workaround',
         ]
