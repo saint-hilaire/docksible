@@ -43,7 +43,11 @@ services:
 
 {% if ssh_proxy %}
   docksible_ssh_proxy:
-    image: sainthilaire/simple-ssh-proxy:0.1.0
+    # TODO: That new version is coming along nicely, just need to iron out some kinks.
+    # Once it's done, push it to DH, and use that, and done.
+    # And (for now) we have to update in the WordPress role too.
+    build: https://github.com/saint-hilaire/simple-ssh-proxy.git#feature/gh-1-alpine
+    #image: sainthilaire/simple-ssh-proxy:0.1.0
     ports:
       - "2222:22"
     volumes:
