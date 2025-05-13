@@ -43,7 +43,9 @@ services:
 
 {% if ssh_proxy %}
   docksible_ssh_proxy:
-    image: sainthilaire/simple-ssh-proxy:0.1.0
+    # Commented out, useful for development.
+    #build: https://github.com/saint-hilaire/simple-ssh-proxy.git#develop
+    image: sainthilaire/simple-ssh-proxy:latest
     ports:
       - "2222:22"
     volumes:
