@@ -52,7 +52,7 @@ services:
 
 {% if ssh_proxy %}
   docksible_ssh_proxy:
-    image: sainthilaire/simple-ssh-proxy:0.1.0
+    image: sainthilaire/simple-ssh-proxy:latest
     ports:
       - "2222:22"
     volumes:
