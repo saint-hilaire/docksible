@@ -48,7 +48,7 @@ a small container that you can use to port forward some hidden services, like th
 database. Here's how to do it:
 
 * Include `--ssh-proxy` in the Docksible command (ex: `docksible user@host wordpress --ssh-proxy`)
-* Set up the proxy service's `authorized_keys` file. This will bee improved in the future,
+* Set up the proxy service's `authorized_keys` file. This will be improved in the future,
   but until then:
   * SSH into your server as root
   * Copy root's `.ssh/authorized_keys` into `docksible-volumes/ssh-proxy-data/`
