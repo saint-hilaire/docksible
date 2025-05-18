@@ -50,11 +50,12 @@ services:
     environment:
       - "PMA_HOST=docksible_db"
 
-  docksible_ssh-proxy:
-    build: "$HOME/ssh-proxy"
+{% if ssh_proxy %}
+  docksible_ssh_proxy:
+    image: sainthilaire/simple-ssh-proxy:latest
     ports:
-            - "2222:22"
+      - "2222:22"
     volumes:
-            - "$HOME/docksible-volumes/ssh-proxy_data:/home/proxy_user/.ssh"
-    restart: always
-    container_name: docksible_ssh-proxy
+      - "{{ ansible_env.HOME }}/docksible-volumes/ssh-proxy-data:/home/proxy_user/.ssh"
+    container_name: docksible_ssh_proxy
+{% endif %}

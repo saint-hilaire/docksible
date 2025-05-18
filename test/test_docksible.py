@@ -63,5 +63,13 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
+    def test_ssh_proxy(self):
+        self.docksible.ssh_proxy = True
+        # TODO: We should have some barebones Nginx action.
+        self.docksible.database_name = 'redmine'
+        self.docksible.action = 'redmine'
+        self._do_test_run()
+
+
     def _do_test_run(self):
         self.assertEqual(self.docksible.run(), 0)

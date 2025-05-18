@@ -16,6 +16,7 @@ Until version 1.0 becomes available, things can and will break between releases.
 * WordPress
 * Redmine (open source issue tracker)
 * SSL
+* SSH proxy to tunnel hidden services like database
 * Hopefully more soon ;-)
 
 ## Requirements
@@ -38,6 +39,30 @@ These examples should be self explanatory:
 * `docksible user@example.com redmine --letsencrypt --email admin@example.com`
 
 Run the `--help` flag for all supported options.
+
+### Using the SSH proxy
+
+You can include a [simple SSH proxy](https://github.com/saint-hilaire/simple-ssh-proxy)
+into your app's Docker network, by passing the `--ssh-proxy-flag`. This will drop in
+a small container that you can use to port forward some hidden services, like the
+database. Here's how to do it:
+
+* Include `--ssh-proxy` in the Docksible command (ex: `docksible user@host wordpress --ssh-proxy`)
+* Set up the proxy service's `authorized_keys` file. This will be improved in the future,
+  but until then:
+  * SSH into your server as root
+  * Copy root's `.ssh/authorized_keys` into `docksible-volumes/ssh-proxy-data/`
+  * Shell into the proxy container, and basically `chown -R proxy_user:proxy_user /home/proxy_user`.
+    This could also be improved, but for now, just needs to be done once.
+* Now the proxy service is ready to use. For example:
+  * Set up the tunnel to proxy the database:
+  ```
+  ssh -p 2222 proxy_user@yourserver.com -L 9000:docksible_db:3306
+  ```
+  * Connect to the database:
+  ```
+  mysql -u your_db_user -p --port=9000 --host=localhost --protocol=TCP
+  ```
 
 ## Known issues
 
