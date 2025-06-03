@@ -1,11 +1,4 @@
-import os
 import argparse
-
-# Shouldn't need these.
-import shlex
-from subprocess import run, Popen, PIPE
-from time import sleep
-
 from .constants import *
 from .arg_validator import ArgValidator
 from .docksible import Docksible
@@ -16,110 +9,6 @@ __license__ = "Apache License, Version 2.0"
 __version__ = "1.0.0-dev"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
-
-
-# TODO
-def backup_dir(user, host, remote_dir, local_dest=DEFAULT_BACKUPS_DIR, delete=False):
-    print("Backing up {remote_dir}...".format(remote_dir=remote_dir))
-    rsync_cmd = "rsync --recursive --no-links "
-    if delete:
-        rsync_cmd += "--delete "
-    rsync_cmd += "{user}@{host}:{remote_dir} {local_dest}/".format(
-        user=user,
-        host=host,
-        remote_dir=remote_dir,
-        local_dest=local_dest
-    )
-    proc = run(shlex.split(rsync_cmd))
-    print("... Done.")
-
-
-# TODO
-def backup_database(
-    host,
-    database_user,
-    database_password,
-    database_name,
-    local_dest=DEFAULT_BACKUPS_DIR
-):
-    print("Starting database backup process...")
-    proxy_process = proxy_connection(host, "docksible_db", 3306)
-
-    # TODO: Test database connectivity, and don't go on until it is OK.
-    #       But for now, 7 seconds seems enough
-    #       to build up the tunnel connection.
-    sleep(7)
-    mysql_dump_output_file = open("{local_dest}/{database_name}.sql".format(
-        local_dest=local_dest,
-        database_name=database_name
-        ), "w")
-    mysql_dump_cmd = "mysqldump --user={database_user} \
-        --password={database_password} --port=9000 --host=127.0.0.1 \
-        --protocol=TCP --no-tablespaces --column-statistics=0 \
-        {database_name}".format(
-            database_user=database_user,
-            database_password=database_password,
-            database_name=database_name,
-        )
-    print("Starting mysqldump...")
-    print(mysql_dump_cmd)
-    proc = run(shlex.split(mysql_dump_cmd), stdout=mysql_dump_output_file)
-    print("... Done.")
-
-    print("Killing proxy connection...")
-    proxy_process.kill()
-    print("... Done.")
-    mysql_dump_output_file.close()
-
-
-# TODO
-def do_backup(
-        user,
-        host,
-        database_user,
-        database_password,
-        database_name,
-        local_dest=DEFAULT_BACKUPS_DIR,
-        delete=False
-):
-    print("Started backup process...")
-    if not os.path.exists(local_dest):
-        os.makedirs(local_dest)
-    backup_dir(user, host, "/root/docksible-volumes/ftp_data",
-        local_dest, delete)
-    backup_dir(user, host,
-        "/root/docksible-volumes/wordpress_data/wp-content",
-        local_dest, delete)
-    backup_database(host, database_user, database_password,
-        database_name, local_dest)
-    print("Backup process finished.")
-
-
-# TODO
-def proxy_connection(
-    host,
-    forwarded_host,
-    remote_port,
-    local_port=9000,
-    proxy_user="proxy_user", 
-    port=2222, 
-):
-    print("Opening proxy connection with following SSH-command:")
-    ssh_command = "ssh -p {port} {proxy_user}@{host} \
-        -L {local_port}:{forwarded_host}:{remote_port}".format(
-            host=host,
-            forwarded_host=forwarded_host,
-            remote_port=remote_port,
-            local_port=local_port,
-            proxy_user=proxy_user,
-            port=port,
-        )
-    print(ssh_command)
-    try:
-        return Popen(shlex.split(ssh_command), stdin=PIPE, stdout=PIPE,
-            stderr=PIPE)
-    except Exception as e:
-        return e
 
 
 def main():
@@ -194,15 +83,7 @@ def main():
 
     # TODO: Temporary solution, do this better in the future.
     if args.action in ['backup']:
-        do_backup(
-            args.user,
-            args.host,
-            args.database_username,
-            args.database_password,
-            args.database_name,
-            DEFAULT_BACKUPS_DIR
-        )
-        return NotImplemented
+        raise NotImplementedError
     else:
         docksible.letsencrypt = args.letsencrypt
         docksible.domain = args.domain
