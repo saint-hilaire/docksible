@@ -30,4 +30,4 @@
       mode: '0600'
 
 - name: Run Redmine
-  raw: "cd $HOME/docksible; docker-compose -f docker-compose-redmine.yml up -d"
+  raw: "docker compose -f {{ ansible_env.HOME }}/docksible/docker-compose-redmine.yml up -d"

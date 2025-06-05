@@ -49,6 +49,11 @@ class TestDocksible(unittest.TestCase):
             self.docksible.test_cert = True
 
 
+    def test_docker_compose(self):
+        self.docksible.letsencrypt = False
+        self._do_test_run()
+
+
     def test_wordpress(self):
         self.docksible.database_name = 'wordpress'
         self.docksible.action = 'wordpress'

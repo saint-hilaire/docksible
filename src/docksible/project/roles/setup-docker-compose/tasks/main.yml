@@ -10,43 +10,39 @@
     - curl
     - software-properties-common
 
-- name: Add Docker s official GPG key
-  apt_key:
+- name: Download Docker GPG key
+  get_url:
     url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
+    dest: /tmp/docker.gpg
+    mode: '0644'
 
-- name: Verify that we have the key with the fingerprint
-  apt_key:
-    id: 0EBFCD88
-    state: present
-  tags:
-    - docker
+- name: Dearmor Docker GPG key
+  command:
+    cmd: "gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg /tmp/docker.gpg"
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
 
-- name: Set up the stable repository
+- name: Add Docker apt repository (using jammy for noble)
   apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable"
     state: present
-    update_cache: yes
+    filename: docker
 
-- name: Update apt packages
+- name: Update apt cache
   apt:
     update_cache: yes
 
-- name: Install docker
+- name: Install Docker Engine and Compose plugin
   apt:
-    name: docker-ce
-    state: present
-    update_cache: yes
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: latest
 
-- name: Add remote user to docker group
+- name: Add user to docker group
   user:
     name: "{{ ansible_user }}"
     groups: docker
     append: yes
-
-- name: Install docker-compose
-  get_url: 
-    # TODO: See GH #43.
-    url : https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-linux-x86_64
-    dest: /usr/local/bin/docker-compose
-    mode: 'u+x,g+x'
