@@ -13,7 +13,7 @@ from .docksible import Docksible
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2024 - 2025, Sanctus Technologies UG (haftungsb.)"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.9.1-rc-1"
+__version__ = "0.10.0-rc-1"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
 
