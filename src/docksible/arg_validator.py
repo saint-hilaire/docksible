@@ -210,6 +210,10 @@ class ArgValidator():
         if not self.raw_args.letsencrypt:
             return 0
 
+        if self.raw_args.action == 'setup-docker-compose':
+            print("Fatal! Cannot set up SSL for action 'setup-docker-compose'.")
+            return 1
+
         if self.raw_args.domain is None:
             self.validated_args.domain = self.validated_args.host
 
