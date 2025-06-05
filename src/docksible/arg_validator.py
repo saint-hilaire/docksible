@@ -172,7 +172,8 @@ class ArgValidator():
                 },
             ], True, True)
 
-        if not self.raw_args.database_root_password:
+        if not self.raw_args.database_root_password \
+                and self.raw_args.action != 'setup-docker-compose':
 
             self.validated_args.database_root_password = self.get_pass_and_check(
                 'Please enter a database root password: ',
