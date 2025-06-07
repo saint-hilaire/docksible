@@ -136,12 +136,7 @@ def main():
         localhost, 127.0.0.1, etc.
         """
         )
-    parser.add_argument('action', choices=[
-        'setup-docker-compose',
-        'redmine',
-        'wordpress',
-        'backup',
-    ])
+    parser.add_argument('action', choices=SUPPORTED_ACTIONS)
 
     parser.add_argument('--ask-remote-sudo', action='store_true')
     parser.add_argument('--insecure-cli-password', action='store_true')

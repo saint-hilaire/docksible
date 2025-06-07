@@ -76,5 +76,13 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
+    def test_custom_app(self):
+        import pdb; pdb.set_trace()
+        self.docksible.action = 'custom-app'
+        self.docksible.app_image = 'sainthilaire/smartestate:latest'
+        self.docksible.database_name = 'smartestate'
+        self._do_test_run()
+
+
     def _do_test_run(self):
         self.assertEqual(self.docksible.run(), 0)
