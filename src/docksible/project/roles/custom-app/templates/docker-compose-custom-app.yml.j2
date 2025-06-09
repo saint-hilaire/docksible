@@ -1,16 +1,13 @@
 services:
 
-  docksible_redmine:
-    depends_on:
-      - docksible_db
-    image: redmine
-    container_name: docksible_redmine
+  docksible_custom_app:
+    image: "{{ app_image }}"
+    container_name: docksible_custom_app
     restart: always
     environment:
-      REDMINE_DB_MYSQL: docksible_db
-      REDMINE_DB_PASSWORD: "{{ database_root_password }}"
-    security_opt:
-      - seccomp:unconfined
+{% for item in extra_env_vars|dict2items %}
+      "{{ item.key }}": "{{ item.value }}"
+{% endfor %}
 
   docksible_db:
     image: mysql:8.3
@@ -18,7 +15,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "{{ database_root_password }}"
-      MYSQL_DATABASE: redmine
+      MYSQL_USER: "{{ database_username }}"
+      MYSQL_PASSWORD: "{{ database_password }}"
+      MYSQL_DATABASE: "{{ database_name }}"
     volumes:
       - "$HOME/docksible-volumes/db_data:/var/lib/mysql"
 
@@ -45,8 +44,6 @@ services:
 
 {% if ssh_proxy %}
   docksible_ssh_proxy:
-    # Commented out, useful for development.
-    #build: https://github.com/saint-hilaire/simple-ssh-proxy.git#develop
     image: sainthilaire/simple-ssh-proxy:latest
     ports:
       - "2222:22"

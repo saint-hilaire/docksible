@@ -16,16 +16,17 @@ server {
     ssl_certificate /etc/letsencrypt/live/{{ domain }}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/{{ domain }}/privkey.pem;
     location / {
-        proxy_pass  http://docksible_{{ service_to_encrypt }}:{{ port_to_encrypt }};
+        proxy_pass  http://docksible_{{ service_to_encrypt }}:{{ internal_http_port }};
         proxy_set_header Host      $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
     location /static/ {
-        alias {{ django_staticfiles_directory }}/;
+        alias /app/{{ app_name }}/staticfiles/;
     }
     location /media/ {
-        alias {{ django_media_directory }}/;
+        alias /app/{{ app_name }}/media/;
     }
-    client_max_body_size {{ django_max_upload_size }};
-    client_body_buffer_size {{ django_upload_buffer_size }};
+    # TODO: Restore these parameters.
+    client_max_body_size 5m;
+    client_body_buffer_size 16k;
 }
