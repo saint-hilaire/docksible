@@ -1,0 +1,33 @@
+---
+- name: Create the directory for Docker compose
+  file:
+    path: "{{ ansible_env.HOME }}/docksible"
+    state: directory
+    mode: '0755'
+
+- name: Create the directory tree for Docker volumes
+  file:
+    path: "{{ ansible_env.HOME }}/docksible-volumes/{{ item }}"
+    state: directory
+    mode: '0755'
+  # TODO: dashes in filepaths
+  loop: [ 'db_data', 'custom-app_data', 'nginx_data', 'ssh-proxy-data' ]
+
+- name: Copy the Nginx Configuration
+  template:
+      src: "nginx.conf.j2"
+      dest: "{{ ansible_env.HOME }}/docksible-volumes/nginx_data/nginx.conf"
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0644'
+
+- name: Load Docker-Compose file for the app
+  template:
+      src: docker-compose-custom-app.yml.j2
+      dest: "$HOME/docksible/docker-compose-custom-app.yml"
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: '0600'
+
+- name: Run custom app
+  raw: "docker compose -f {{ ansible_env.HOME }}/docksible/docker-compose-custom-app.yml up -d"

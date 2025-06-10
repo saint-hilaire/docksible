@@ -38,12 +38,12 @@
 #
 - name: Load Docker-Compose file for Certbot
   template:
-      src: docker-compose-certbot-django.yml.j2
+      src: docker-compose-certbot-custom-app.yml.j2
       dest: "$HOME/docksible/docker-compose-certbot.yml"
       owner: "{{ ansible_user }}"
       group: "{{ ansible_user }}"
       mode: '0600'
-  when: service_to_encrypt == "django"
+  when: service_to_encrypt == "custom_app"
 #
 #
 - name: Load Docker-Compose file for Certbot
