@@ -1,6 +1,7 @@
 from re import match
 from copy import deepcopy
 from getpass import getpass, getuser
+from textwrap import dedent
 from .constants import *
 
 INSECURE_CLI_PASS_WARNING = 'It\'s insecure to pass passwords via CLI args! If you are sure that you want to do this, rerun this command with the --insecure-cli-password flag.'
@@ -171,6 +172,19 @@ class ArgValidator():
                     'override_default_value': 'wp_',
                 },
             ], True, True)
+        elif self.raw_args.action == 'custom-app':
+            self.handle_defaults([
+                {
+                    'arg_name': 'database_name',
+                    'cli_default_value': None,
+                    'override_default_value': 'custom_db',
+                },
+                {
+                    'arg_name': 'database_username',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_DATABASE_USERNAME,
+                },
+            ], True, True)
 
         if not self.raw_args.database_root_password \
                 and self.raw_args.action != 'setup-docker-compose':
@@ -225,11 +239,38 @@ class ArgValidator():
         return 0
 
 
+    def validate_misc_args(self):
+        try:
+            self.validated_args.extra_env_vars = {}
+            tmp_args = self.raw_args.extra_env_vars.split(',')
+            for pair in tmp_args:
+                tmp_split = pair.split('=')
+                assert len(tmp_split) == 2
+                self.validated_args.extra_env_vars[tmp_split[0]] = tmp_split[1]
+        except AttributeError:
+            pass
+        except AssertionError:
+            print(dedent("""
+                  Bad '--extra-env-vars'! Please pass comma separated key value pairs,
+                  delineated by '='.
+                  """))
+            return 1
+
+        if self.raw_args.action == 'custom-app' \
+                and not (self.raw_args.app_image):
+
+            print("'--app-image' is required when running 'custom-app'.")
+            return 1
+
+        return 0
+
+
     def validate_args(self):
         validate_methods = [
             'validate_ansible_runner_args',
             'validate_database_args',
             'validate_ssl_args',
+            'validate_misc_args',
         ]
         for method_name in validate_methods:
             method = getattr(self, method_name)

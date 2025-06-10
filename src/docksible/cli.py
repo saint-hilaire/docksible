@@ -13,7 +13,7 @@ from .docksible import Docksible
 __author__ = "Brian St. Hilailre"
 __copyright__ = "Copyright 2024 - 2025, Sanctus Technologies UG (haftungsb.)"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.10.0"
+__version__ = "0.11.0-alpha-1"
 __maintainer__ = "Brian St. Hilaire"
 __email__ = "brian.st-hilaire@sanctus-tech.com"
 
@@ -136,12 +136,7 @@ def main():
         localhost, 127.0.0.1, etc.
         """
         )
-    parser.add_argument('action', choices=[
-        'setup-docker-compose',
-        'redmine',
-        'wordpress',
-        'backup',
-    ])
+    parser.add_argument('action', choices=SUPPORTED_ACTIONS)
 
     parser.add_argument('--ask-remote-sudo', action='store_true')
     parser.add_argument('--insecure-cli-password', action='store_true')
@@ -160,6 +155,23 @@ def main():
         Pass this flag to include a lightweight SSH proxy container
         in your Docker network, so you can port forward hidden services
         such as the database.
+        """
+    )
+    parser.add_argument('--app-image',
+        help="""
+        Required for the 'custom-app' action, it should be the publicly
+        available Docker image of your app, something like
+        'docker-hub-user/example-app:latest'
+        """
+    )
+    parser.add_argument('--app-name')
+    parser.add_argument('--internal-http-port', default=DEFAULT_INTERNAL_HTTP_PORT)
+    parser.add_argument('--extra-env-vars',
+        help="""
+        Comma separated key value pairs, to provide any environment variables
+        that your app may require. For a custom app, you'll most likely need
+        these to configure the database, because the environment variable names
+        that the app expects are arbitrary.
         """
     )
     parser.add_argument('--apparmor-workaround', action='store_true')
@@ -186,6 +198,10 @@ def main():
         database_name=args.database_name,
         sudo_password=args.remote_sudo_password,
         ssh_proxy=args.ssh_proxy,
+        app_image=args.app_image,
+        app_name=args.app_name,
+        internal_http_port=args.internal_http_port,
+        extra_env_vars=args.extra_env_vars,
         apparmor_workaround=args.apparmor_workaround,
     )
 
