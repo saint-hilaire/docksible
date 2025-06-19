@@ -31,4 +31,4 @@
 
   # TODO: See GH #45.
 - name: Run WordPress
-  raw: "docker-compose -f {{ ansible_env.HOME }}/docksible/docker-compose-wordpress.yml up -d"
+  raw: "docker compose -f {{ ansible_env.HOME }}/docksible/docker-compose-wordpress.yml up -d"

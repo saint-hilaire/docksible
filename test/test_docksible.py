@@ -49,6 +49,11 @@ class TestDocksible(unittest.TestCase):
             self.docksible.test_cert = True
 
 
+    def test_docker_compose(self):
+        self.docksible.letsencrypt = False
+        self._do_test_run()
+
+
     def test_wordpress(self):
         self.docksible.database_name = 'wordpress'
         self.docksible.action = 'wordpress'
@@ -68,6 +73,23 @@ class TestDocksible(unittest.TestCase):
         # TODO: We should have some barebones Nginx action.
         self.docksible.database_name = 'redmine'
         self.docksible.action = 'redmine'
+        self._do_test_run()
+
+
+    def test_custom_app(self):
+        self.docksible.action = 'custom-app'
+        self.docksible.database_name = 'smartestate'
+        self.docksible.app_name = 'smartestate'
+        self.docksible.app_image = 'sainthilaire/smartestate:latest'
+        self.docksible.extra_env_vars = {
+            'DEBUG': 0,
+            'ALLOWED_HOSTS': self.docksible.host,
+            'DATABASE_ENGINE': 'django.db.backends.mysql',
+            'DATABASE_HOST': 'docksible_db',
+            'DATABASE_NAME': self.docksible.database_name,
+            'DATABASE_USER': self.docksible.database_username,
+            'DATABASE_PASSWORD': self.docksible.database_password,
+        }
         self._do_test_run()
 
 

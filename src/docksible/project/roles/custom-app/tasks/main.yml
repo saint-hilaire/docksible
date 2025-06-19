@@ -11,7 +11,7 @@
     state: directory
     mode: '0755'
   # TODO: dashes in filepaths
-  loop: [ 'db_data', 'redmine_data', 'nginx_data', 'ssh-proxy-data' ]
+  loop: [ 'db_data', 'custom-app_data', 'nginx_data', 'ssh-proxy-data' ]
 
 - name: Copy the Nginx Configuration
   template:
@@ -21,13 +21,13 @@
       group: "{{ ansible_user }}"
       mode: '0644'
 
-- name: Load Docker-Compose file for Redmine
+- name: Load Docker-Compose file for the app
   template:
-      src: docker-compose-redmine.yml.j2
-      dest: "$HOME/docksible/docker-compose-redmine.yml"
+      src: docker-compose-custom-app.yml.j2
+      dest: "$HOME/docksible/docker-compose-custom-app.yml"
       owner: "{{ ansible_user }}"
       group: "{{ ansible_user }}"
       mode: '0600'
 
-- name: Run Redmine
-  raw: "docker compose -f {{ ansible_env.HOME }}/docksible/docker-compose-redmine.yml up -d"
+- name: Run custom app
+  raw: "docker compose -f {{ ansible_env.HOME }}/docksible/docker-compose-custom-app.yml up -d"

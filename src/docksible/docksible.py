@@ -15,6 +15,10 @@ class Docksible:
             test_cert=False,
             ssh_proxy=False,
             sudo_password=None,
+            app_image=None,
+            app_name=None,
+            internal_http_port=DEFAULT_INTERNAL_HTTP_PORT,
+            extra_env_vars={},
             apparmor_workaround=False,
         ):
         self.private_data_dir = private_data_dir
@@ -45,20 +49,32 @@ class Docksible:
         self.database_username = database_username
         self.database_password = database_password
         self.database_name = database_name
-        self.letsencrypt = letsencrypt
+
         self.wordpress_auth_vars = wordpress_auth_vars
+
+        self.letsencrypt = letsencrypt
         self.domain = domain
         self.email = email
         self.test_cert = test_cert
+
+        self.app_image = app_image
+        self.app_name = app_name
+        self.internal_http_port = internal_http_port
+        self.extra_env_vars = extra_env_vars
+
         self.ssh_proxy = ssh_proxy
         self.sudo_password = sudo_password
+        self.apparmor_workaround = apparmor_workaround
 
         self.extravars = {}
 
-        self.apparmor_workaround = apparmor_workaround
-
 
     def _update_env(self):
+        if self.action == 'redmine':
+            self.internal_http_port = 3000
+        elif self.action == 'wordpress':
+            self.internal_http_port = 80
+
         extravars = [
             'database_root_password',
             'database_username',
@@ -71,15 +87,17 @@ class Docksible:
             'test_cert',
             'ssh_proxy',
             'ansible_sudo_pass',
+            'app_image',
+            'app_name',
+            'internal_http_port',
+            'extra_env_vars',
             'apparmor_workaround',
         ]
         for varname in extravars:
             if varname == 'service_to_encrypt':
-                value = self.action
-                if value == 'redmine':
-                    self.extravars['port_to_encrypt'] = 3000
-                else:
-                    self.extravars['port_to_encrypt'] = 80
+                # TODO: Tech debt. Fix in v1. I want to prefer dashes over
+                # underscores, but for now, I need it like this.
+                value = self.action.replace('-', '_')
             elif varname == 'test_cert':
                 value = self.get_certbot_test_cert_string()
             elif varname == 'domain':

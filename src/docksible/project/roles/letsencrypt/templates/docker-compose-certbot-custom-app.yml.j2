@@ -11,8 +11,8 @@ services:
       - "$HOME/docksible-volumes/nginx_data:/etc/nginx/conf.d"
       - "$HOME/docksible-volumes/certbot_data:/etc/letsencrypt"
       - "$HOME/docksible-volumes/{{ service_to_encrypt }}_data:/var/www/html"
-      # - static_volume:{{ django_staticfiles_directory }}
-      # - media_volume:{{ django_media_directory }}
+      - "static_volume:{{ ansible_env.HOME }}/docksible-volumes/custom-app_data/staticfiles"
+      - "media_volume:{{ ansible_env.HOME }}/docksible-volumes/custom-app_data/media"
 
   docksible_certbot:
     depends_on:

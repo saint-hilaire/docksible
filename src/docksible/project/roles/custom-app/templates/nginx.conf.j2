@@ -1,0 +1,15 @@
+server {
+	listen 80;
+	listen [::]:80;
+	location / {
+		proxy_pass  http://docksible_custom_app:{{ internal_http_port }};
+		proxy_set_header Host      $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+	server_name {{ ansible_host }};
+	location ~ /.well-known/ {
+		allow all;
+		root /var/www/html;
+	}
+}
