@@ -19,7 +19,7 @@ dependencies = [
     "ansible-runner>=2.4",
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Framework :: Ansible",
     "Programming Language :: Python :: 3",
