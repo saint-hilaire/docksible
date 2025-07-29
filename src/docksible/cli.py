@@ -10,12 +10,12 @@ from .constants import *
 from .arg_validator import ArgValidator
 from .docksible import Docksible
 
-__author__ = "Brian St. Hilailre"
-__copyright__ = "Copyright 2024 - 2025, Sanctus Technologies UG (haftungsb.)"
+__author__ = "Belal Ibrahim"
+__copyright__ = "Copyright 2025 Belal Ibrahim"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.11.1"
-__maintainer__ = "Brian St. Hilaire"
-__email__ = "brian.st-hilaire@sanctus-tech.com"
+__version__ = "0.11.2-dev"
+__maintainer__ = "Belal Ibrahim"
+__email__ = "belal.ibrahim@proton.me"
 
 
 # TODO
