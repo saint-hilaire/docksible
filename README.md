@@ -42,7 +42,7 @@ Run the `--help` flag for all supported options.
 
 ### Using the SSH proxy
 
-You can include a [simple SSH proxy](https://github.com/saint-hilaire/simple-ssh-proxy)
+You can include a [simple SSH proxy](https://github.com/belal-i/simple-ssh-proxy)
 into your app's Docker network, by passing the `--ssh-proxy` flag. This will drop in
 a small container that you can use to port forward some hidden services, like the
 database. Here's how to do it:
@@ -85,6 +85,5 @@ Altogether, it's tech debt, a temporary workaround, and will be removed soon.
 Also, the Let's Encrypt handling will be refactored and improved altogether.
 See these issues for more info:
 
-* https://github.com/saint-hilaire/docksible/issues/27
-* https://github.com/saint-hilaire/docksible/issues/24
-
+* https://github.com/belal-i/docksible/issues/27
+* https://github.com/belal-i/docksible/issues/24
