@@ -138,6 +138,7 @@ def main():
         )
     parser.add_argument('action', choices=SUPPORTED_ACTIONS)
 
+    parser.add_argument('--app-version', '-v', default=DEFAULT_APP_VERSION)
     parser.add_argument('--ask-remote-sudo', action='store_true')
     parser.add_argument('--insecure-cli-password', action='store_true')
     parser.add_argument('--remote-sudo-password')
@@ -192,6 +193,7 @@ def main():
         host=args.host,
         action=args.action,
         private_data_dir=args.private_data_dir,
+        app_version=args.app_version,
         database_root_password=args.database_root_password,
         database_username=args.database_username,
         database_password=args.database_password,

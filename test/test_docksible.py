@@ -80,7 +80,7 @@ class TestDocksible(unittest.TestCase):
         self.docksible.action = 'custom-app'
         self.docksible.database_name = 'smartestate'
         self.docksible.app_name = 'smartestate'
-        self.docksible.app_image = 'belalibrahim/smartestate:latest'
+        self.docksible.app_image = 'belalibrahim/smartestate'
         self.docksible.extra_env_vars = {
             'DEBUG': 0,
             'ALLOWED_HOSTS': self.docksible.host,
