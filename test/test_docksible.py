@@ -32,9 +32,9 @@ class TestDocksible(unittest.TestCase):
             database_password='password',
         )
 
-        if host in ['localhost', '127.0.0.1']:
+        if user != 'root':
             self.docksible.sudo_password = getpass(
-                'Please enter local sudo password: '
+                'Please enter sudo password for test host: '
             )
             self.docksible.letsencrypt = False
         else:
