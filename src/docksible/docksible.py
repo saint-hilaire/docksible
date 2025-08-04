@@ -18,6 +18,7 @@ class Docksible:
             app_image=None,
             app_name=None,
             internal_http_port=DEFAULT_INTERNAL_HTTP_PORT,
+            phpmyadmin=False,
             extra_env_vars={},
             apparmor_workaround=False,
         ):
@@ -60,6 +61,7 @@ class Docksible:
         self.app_image = app_image
         self.app_name = app_name
         self.internal_http_port = internal_http_port
+        self.phpmyadmin = phpmyadmin
         self.extra_env_vars = extra_env_vars
 
         self.ssh_proxy = ssh_proxy
@@ -90,6 +92,7 @@ class Docksible:
             'app_image',
             'app_name',
             'internal_http_port',
+            'phpmyadmin',
             'extra_env_vars',
             'apparmor_workaround',
         ]
