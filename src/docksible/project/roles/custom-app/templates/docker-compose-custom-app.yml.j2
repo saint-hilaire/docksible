@@ -1,7 +1,7 @@
 services:
 
   docksible_custom_app:
-    image: "{{ app_image }}"
+    image: "{{ app_image }}:{{ app_version }}"
     container_name: docksible_custom_app
     restart: always
     environment:

@@ -17,6 +17,7 @@ class Docksible:
             sudo_password=None,
             app_image=None,
             app_name=None,
+            app_version=DEFAULT_APP_VERSION,
             internal_http_port=DEFAULT_INTERNAL_HTTP_PORT,
             extra_env_vars={},
             apparmor_workaround=False,
@@ -44,6 +45,8 @@ class Docksible:
         }
 
         self.action = action
+
+        self.app_version = app_version
 
         self.database_root_password = database_root_password
         self.database_username = database_username
@@ -76,6 +79,7 @@ class Docksible:
             self.internal_http_port = 80
 
         extravars = [
+            'app_version',
             'database_root_password',
             'database_username',
             'database_password',

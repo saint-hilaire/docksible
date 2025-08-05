@@ -13,7 +13,7 @@ from .docksible import Docksible
 __author__ = "Belal Ibrahim"
 __copyright__ = "Copyright 2025 Belal Ibrahim"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.11.2-dev"
+__version__ = "0.12.0-alpha-1"
 __maintainer__ = "Belal Ibrahim"
 __email__ = "belal.ibrahim@proton.me"
 
@@ -138,6 +138,7 @@ def main():
         )
     parser.add_argument('action', choices=SUPPORTED_ACTIONS)
 
+    parser.add_argument('--app-version', '-v', default=DEFAULT_APP_VERSION)
     parser.add_argument('--ask-remote-sudo', action='store_true')
     parser.add_argument('--insecure-cli-password', action='store_true')
     parser.add_argument('--remote-sudo-password')
@@ -192,6 +193,7 @@ def main():
         host=args.host,
         action=args.action,
         private_data_dir=args.private_data_dir,
+        app_version=args.app_version,
         database_root_password=args.database_root_password,
         database_username=args.database_username,
         database_password=args.database_password,
