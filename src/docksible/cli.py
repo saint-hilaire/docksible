@@ -10,12 +10,12 @@ from .constants import *
 from .arg_validator import ArgValidator
 from .docksible import Docksible
 
-__author__ = "Brian St. Hilailre"
-__copyright__ = "Copyright 2024 - 2025, Sanctus Technologies UG (haftungsb.)"
+__author__ = "Belal Ibrahim"
+__copyright__ = "Copyright 2025 Belal Ibrahim"
 __license__ = "Apache License, Version 2.0"
-__version__ = "0.11.1"
-__maintainer__ = "Brian St. Hilaire"
-__email__ = "brian.st-hilaire@sanctus-tech.com"
+__version__ = "0.12.0"
+__maintainer__ = "Belal Ibrahim"
+__email__ = "belal.ibrahim@proton.me"
 
 
 # TODO
@@ -138,6 +138,7 @@ def main():
         )
     parser.add_argument('action', choices=SUPPORTED_ACTIONS)
 
+    parser.add_argument('--app-version', '-v', default=DEFAULT_APP_VERSION)
     parser.add_argument('--ask-remote-sudo', action='store_true')
     parser.add_argument('--insecure-cli-password', action='store_true')
     parser.add_argument('--remote-sudo-password')
@@ -166,6 +167,15 @@ def main():
     )
     parser.add_argument('--app-name')
     parser.add_argument('--internal-http-port', default=DEFAULT_INTERNAL_HTTP_PORT)
+    parser.add_argument('--phpmyadmin', action='store_true',
+        help="""
+        Set this flag to include a phpmyadmin container in your app's
+        Docker network. It won't be exposed, so you will still have to proxy
+        the connection through an SSH tunnel.
+        Omit this flag, if you don't need phpmyadmin to connect to your
+        app's database.
+        """
+    )
     parser.add_argument('--extra-env-vars',
         help="""
         Comma separated key value pairs, to provide any environment variables
@@ -192,6 +202,7 @@ def main():
         host=args.host,
         action=args.action,
         private_data_dir=args.private_data_dir,
+        app_version=args.app_version,
         database_root_password=args.database_root_password,
         database_username=args.database_username,
         database_password=args.database_password,
@@ -201,6 +212,7 @@ def main():
         app_image=args.app_image,
         app_name=args.app_name,
         internal_http_port=args.internal_http_port,
+        phpmyadmin=args.phpmyadmin,
         extra_env_vars=args.extra_env_vars,
         apparmor_workaround=args.apparmor_workaround,
     )
