@@ -93,5 +93,13 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
+    def test_phpmyadmin(self):
+        # TODO: We should have some barebones Nginx action.
+        self.docksible.database_name = 'redmine'
+        self.docksible.action = 'redmine'
+        self.docksible.phpmyadmin = True
+        self._do_test_run()
+
+
     def _do_test_run(self):
         self.assertEqual(self.docksible.run(), 0)

@@ -33,6 +33,7 @@ services:
       # TODO: This "WordPress volume" is needed for Certbot?
       - "$HOME/docksible-volumes/wordpress_data:/var/www/html"
 
+{% if phpmyadmin %}
   docksible_phpmyadmin:
     depends_on:
       - docksible_db
@@ -41,6 +42,7 @@ services:
     restart: unless-stopped
     environment:
       - "PMA_HOST=docksible_db"
+{% endif %}
 
 {% if ssh_proxy %}
   docksible_ssh_proxy:

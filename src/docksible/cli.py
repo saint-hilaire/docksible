@@ -167,6 +167,15 @@ def main():
     )
     parser.add_argument('--app-name')
     parser.add_argument('--internal-http-port', default=DEFAULT_INTERNAL_HTTP_PORT)
+    parser.add_argument('--phpmyadmin', action='store_true',
+        help="""
+        Set this flag to include a phpmyadmin container in your app's
+        Docker network. It won't be exposed, so you will still have to proxy
+        the connection through an SSH tunnel.
+        Omit this flag, if you don't need phpmyadmin to connect to your
+        app's database.
+        """
+    )
     parser.add_argument('--extra-env-vars',
         help="""
         Comma separated key value pairs, to provide any environment variables
@@ -203,6 +212,7 @@ def main():
         app_image=args.app_image,
         app_name=args.app_name,
         internal_http_port=args.internal_http_port,
+        phpmyadmin=args.phpmyadmin,
         extra_env_vars=args.extra_env_vars,
         apparmor_workaround=args.apparmor_workaround,
     )
