@@ -3,7 +3,7 @@ services:
   docksible_redmine:
     depends_on:
       - docksible_db
-    image: redmine
+    image: "redmine:{{ app_version }}"
     container_name: docksible_redmine
     restart: always
     environment:
