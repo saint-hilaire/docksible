@@ -1,6 +1,7 @@
 import os
 import unittest
 from getpass import getpass, getuser
+import yaml
 from docksible.docksible import Docksible
 # TODO: Get rid of this.
 from docksible.helpers import get_wordpress_auth_vars
@@ -56,7 +57,7 @@ class TestDocksible(unittest.TestCase):
 
     def test_wordpress(self):
         self.docksible.database_name = 'wordpress'
-        self.docksible.action = 'wordpress'
+        self.docksible.set_action('wordpress')
         # TODO: Get rid of this.
         self.docksible.wordpress_auth_vars = get_wordpress_auth_vars()
         self._do_test_run()
@@ -64,7 +65,7 @@ class TestDocksible(unittest.TestCase):
 
     def test_redmine(self):
         self.docksible.database_name = 'redmine'
-        self.docksible.action = 'redmine'
+        self.docksible.set_action('redmine')
         self._do_test_run()
 
 
@@ -72,12 +73,12 @@ class TestDocksible(unittest.TestCase):
         self.docksible.ssh_proxy = True
         # TODO: We should have some barebones Nginx action.
         self.docksible.database_name = 'redmine'
-        self.docksible.action = 'redmine'
+        self.docksible.set_action('redmine')
         self._do_test_run()
 
 
     def test_custom_app(self):
-        self.docksible.action = 'custom-app'
+        self.docksible.set_action('custom-app')
         self.docksible.database_name = 'smartestate'
         self.docksible.app_name = 'smartestate'
         self.docksible.app_image = 'belalibrahim/smartestate'
@@ -96,8 +97,48 @@ class TestDocksible(unittest.TestCase):
     def test_phpmyadmin(self):
         # TODO: We should have some barebones Nginx action.
         self.docksible.database_name = 'redmine'
-        self.docksible.action = 'redmine'
+        self.docksible.set_action('redmine')
         self.docksible.phpmyadmin = True
+        self._do_test_run()
+
+
+    def test_playbook_builder(self):
+        expected_playbook_ls = [
+            {
+                'hosts': 'all',
+                'become': True,
+                'gather_facts': True,
+                'roles': [
+                    'setup-docker-compose',
+                    'custom-app',
+                ],
+            },
+        ]
+        self.docksible.set_action('custom-app')
+        self.docksible._build_ansible_files()
+        with open(
+            os.path.join(
+                self.docksible.private_data_dir,
+                self.docksible.playbook_builder.playbook_filename
+            ), 'r'
+        ) as fh:
+            written_yaml = yaml.safe_load(fh)
+
+        self.docksible.cleanup_private_data()
+        self.assertListEqual(expected_playbook_ls, written_yaml)
+
+
+    def test_v1(self):
+        print('TESTING DEV VERSION 1')
+        print("GOAL: Refactor the application so that all of 'src/docksible/project/' \
+              gets generated dynamically by DocksiblePlaybookBuilder")
+        print('To make it easier, do this:')
+        print('* git checkout dev/v1')
+        print('* cp -r src/docksible/project/* test/tmp-private-data/')
+        print('* git checkout refactor/gh-24-docker-compose')
+        print('Continue debugging the following code ;-)')
+        import pdb; pdb.set_trace()
+        self.docksible.letsencrypt = False
         self._do_test_run()
 
 

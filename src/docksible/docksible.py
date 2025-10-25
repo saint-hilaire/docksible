@@ -1,6 +1,7 @@
 from shutil import rmtree
 from ansible_runner import interface as runner_interface
 from .constants import *
+from .playbook_builder import DocksiblePlaybookBuilder
 
 
 class Docksible:
@@ -29,8 +30,8 @@ class Docksible:
         except FileExistsError:
             pass
 
-        self.user   = user
-        self.host   = host
+        self.user = user
+        self.host = host
 
         host_dict = {'ansible_user': self.user}
         if self.host in ['localhost', '127.0.0.1']:
@@ -45,7 +46,10 @@ class Docksible:
             'ungrouped': {'hosts': {}},
         }
 
-        self.action = action
+        self.playbook_builder = DocksiblePlaybookBuilder(private_data_dir,
+                action)
+
+        self.set_action(action)
 
         self.app_version = app_version
 
@@ -70,8 +74,12 @@ class Docksible:
         self.ssh_proxy = ssh_proxy
         self.sudo_password = sudo_password
         self.apparmor_workaround = apparmor_workaround
-
         self.extravars = {}
+
+
+    def set_action(self, action):
+        self.action = action
+        self.playbook_builder.set_action(action)
 
 
     def _update_env(self):
@@ -123,14 +131,19 @@ class Docksible:
             self.extravars[varname] = value
 
 
+    def _build_ansible_files(self):
+        self.playbook_builder.write()
+        return 0
+
+
     def run(self):
         self._update_env()
+        self._build_ansible_files()
         runner = runner_interface.run(
             private_data_dir=self.private_data_dir,
             playbook=f'{self.action}.yml',
             inventory=self.inventory,
             extravars=self.extravars,
-            project_dir=PROJECT_DIR,
         )
         if runner.rc != 0:
             self.cleanup_private_data()
@@ -142,7 +155,6 @@ class Docksible:
                 playbook='letsencrypt.yml',
                 inventory=self.inventory,
                 extravars=self.extravars,
-                project_dir=PROJECT_DIR,
             )
             if runner.rc != 0:
                 self.cleanup_private_data()
