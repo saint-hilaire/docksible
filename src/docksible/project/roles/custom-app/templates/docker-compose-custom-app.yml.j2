@@ -1,7 +1,7 @@
 services:
 
   docksible_custom_app:
-    image: "{{ app_image }}"
+    image: "{{ app_image }}:{{ app_version }}"
     container_name: docksible_custom_app
     restart: always
     environment:
@@ -33,6 +33,7 @@ services:
       # TODO: This "WordPress volume" is needed for Certbot?
       - "$HOME/docksible-volumes/wordpress_data:/var/www/html"
 
+{% if phpmyadmin %}
   docksible_phpmyadmin:
     depends_on:
       - docksible_db
@@ -41,10 +42,11 @@ services:
     restart: unless-stopped
     environment:
       - "PMA_HOST=docksible_db"
+{% endif %}
 
 {% if ssh_proxy %}
   docksible_ssh_proxy:
-    image: sainthilaire/simple-ssh-proxy:latest
+    image: belalibrahim/simple-ssh-proxy:latest
     ports:
       - "2222:22"
     volumes:

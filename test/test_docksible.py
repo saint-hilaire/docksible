@@ -32,9 +32,9 @@ class TestDocksible(unittest.TestCase):
             database_password='password',
         )
 
-        if host in ['localhost', '127.0.0.1']:
+        if user != 'root':
             self.docksible.sudo_password = getpass(
-                'Please enter local sudo password: '
+                'Please enter sudo password for test host: '
             )
             self.docksible.letsencrypt = False
         else:
@@ -80,7 +80,7 @@ class TestDocksible(unittest.TestCase):
         self.docksible.action = 'custom-app'
         self.docksible.database_name = 'smartestate'
         self.docksible.app_name = 'smartestate'
-        self.docksible.app_image = 'sainthilaire/smartestate:latest'
+        self.docksible.app_image = 'belalibrahim/smartestate'
         self.docksible.extra_env_vars = {
             'DEBUG': 0,
             'ALLOWED_HOSTS': self.docksible.host,
@@ -90,6 +90,14 @@ class TestDocksible(unittest.TestCase):
             'DATABASE_USER': self.docksible.database_username,
             'DATABASE_PASSWORD': self.docksible.database_password,
         }
+        self._do_test_run()
+
+
+    def test_phpmyadmin(self):
+        # TODO: We should have some barebones Nginx action.
+        self.docksible.database_name = 'redmine'
+        self.docksible.action = 'redmine'
+        self.docksible.phpmyadmin = True
         self._do_test_run()
 
 
