@@ -34,6 +34,7 @@ class Docksible:
         self.host = host
 
         host_dict = {'ansible_user': self.user}
+        # TODO: See Lampsible, improve this.
         if self.host in ['localhost', '127.0.0.1']:
             host_dict['ansible_connection'] = 'local'
 
@@ -79,6 +80,7 @@ class Docksible:
 
     def set_action(self, action):
         self.action = action
+        # TODO: Maybe this is a little redundant?
         self.playbook_builder.set_action(action)
 
 
@@ -133,7 +135,7 @@ class Docksible:
 
     def _build_ansible_files(self):
         self.playbook_builder.write()
-        return 0
+        return 0 # ??
 
 
     def run(self):

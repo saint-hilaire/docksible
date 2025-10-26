@@ -2,6 +2,7 @@ import os
 import unittest
 from getpass import getpass, getuser
 import yaml
+from docksible.constants import PROJECT_DIR
 from docksible.docksible import Docksible
 # TODO: Get rid of this.
 from docksible.helpers import get_wordpress_auth_vars
@@ -103,18 +104,15 @@ class TestDocksible(unittest.TestCase):
 
 
     def test_playbook_builder(self):
-        expected_playbook_ls = [
-            {
-                'hosts': 'all',
-                'become': True,
-                'gather_facts': True,
-                'roles': [
-                    'setup-docker-compose',
-                    'custom-app',
-                ],
-            },
-        ]
-        self.docksible.set_action('custom-app')
+        with open(
+            os.path.join(
+                PROJECT_DIR,
+                'base-setup-docker-compose.yml',
+            ), 'r'
+        ) as fh:
+            expected_playbook_ls = yaml.safe_load(fh)
+
+        self.docksible.set_action('setup-docker-compose')
         self.docksible._build_ansible_files()
         with open(
             os.path.join(
