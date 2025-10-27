@@ -4,16 +4,15 @@ from secrets import token_hex
 from ipaddress import ip_address
 
 
-# TODO: Tighten this up a bit...
-def find_package_project_dir():
+def find_templates_dir():
     for path_str in sys_path:
         try:
-            try_path = os.path.join(path_str, 'docksible', 'project')
+            try_path = os.path.join(path_str, 'docksible', 'templates')
             assert os.path.isdir(try_path)
             return try_path
         except AssertionError:
             pass
-    raise RuntimeError('Found no "package project directory"')
+    raise RuntimeError('Found no template directory')
 
 
 # TODO: In the future we shouldn't use this, because we let WP-CLI handle these instead.

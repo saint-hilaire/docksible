@@ -51,3 +51,16 @@
       name: "{{ ansible_user }}"
       groups: docker
       append: yes
+
+  - name: Create Docker Compose directory
+    file:
+      path: "{{ ansible_env.HOME }}/docker-compose"
+      state: directory
+      mode: '0755'
+
+  - name: Create the directory tree for Docker volumes
+    file:
+      path: "{{ ansible_env.HOME }}/docker-compose-volumes/{{ item }}"
+      state: directory
+      mode: '0755'
+    loop: "{{ docker_compose_volume_dirs }}"
