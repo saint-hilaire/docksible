@@ -1,6 +1,7 @@
 import os
 from sys import path as sys_path
 from secrets import token_hex
+from ipaddress import ip_address
 
 
 # TODO: Tighten this up a bit...
@@ -33,3 +34,21 @@ def get_wordpress_auth_vars():
         auth_vars['WORDPRESS_{}'.format(var.upper())] = token_hex(64)
 
     return auth_vars
+
+
+def host_is_local(host):
+    if host.lower() == 'localhost':
+        return True
+    try:
+        tmp_ip = ip_address(host)
+        return tmp_ip.is_loopback
+    except ValueError:
+        return False
+
+
+def host_is_private(host):
+    try:
+        tmp_ip = ip_address(host)
+        return tmp_ip.is_private or tmp_ip.is_link_local
+    except ValueError:
+        return False

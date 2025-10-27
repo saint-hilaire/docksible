@@ -1,6 +1,7 @@
 from shutil import rmtree
 from ansible_runner import interface as runner_interface
 from .constants import *
+from .helpers import *
 from .playbook_builder import DocksiblePlaybookBuilder
 
 
@@ -34,8 +35,8 @@ class Docksible:
         self.host = host
 
         host_dict = {'ansible_user': self.user}
-        # TODO: See Lampsible, improve this.
-        if self.host in ['localhost', '127.0.0.1']:
+
+        if host_is_local(self.host):
             host_dict['ansible_connection'] = 'local'
 
         self.inventory = {
