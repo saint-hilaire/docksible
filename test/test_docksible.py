@@ -137,7 +137,7 @@ class TestDocksible(unittest.TestCase):
         with open(
             os.path.join(
                 TEMPLATES_DIR,
-                'docker-compose.yml.j2',
+                'base-docker-compose.yml.j2',
             ), 'r'
         ) as fh:
             expected_docker_compose = yaml.safe_load(fh)

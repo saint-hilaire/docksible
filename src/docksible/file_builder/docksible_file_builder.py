@@ -17,7 +17,6 @@ class DocksibleFileBuilder:
             self.base_template = yaml.safe_load(fh)
 
 
-
     def set_action(self, action):
         self.action = action
 

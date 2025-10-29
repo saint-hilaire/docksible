@@ -7,7 +7,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
     def __init__(self, private_data_dir, action):
         super().__init__(
                 private_data_dir,
-                'docker-compose.yml.j2',
+                'base-docker-compose.yml.j2',
                 action,
         )
         self.set_action(action)
