@@ -1,6 +1,10 @@
 from shutil import rmtree
 from ansible_runner import interface as runner_interface
 from .constants import *
+from .helpers import *
+from .file_builder.playbook_builder import PlaybookBuilder
+from .file_builder.docker_compose_builder import DockerComposeBuilder
+from .file_builder.nginx_conf_builder import NginxConfBuilder
 
 
 class Docksible:
@@ -23,17 +27,19 @@ class Docksible:
             extra_env_vars={},
             apparmor_workaround=False,
         ):
+
         self.private_data_dir = private_data_dir
         try:
             os.makedirs(self.private_data_dir)
         except FileExistsError:
             pass
 
-        self.user   = user
-        self.host   = host
+        self.user = user
+        self.host = host
 
         host_dict = {'ansible_user': self.user}
-        if self.host in ['localhost', '127.0.0.1']:
+
+        if host_is_local(self.host):
             host_dict['ansible_connection'] = 'local'
 
         self.inventory = {
@@ -45,7 +51,14 @@ class Docksible:
             'ungrouped': {'hosts': {}},
         }
 
-        self.action = action
+        self.playbook_builder = PlaybookBuilder(private_data_dir,
+                action)
+        self.docker_compose_builder = DockerComposeBuilder(private_data_dir,
+                action)
+        self.nginx_conf_builder = NginxConfBuilder(private_data_dir,
+                action)
+
+        self.set_action(action)
 
         self.app_version = app_version
 
@@ -70,10 +83,19 @@ class Docksible:
         self.ssh_proxy = ssh_proxy
         self.sudo_password = sudo_password
         self.apparmor_workaround = apparmor_workaround
-
         self.extravars = {}
 
 
+    def set_action(self, action):
+        self.action = action
+        # TODO: Redundant?
+        self.playbook_builder.set_action(action)
+        self.docker_compose_builder.set_action(action)
+        self.nginx_conf_builder.set_action(action)
+
+
+    # TODO: Rename this to something more appropriate.
+    # It sets the extravars...
     def _update_env(self):
         if self.action == 'redmine':
             self.internal_http_port = 3000
@@ -81,6 +103,7 @@ class Docksible:
             self.internal_http_port = 80
 
         extravars = [
+            'docker_compose_volume_dirs',
             'app_version',
             'database_root_password',
             'database_username',
@@ -101,36 +124,55 @@ class Docksible:
             'apparmor_workaround',
         ]
         for varname in extravars:
-            if varname == 'service_to_encrypt':
+            if varname == 'docker_compose_volume_dirs':
+                value = [
+                    'db-data',
+                    'nginx-data',
+                    'app-data',
+                ]
+                if self.ssh_proxy:
+                    value.append('ssh-proxy-data')
+
+            elif varname == 'service_to_encrypt':
                 # TODO: Tech debt. Fix in v1. I want to prefer dashes over
                 # underscores, but for now, I need it like this.
                 value = self.action.replace('-', '_')
+
             elif varname == 'test_cert':
                 value = self.get_certbot_test_cert_string()
+
             elif varname == 'domain':
                 if not self.domain:
                     value = self.host
                 else:
                     value = self.domain
+
             elif varname == 'ansible_sudo_pass':
                 if self.sudo_password:
                     value = self.sudo_password
                 else:
                     continue
+
             else:
                 value = getattr(self, varname)
 
             self.extravars[varname] = value
 
 
+    def _build_ansible_files(self):
+        self.playbook_builder.write()
+        self.docker_compose_builder.write()
+        self.nginx_conf_builder.write()
+
+
     def run(self):
         self._update_env()
+        self._build_ansible_files()
         runner = runner_interface.run(
             private_data_dir=self.private_data_dir,
             playbook=f'{self.action}.yml',
             inventory=self.inventory,
             extravars=self.extravars,
-            project_dir=PROJECT_DIR,
         )
         if runner.rc != 0:
             self.cleanup_private_data()
@@ -142,7 +184,6 @@ class Docksible:
                 playbook='letsencrypt.yml',
                 inventory=self.inventory,
                 extravars=self.extravars,
-                project_dir=PROJECT_DIR,
             )
             if runner.rc != 0:
                 self.cleanup_private_data()

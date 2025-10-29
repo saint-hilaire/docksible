@@ -3,6 +3,7 @@ from copy import deepcopy
 from getpass import getpass, getuser
 from textwrap import dedent
 from .constants import *
+from .helpers import *
 
 INSECURE_CLI_PASS_WARNING = 'It\'s insecure to pass passwords via CLI args! If you are sure that you want to do this, rerun this command with the --insecure-cli-password flag.'
 
@@ -127,8 +128,11 @@ class ArgValidator():
                 return 1
             self.validated_args.user = getuser()
 
-        if self.validated_args.host in ['localhost', '127.0.0.1']:
+        if host_is_local(self.validated_args.host):
             self.validated_args.ask_remote_sudo = os.geteuid() != 0
+        elif host_is_private(self.validated_args.host):
+            self.validated_args.ask_remote_sudo = \
+                    self.validated_args.user != 'root'
 
         if self.raw_args.remote_sudo_password \
             and not self.raw_args.insecure_cli_password:
@@ -187,7 +191,7 @@ class ArgValidator():
             ], True, True)
 
         if not self.raw_args.database_root_password \
-                and self.raw_args.action != 'setup-docker-compose':
+                and self.raw_args.action not in ['setup-docker-compose', 'nginx']:
 
             self.validated_args.database_root_password = self.get_pass_and_check(
                 'Please enter a database root password: ',

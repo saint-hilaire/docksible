@@ -17,6 +17,7 @@ requires-python = ">=3.9"
 dependencies = [
     "ansible-core>=2.15",
     "ansible-runner>=2.4",
+    "crossplane",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

@@ -2,12 +2,13 @@ import os
 from .helpers import *
 
 USER_HOME_DIR = os.path.expanduser('~')
-PROJECT_DIR = find_package_project_dir()
+TEMPLATES_DIR = find_templates_dir()
 DEFAULT_PRIVATE_DATA_DIR = os.path.join(USER_HOME_DIR, '.docksible')
 DEFAULT_BACKUPS_DIR = os.path.join(USER_HOME_DIR, '.docksible-backups')
 
 SUPPORTED_ACTIONS = [
     'setup-docker-compose',
+    'nginx',
     'redmine',
     'wordpress',
     'backup',
