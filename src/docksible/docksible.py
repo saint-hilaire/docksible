@@ -53,13 +53,18 @@ class Docksible:
 
         self.playbook_builder = PlaybookBuilder(private_data_dir,
                 action)
-        self.docker_compose_builder = DockerComposeBuilder(private_data_dir,
-                action)
+        self.docker_compose_builder = DockerComposeBuilder(
+            private_data_dir,
+            action,
+            database_root_password=database_root_password,
+            database_username=database_username,
+            database_password=database_password,
+            database_name=database_name,
+        )
         self.nginx_conf_builder = NginxConfBuilder(private_data_dir,
                 action)
 
-        self.set_action(action)
-
+        self.app_image = app_image
         self.app_version = app_version
 
         self.database_root_password = database_root_password
@@ -74,7 +79,6 @@ class Docksible:
         self.email = email
         self.test_cert = test_cert
 
-        self.app_image = app_image
         self.app_name = app_name
         self.internal_http_port = internal_http_port
         self.phpmyadmin = phpmyadmin
@@ -85,10 +89,15 @@ class Docksible:
         self.apparmor_workaround = apparmor_workaround
         self.extravars = {}
 
+        self.set_action(action)
+
 
     def set_action(self, action):
         self.action = action
-        # TODO: Redundant?
+
+        if action != 'custom-app':
+            self.app_image = action
+
         self.playbook_builder.set_action(action)
         self.docker_compose_builder.set_action(action)
         self.nginx_conf_builder.set_action(action)

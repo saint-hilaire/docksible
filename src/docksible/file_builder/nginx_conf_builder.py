@@ -15,8 +15,6 @@ class NginxConfBuilder(DocksibleFileBuilder):
         # TODO: Is there a better way?
         self.nginx_conf = self.base_template['config'][0]['parsed']
 
-        self.set_action(action)
-
 
     def set_action(self, action):
         self.action = action

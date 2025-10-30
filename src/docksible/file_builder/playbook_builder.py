@@ -13,8 +13,6 @@ class PlaybookBuilder(DocksibleFileBuilder):
 
         self._playbook_dict = self.base_template[0]
 
-        self.set_action(action)
-
 
     def set_action(self, action):
         self.action = action
