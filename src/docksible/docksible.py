@@ -56,19 +56,6 @@ class Docksible:
             'ungrouped': {'hosts': {}},
         }
 
-        self.playbook_builder = PlaybookBuilder(private_data_dir,
-                action)
-        self.docker_compose_builder = DockerComposeBuilder(
-            private_data_dir,
-            action,
-            database_root_password=database_root_password,
-            database_username=database_username,
-            database_password=database_password,
-            database_name=database_name,
-        )
-        self.nginx_conf_builder = NginxConfBuilder(private_data_dir,
-                action)
-
         self.app_image = app_image
         self.app_version = app_version
 
@@ -103,9 +90,23 @@ class Docksible:
         if action != 'custom-app':
             self.app_image = action
 
-        self.playbook_builder.set_action(action)
-        self.docker_compose_builder.set_action(action)
-        self.nginx_conf_builder.set_action(action)
+        self.playbook_builder = PlaybookBuilder(self.private_data_dir,
+                self.action)
+        self.docker_compose_builder = DockerComposeBuilder(
+            self.private_data_dir,
+            self.action,
+            database_root_password=self.database_root_password,
+            database_username=self.database_username,
+            database_password=self.database_password,
+            database_name=self.database_name,
+        )
+        self.nginx_conf_builder = NginxConfBuilder(self.private_data_dir,
+                self.action)
+
+        # TODO: Move these to the above constructors?
+        self.playbook_builder.set_action(self.action)
+        self.docker_compose_builder.set_action(self.action)
+        self.nginx_conf_builder.set_action(self.action)
 
 
     # TODO: Rename this to something more appropriate.
