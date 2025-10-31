@@ -89,12 +89,4 @@ class DockerComposeBuilder(DocksibleFileBuilder):
 
 
     def write(self, filepath=['templates', 'docker-compose.yml.j2']):
-        try:
-            os.makedirs(
-                os.path.join(self.private_data_dir, 'templates'),
-                exist_ok=True
-            )
-        except FileExistsError:
-            pass
-
         super().write(filepath)

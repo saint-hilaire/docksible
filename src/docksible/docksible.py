@@ -30,7 +30,12 @@ class Docksible:
 
         self.private_data_dir = private_data_dir
         try:
-            os.makedirs(self.private_data_dir)
+            os.makedirs(
+                os.path.join(
+                    self.private_data_dir,
+                    'templates',
+                )
+            )
         except FileExistsError:
             pass
 

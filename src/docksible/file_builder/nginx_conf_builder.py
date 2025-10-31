@@ -22,14 +22,6 @@ class NginxConfBuilder(DocksibleFileBuilder):
 
 
     def write(self, filepath=['templates', 'nginx.conf.j2']):
-        try:
-            os.makedirs(
-                os.path.join(self.private_data_dir, 'templates'),
-                exist_ok=True
-            )
-        except FileExistsError:
-            pass
-
         with open(
             os.path.join(
                 self.private_data_dir,
