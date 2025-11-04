@@ -52,6 +52,16 @@ class NginxConfBuilder(DocksibleFileBuilder):
         if not found_it:
             raise RuntimeError('Found no root location block in nginx_conf')
 
+        if action == 'wordpress':
+            self._server_block.append({
+                'directive': 'location',
+                'args': ['/xmlrpc.php'],
+                'block': [
+                    {'directive': 'deny', 'args': ['all']},
+                    {'directive': 'access_log', 'args': ['off']},
+                ],
+            })
+
 
     def write(self, filepath=['templates', 'nginx.conf.j2']):
         with open(
