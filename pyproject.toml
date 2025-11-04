@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "docksible"
-version = "1.0.0-alpha-1"
+version = "1.0.0-alpha-2"
 authors = [
     {name="Belal Ibrahim", email="belal.ibrahim@proton.me"}
 ]

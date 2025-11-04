@@ -30,7 +30,12 @@ class Docksible:
 
         self.private_data_dir = private_data_dir
         try:
-            os.makedirs(self.private_data_dir)
+            os.makedirs(
+                os.path.join(
+                    self.private_data_dir,
+                    'templates',
+                )
+            )
         except FileExistsError:
             pass
 
@@ -51,15 +56,7 @@ class Docksible:
             'ungrouped': {'hosts': {}},
         }
 
-        self.playbook_builder = PlaybookBuilder(private_data_dir,
-                action)
-        self.docker_compose_builder = DockerComposeBuilder(private_data_dir,
-                action)
-        self.nginx_conf_builder = NginxConfBuilder(private_data_dir,
-                action)
-
-        self.set_action(action)
-
+        self.app_image = app_image
         self.app_version = app_version
 
         self.database_root_password = database_root_password
@@ -74,7 +71,6 @@ class Docksible:
         self.email = email
         self.test_cert = test_cert
 
-        self.app_image = app_image
         self.app_name = app_name
         self.internal_http_port = internal_http_port
         self.phpmyadmin = phpmyadmin
@@ -85,13 +81,32 @@ class Docksible:
         self.apparmor_workaround = apparmor_workaround
         self.extravars = {}
 
+        self.set_action(action)
+
 
     def set_action(self, action):
         self.action = action
-        # TODO: Redundant?
-        self.playbook_builder.set_action(action)
-        self.docker_compose_builder.set_action(action)
-        self.nginx_conf_builder.set_action(action)
+
+        if action != 'custom-app':
+            self.app_image = action
+
+        self.playbook_builder = PlaybookBuilder(self.private_data_dir,
+                self.action)
+        self.docker_compose_builder = DockerComposeBuilder(
+            self.private_data_dir,
+            self.action,
+            database_root_password=self.database_root_password,
+            database_username=self.database_username,
+            database_password=self.database_password,
+            database_name=self.database_name,
+        )
+        self.nginx_conf_builder = NginxConfBuilder(self.private_data_dir,
+                self.action)
+
+        # TODO: Move these to the above constructors?
+        self.playbook_builder.set_action(self.action)
+        self.docker_compose_builder.set_action(self.action)
+        self.nginx_conf_builder.set_action(self.action)
 
 
     # TODO: Rename this to something more appropriate.

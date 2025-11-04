@@ -2,7 +2,6 @@ import os
 import unittest
 from getpass import getpass, getuser
 import yaml
-import crossplane
 from docksible.constants import TEMPLATES_DIR
 from docksible.docksible import Docksible
 # TODO: Get rid of this.
@@ -33,6 +32,7 @@ class TestDocksible(unittest.TestCase):
             database_root_password='rootpassword',
             database_username='db-username',
             database_password='password',
+            database_name='test_db',
         )
 
         if user != 'root':
@@ -158,22 +158,16 @@ class TestDocksible(unittest.TestCase):
 
 
     def test_nginx_conf_builder(self):
-        expected_nginx_conf = crossplane.parse(
-                # TODO: Is there a better way?
-                os.path.join(TEMPLATES_DIR, 'base-nginx.conf'))['config'][0]['parsed']
 
         self.docksible.set_action('nginx')
         self.docksible._build_ansible_files()
-        written_nginx_conf = crossplane.parse(
-            os.path.join(
-                self.docksible.private_data_dir,
-                'templates',
-                'nginx.conf.j2'
-            )
-        )['config'][0]['parsed']
 
-        self.docksible.cleanup_private_data()
-        self.assertListEqual(expected_nginx_conf, written_nginx_conf)
+        expected = os.path.join('test', 'expected-nginx.conf')
+        actual = os.path.join(self.docksible.private_data_dir, 'templates', 'nginx.conf.j2')
+
+        with open(expected, 'r', encoding='utf-8') as f1, open(actual, 'r', encoding='utf-8') as f2:
+            self.docksible.cleanup_private_data()
+            assert f1.read().strip().replace('\r\n', '\n') == f2.read().strip().replace('\r\n', '\n')
 
 
     def test_v1(self):
