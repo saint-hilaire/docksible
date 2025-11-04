@@ -1,17 +1,18 @@
 import os
 from sys import path as sys_path
 from secrets import token_hex
+from ipaddress import ip_address
 
 
-def find_package_project_dir():
+def find_templates_dir():
     for path_str in sys_path:
         try:
-            try_path = os.path.join(path_str, 'docksible', 'project')
+            try_path = os.path.join(path_str, 'docksible', 'templates')
             assert os.path.isdir(try_path)
             return try_path
         except AssertionError:
             pass
-    raise RuntimeError("Got no user supplied --project-dir, and could not find one in expected package location. Your Docksible installation is likely broken. However, if you are running this code directly from source, this is expected behavior. You probably forgot to pass the '--project-dir' flag. The directoy you're looking for is 'src/docksible/project/'.")
+    raise RuntimeError('Found no template directory')
 
 
 # TODO: In the future we shouldn't use this, because we let WP-CLI handle these instead.
@@ -32,3 +33,21 @@ def get_wordpress_auth_vars():
         auth_vars['WORDPRESS_{}'.format(var.upper())] = token_hex(64)
 
     return auth_vars
+
+
+def host_is_local(host):
+    if host.lower() == 'localhost':
+        return True
+    try:
+        tmp_ip = ip_address(host)
+        return tmp_ip.is_loopback
+    except ValueError:
+        return False
+
+
+def host_is_private(host):
+    try:
+        tmp_ip = ip_address(host)
+        return tmp_ip.is_private or tmp_ip.is_link_local
+    except ValueError:
+        return False

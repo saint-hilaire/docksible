@@ -1,0 +1,28 @@
+import os
+import yaml
+from docksible.constants import TEMPLATES_DIR
+
+
+class DocksibleFileBuilder:
+
+    def __init__(self, private_data_dir, base_template_filename, action):
+        self.private_data_dir = private_data_dir
+
+        with open(
+            os.path.join(
+                TEMPLATES_DIR,
+                base_template_filename
+            ), 'r'
+        ) as fh:
+            self.base_template = yaml.safe_load(fh)
+
+
+    def set_action(self, action):
+        self.action = action
+
+
+    def write(self, filepath):
+        with open(
+            os.path.join(self.private_data_dir, *filepath), 'w'
+        ) as fh:
+            yaml.dump(self.base_template, fh)
