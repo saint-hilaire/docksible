@@ -45,8 +45,11 @@ class PlaybookBuilder(DocksibleFileBuilder):
                     },
                 },
                 {
+                    # TODO: Maybe these snippets also belong in template files?
                     'name': 'Run the web service',
-                    'raw': 'docker compose -f {{ ansible_env.HOME }}/docker-compose/docker-compose.yml up -d',
+                    'community.docker.docker_compose_v2': {
+                        'project_src': '{{ ansible_env.HOME }}/docker-compose/'
+                    },
                 },
             ])
 
