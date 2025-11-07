@@ -19,39 +19,9 @@ class PlaybookBuilder(DocksibleFileBuilder):
         self.playbook_filename = f'{action}.yml'
 
         if action != 'setup-docker-compose':
-            self._playbook_dict['tasks'].extend([
-                {
-                    'name': 'Copy the Nginx Configuration',
-                    'template': {
-                        'src': 'nginx.conf.j2',
-                        'dest': '{{ ansible_env.HOME }}/docker-compose-volumes/nginx-data/nginx.conf',
-                        # TODO: Here, and elsewhere, perhaps we can just pass in
-                        # Docksible's 'user' parameter?
-                        'owner': '{{ ansible_user }}',
-                        'group': '{{ ansible_user }}',
-                        'mode': '0644',
-                    },
-                },
-                {
-                    'name': 'Load Docker-Compose file',
-                    'template': {
-                        'src': 'docker-compose.yml.j2',
-                        'dest': '{{ ansible_env.HOME }}/docker-compose/docker-compose.yml',
-                        # TODO: Here, and elsewhere, perhaps we can just pass in
-                        # Docksible's 'user' parameter?
-                        'owner': '{{ ansible_user }}',
-                        'group': '{{ ansible_user }}',
-                        'mode': '0600'
-                    },
-                },
-                {
-                    # TODO: Maybe these snippets also belong in template files?
-                    'name': 'Run the web service',
-                    'community.docker.docker_compose_v2': {
-                        'project_src': '{{ ansible_env.HOME }}/docker-compose/'
-                    },
-                },
-            ])
+            self._playbook_dict['tasks'].extend(
+                self.get_additional_template('playbook-run-tasks.yml')
+            )
 
 
     def write(self, filepath=[]):
