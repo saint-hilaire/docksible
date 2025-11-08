@@ -176,6 +176,16 @@ class ArgValidator():
                     'override_default_value': 'wp_',
                 },
             ], True, True)
+
+        elif self.raw_args.action == 'redmine':
+            self.handle_defaults([
+                {
+                    'arg_name': 'database_name',
+                    'cli_default_value': None,
+                    'override_default_value': 'redmine',
+                },
+            ], True, True)
+
         elif self.raw_args.action == 'custom-app':
             self.handle_defaults([
                 {

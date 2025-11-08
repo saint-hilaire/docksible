@@ -21,6 +21,19 @@ class DocksibleFileBuilder:
         self.action = action
 
 
+    def get_additional_template(self, filename):
+        result = None
+        with open(
+            os.path.join(
+                TEMPLATES_DIR,
+                filename
+            ), 'r'
+        ) as fh:
+            result = yaml.safe_load(fh)
+
+        return result
+
+
     def write(self, filepath):
         with open(
             os.path.join(self.private_data_dir, *filepath), 'w'

@@ -1,4 +1,5 @@
 from shutil import rmtree
+import subprocess
 from ansible_runner import interface as runner_interface
 from .constants import *
 from .helpers import *
@@ -180,9 +181,20 @@ class Docksible:
         self.nginx_conf_builder.write()
 
 
+    def _install_galaxy_dependencies(self):
+        subprocess.run([
+            'ansible-galaxy',
+            'collection',
+            'install',
+            'community.docker',
+        ])
+
+
     def run(self):
         self._update_env()
         self._build_ansible_files()
+        self._install_galaxy_dependencies()
+
         runner = runner_interface.run(
             private_data_dir=self.private_data_dir,
             playbook=f'{self.action}.yml',
