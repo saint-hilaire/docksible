@@ -65,6 +65,12 @@ class TestDocksible(unittest.TestCase):
 
     def test_wordpress(self):
         self.docksible.database_name = 'wordpress'
+        self.docksible.site_title = 'My WordPress Site'
+        self.docksible.admin_username = 'admin'
+        self.docksible.admin_password = 'password'
+        self.docksible.admin_email = 'me@me.me'
+        self.docksible.wordpress_locale = 'en_US'
+
         self.docksible.set_action('wordpress')
         # TODO: Get rid of this.
         self.docksible.wordpress_auth_vars = get_wordpress_auth_vars()

@@ -60,7 +60,6 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             self.docker_compose_services['docksible_app']['volumes'] = [
                 '{{ ansible_env.HOME }}/docker-compose-volumes/wordpress-data:/var/www/html'
             ]
-            import pdb; pdb.set_trace()
             self._add_auxiliary_service('wp-cli-service.yml.j2')
 
         elif self.action == 'redmine':

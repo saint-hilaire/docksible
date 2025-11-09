@@ -23,6 +23,11 @@ class Docksible:
             app_image=None,
             app_name=None,
             app_version=DEFAULT_APP_VERSION,
+            site_title=DEFAULT_SITE_TITLE,
+            admin_username=DEFAULT_ADMIN_USERNAME,
+            admin_password=None,
+            admin_email=DEFAULT_ADMIN_EMAIL,
+            wordpress_locale=DEFAULT_WORDPRESS_LOCALE,
             internal_http_port=DEFAULT_INTERNAL_HTTP_PORT,
             phpmyadmin=False,
             extra_env_vars={},
@@ -71,6 +76,12 @@ class Docksible:
         self.domain = domain
         self.email = email
         self.test_cert = test_cert
+
+        self.site_title = site_title
+        self.admin_username = admin_username
+        self.admin_password = admin_password
+        self.admin_email = admin_email
+        self.wordpress_locale = wordpress_locale
 
         self.app_name = app_name
         self.internal_http_port = internal_http_port
@@ -134,6 +145,11 @@ class Docksible:
             'ansible_sudo_pass',
             'app_image',
             'app_name',
+            'site_title',
+            'admin_username',
+            'admin_password',
+            'admin_email',
+            'wordpress_locale',
             'internal_http_port',
             'phpmyadmin',
             'extra_env_vars',

@@ -270,11 +270,43 @@ class ArgValidator():
                   """))
             return 1
 
-        if self.raw_args.action == 'custom-app' \
+        if self.raw_args.action == 'wordpress':
+            self.handle_defaults([
+                {
+                    'arg_name': 'site_title',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_SITE_TITLE,
+                },
+                {
+                    'arg_name': 'admin_username',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_ADMIN_USERNAME,
+                },
+                {
+                    'arg_name': 'admin_email',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_ADMIN_EMAIL,
+                },
+                {
+                    'arg_name': 'wordpress_locale',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_WORDPRESS_LOCALE,
+                },
+            ], True, True)
+
+        elif self.raw_args.action == 'custom-app' \
                 and not (self.raw_args.app_image):
 
             print("'--app-image' is required when running 'custom-app'.")
             return 1
+
+        if self.raw_args.action in ['wordpress']:
+            if not self.raw_args.admin_password:
+                self.validated_args.admin_password = self.get_pass_and_check(
+                    'Please enter an admin password: ',
+                    8,
+                    True
+                )
 
         return 0
 

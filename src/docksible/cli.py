@@ -55,6 +55,13 @@ def main():
         """
     )
     parser.add_argument('--app-name')
+
+    parser.add_argument('--site-title')
+    parser.add_argument('--admin-username')
+    parser.add_argument('--admin-password')
+    parser.add_argument('--admin-email')
+    parser.add_argument('--wordpress-locale')
+
     parser.add_argument('--internal-http-port', default=DEFAULT_INTERNAL_HTTP_PORT)
     parser.add_argument('--phpmyadmin', action='store_true',
         help="""
@@ -97,6 +104,11 @@ def main():
         database_password=args.database_password,
         database_name=args.database_name,
         sudo_password=args.remote_sudo_password,
+        site_title=args.site_title,
+        admin_username=args.admin_username,
+        admin_password=args.admin_password,
+        admin_email=args.admin_email,
+        wordpress_locale=args.wordpress_locale,
         ssh_proxy=args.ssh_proxy,
         app_image=args.app_image,
         app_name=args.app_name,
