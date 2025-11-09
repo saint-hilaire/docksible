@@ -17,13 +17,14 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                 action,
         )
         self.docker_compose_services = self.base_template['services']
+
         self.database_root_password = database_root_password
         self.database_username = database_username
         self.database_password = database_password
         self.database_name = database_name
 
 
-    def _add_db_service(self):
+    def add_db_service(self):
         with open(
             os.path.join(
                 TEMPLATES_DIR,
@@ -39,7 +40,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                     '--default-authentication-plugin=mysql_native_password'
 
 
-    def _add_app_service(self):
+    def add_app_service(self):
         with open(
             os.path.join(
                 TEMPLATES_DIR,
@@ -59,6 +60,8 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             self.docker_compose_services['docksible_app']['volumes'] = [
                 '{{ ansible_env.HOME }}/docker-compose-volumes/wordpress-data:/var/www/html'
             ]
+            import pdb; pdb.set_trace()
+            self._add_auxiliary_service('wp-cli-service.yml.j2')
 
         elif self.action == 'redmine':
             self.docker_compose_services['docksible_app']['environment'] = {
@@ -71,7 +74,13 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             ]
 
 
-    def _add_webserver_config(self):
+    def _add_auxiliary_service(self, service_template_name):
+        self.docker_compose_services['docksible_auxiliary'] = \
+                self.get_additional_template(
+                        service_template_name)['docksible_auxiliary']
+
+
+    def add_webserver_config(self):
         # TODO: Similar to the other methods above, the 'docksible_webserver'
         # service will need to be adjusted slightly based on whatever action
         # we have.
@@ -83,9 +92,9 @@ class DockerComposeBuilder(DocksibleFileBuilder):
     def set_action(self, action):
         self.action = action
         if action not in ['setup-docker-compose', 'nginx']:
-            self._add_db_service()
-            self._add_app_service()
-            self._add_webserver_config()
+            self.add_db_service()
+            self.add_app_service()
+            self.add_webserver_config()
 
 
     def write(self, filepath=['templates', 'docker-compose.yml.j2']):
