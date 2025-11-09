@@ -15,7 +15,6 @@ class Docksible:
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
             letsencrypt=False,
-            wordpress_auth_vars=None,
             domain=None, email=None,
             test_cert=False,
             ssh_proxy=False,
@@ -69,8 +68,6 @@ class Docksible:
         self.database_username = database_username
         self.database_password = database_password
         self.database_name = database_name
-
-        self.wordpress_auth_vars = wordpress_auth_vars
 
         self.letsencrypt = letsencrypt
         self.domain = domain
@@ -136,7 +133,6 @@ class Docksible:
             'database_username',
             'database_password',
             'database_name',
-            'wordpress_auth_vars',
             'domain',
             'email',
             'service_to_encrypt',

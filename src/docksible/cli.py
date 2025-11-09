@@ -118,9 +118,6 @@ def main():
         apparmor_workaround=args.apparmor_workaround,
     )
 
-    if args.action == 'wordpress':
-        docksible.wordpress_auth_vars = get_wordpress_auth_vars()
-
     # TODO: Temporary solution, do this better in the future.
     if args.action in ['backup']:
         raise NotImplementedError
