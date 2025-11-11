@@ -15,7 +15,6 @@ class Docksible:
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
             letsencrypt=False,
-            wordpress_auth_vars=None,
             domain=None, email=None,
             test_cert=False,
             ssh_proxy=False,
@@ -23,6 +22,12 @@ class Docksible:
             app_image=None,
             app_name=None,
             app_version=DEFAULT_APP_VERSION,
+            site_title=DEFAULT_SITE_TITLE,
+            admin_username=DEFAULT_ADMIN_USERNAME,
+            admin_password=None,
+            admin_email=DEFAULT_ADMIN_EMAIL,
+            wordpress_locale=DEFAULT_WORDPRESS_LOCALE,
+            manual_app_install=False,
             internal_http_port=DEFAULT_INTERNAL_HTTP_PORT,
             phpmyadmin=False,
             extra_env_vars={},
@@ -65,16 +70,21 @@ class Docksible:
         self.database_password = database_password
         self.database_name = database_name
 
-        self.wordpress_auth_vars = wordpress_auth_vars
-
         self.letsencrypt = letsencrypt
         self.domain = domain
         self.email = email
         self.test_cert = test_cert
 
+        self.site_title = site_title
+        self.admin_username = admin_username
+        self.admin_password = admin_password
+        self.admin_email = admin_email
+        self.wordpress_locale = wordpress_locale
+
         self.app_name = app_name
         self.internal_http_port = internal_http_port
         self.phpmyadmin = phpmyadmin
+        self.manual_app_install = manual_app_install
         self.extra_env_vars = extra_env_vars
 
         self.ssh_proxy = ssh_proxy
@@ -100,6 +110,7 @@ class Docksible:
             database_username=self.database_username,
             database_password=self.database_password,
             database_name=self.database_name,
+            manual_app_install=self.manual_app_install,
         )
         self.nginx_conf_builder = NginxConfBuilder(self.private_data_dir,
                 self.action)
@@ -125,7 +136,6 @@ class Docksible:
             'database_username',
             'database_password',
             'database_name',
-            'wordpress_auth_vars',
             'domain',
             'email',
             'service_to_encrypt',
@@ -134,6 +144,11 @@ class Docksible:
             'ansible_sudo_pass',
             'app_image',
             'app_name',
+            'site_title',
+            'admin_username',
+            'admin_password',
+            'admin_email',
+            'wordpress_locale',
             'internal_http_port',
             'phpmyadmin',
             'extra_env_vars',

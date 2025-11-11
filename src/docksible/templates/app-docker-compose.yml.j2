@@ -1,6 +1,12 @@
-  docksible_app:
-    depends_on:
-      - docksible_db
-    image: "{{ app_image }}:{{ app_version }}"
-    container_name: docksible_app
-    restart: always
+docksible_app:
+  depends_on:
+    docksible_db:
+      condition: service_healthy
+  image: "{{ app_image }}:{{ app_version }}"
+  container_name: docksible_app
+  restart: always
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost"]
+    interval: 20s
+    timeout: 10s
+    retries: 5

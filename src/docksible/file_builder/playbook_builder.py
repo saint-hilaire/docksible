@@ -20,7 +20,7 @@ class PlaybookBuilder(DocksibleFileBuilder):
 
         if action != 'setup-docker-compose':
             self._playbook_dict['tasks'].extend(
-                self.get_additional_template('playbook-run-tasks.yml')
+                self.get_additional_template('playbook-run-tasks.yml.j2')
             )
 
 

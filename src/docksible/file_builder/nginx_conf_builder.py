@@ -10,7 +10,7 @@ class NginxConfBuilder(DocksibleFileBuilder):
         self.private_data_dir = private_data_dir
 
         self.base_template = crossplane.parse(
-                os.path.join(TEMPLATES_DIR, 'base-nginx.conf'))
+                os.path.join(TEMPLATES_DIR, 'base-nginx.conf.j2'))
 
         # TODO: Is there a better way?
         self.nginx_conf = self.base_template['config'][0]['parsed'][0]['block']

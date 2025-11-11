@@ -4,8 +4,6 @@ from getpass import getpass, getuser
 import yaml
 from docksible.constants import TEMPLATES_DIR
 from docksible.docksible import Docksible
-# TODO: Get rid of this.
-from docksible.helpers import get_wordpress_auth_vars
 
 
 class TestDocksible(unittest.TestCase):
@@ -65,9 +63,13 @@ class TestDocksible(unittest.TestCase):
 
     def test_wordpress(self):
         self.docksible.database_name = 'wordpress'
+        self.docksible.site_title = 'My WordPress Site'
+        self.docksible.admin_username = 'admin'
+        self.docksible.admin_password = 'password'
+        self.docksible.admin_email = 'me@me.me'
+        self.docksible.wordpress_locale = 'en_US'
+
         self.docksible.set_action('wordpress')
-        # TODO: Get rid of this.
-        self.docksible.wordpress_auth_vars = get_wordpress_auth_vars()
         self._do_test_run()
 
 
