@@ -10,6 +10,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
     def __init__(self, private_data_dir, action,
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
+            manual_app_install=False,
     ):
         super().__init__(
                 private_data_dir,
@@ -22,6 +23,8 @@ class DockerComposeBuilder(DocksibleFileBuilder):
         self.database_username = database_username
         self.database_password = database_password
         self.database_name = database_name
+
+        self.manual_app_install = manual_app_install
 
 
     def add_db_service(self):
@@ -60,7 +63,8 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             self.docker_compose_services['docksible_app']['volumes'] = [
                 '{{ ansible_env.HOME }}/docker-compose-volumes/wordpress-data:/var/www/html'
             ]
-            self._add_auxiliary_service('wp-cli-service.yml.j2')
+            if not self.manual_app_install:
+                self._add_auxiliary_service('wp-cli-service.yml.j2')
 
         elif self.action == 'redmine':
             self.docker_compose_services['docksible_app']['environment'] = {
@@ -85,7 +89,6 @@ class DockerComposeBuilder(DocksibleFileBuilder):
         # we have.
         # I also want to rename this method then.
         pass
-
 
 
     def set_action(self, action):

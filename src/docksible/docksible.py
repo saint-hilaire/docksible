@@ -27,6 +27,7 @@ class Docksible:
             admin_password=None,
             admin_email=DEFAULT_ADMIN_EMAIL,
             wordpress_locale=DEFAULT_WORDPRESS_LOCALE,
+            manual_app_install=False,
             internal_http_port=DEFAULT_INTERNAL_HTTP_PORT,
             phpmyadmin=False,
             extra_env_vars={},
@@ -83,6 +84,7 @@ class Docksible:
         self.app_name = app_name
         self.internal_http_port = internal_http_port
         self.phpmyadmin = phpmyadmin
+        self.manual_app_install = manual_app_install
         self.extra_env_vars = extra_env_vars
 
         self.ssh_proxy = ssh_proxy
@@ -108,6 +110,7 @@ class Docksible:
             database_username=self.database_username,
             database_password=self.database_password,
             database_name=self.database_name,
+            manual_app_install=self.manual_app_install,
         )
         self.nginx_conf_builder = NginxConfBuilder(self.private_data_dir,
                 self.action)

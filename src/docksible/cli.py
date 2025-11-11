@@ -72,6 +72,13 @@ def main():
         app's database.
         """
     )
+    parser.add_argument('--manual-app-install', action='store_true',
+        help="""
+        Set this flag if, for example, you don't want WP-CLI to install your
+        site, but you want to perform the "Famous 5 Minute WordPress Install"
+        manually. Applies to other apps that have an equivalent to this.
+        """
+    )
     parser.add_argument('--extra-env-vars',
         help="""
         Comma separated key value pairs, to provide any environment variables
@@ -114,6 +121,7 @@ def main():
         app_name=args.app_name,
         internal_http_port=args.internal_http_port,
         phpmyadmin=args.phpmyadmin,
+        manual_app_install=args.manual_app_install,
         extra_env_vars=args.extra_env_vars,
         apparmor_workaround=args.apparmor_workaround,
     )
