@@ -20,8 +20,7 @@ class PlaybookBuilder(DocksibleFileBuilder):
 
         if action != 'setup-docker-compose':
             self._playbook_dict['tasks'].extend(
-                # TODO: Add .j2 to filename? And elsewhere?
-                self.get_additional_template('playbook-run-tasks.yml')
+                self.get_additional_template('playbook-run-tasks.yml.j2')
             )
 
 
