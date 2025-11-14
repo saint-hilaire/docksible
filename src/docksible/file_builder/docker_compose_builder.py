@@ -7,7 +7,7 @@ from .docksible_file_builder import DocksibleFileBuilder
 
 class DockerComposeBuilder(DocksibleFileBuilder):
 
-    def __init__(self, private_data_dir, action,
+    def __init__(self, private_data_dir, action, letsencrypt,
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
             manual_app_install=False,
@@ -16,6 +16,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                 private_data_dir,
                 'base-docker-compose.yml.j2',
                 action,
+                letsencrypt,
         )
         self.docker_compose_services = self.base_template['services']
 
@@ -83,12 +84,16 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                         service_template_name)['docksible_auxiliary']
 
 
-    def add_webserver_config(self):
-        # TODO: Similar to the other methods above, the 'docksible_webserver'
-        # service will need to be adjusted slightly based on whatever action
-        # we have.
-        # I also want to rename this method then.
-        pass
+    def add_letsencrypt_config(self):
+        if self.letsencrypt:
+            self.docker_compose_services['docksible_webserver']['volumes'].append(
+                '{{ ansible_env.HOME }}/docker-compose-volumes/certbot-data:/etc/letsencrypt'
+            )
+            self.docker_compose_services['docksible_certbot'] = \
+                    self.get_additional_template(
+                            'letsencrypt-docker-compose.yml.j2')['docksible_certbot']
+
+
 
 
     def set_action(self, action):
@@ -96,7 +101,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
         if action not in ['setup-docker-compose', 'nginx']:
             self.add_db_service()
             self.add_app_service()
-            self.add_webserver_config()
+            self.add_letsencrypt_config()
 
 
     def write(self, filepath=['templates', 'docker-compose.yml.j2']):

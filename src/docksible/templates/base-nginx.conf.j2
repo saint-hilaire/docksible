@@ -6,7 +6,7 @@ http {
       return 200 "OK";
       add_header Content-Type text/plain;
     }
-    server_name "{{ ansible_host }}";
+    server_name "{{ ansible_host }} www.{{ ansible_host }}";
     location ~ /.well-known/ {
         allow all;
         root /var/www/html;
