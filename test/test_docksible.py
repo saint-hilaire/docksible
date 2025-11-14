@@ -2,8 +2,9 @@ import os
 import unittest
 from getpass import getpass, getuser
 import yaml
-from docksible.constants import TEMPLATES_DIR
 from docksible.docksible import Docksible
+from docksible.constants import TEMPLATES_DIR
+from docksible.helpers import *
 
 
 class TestDocksible(unittest.TestCase):
@@ -33,13 +34,15 @@ class TestDocksible(unittest.TestCase):
             database_name='test_db',
         )
 
-        if user != 'root':
-            self.docksible.sudo_password = getpass(
-                'Please enter sudo password for test host: '
-            )
+        if host_is_local(host) or host_is_private(host):
+            if user != 'root':
+                self.docksible.sudo_password = getpass(
+                    'Please enter sudo password for test host: '
+                )
             self.docksible.letsencrypt = False
         else:
             self.docksible.letsencrypt = True
+            self.docksible.test_cert = True
             self.docksible.domain = host
             # 'user@example.com' will be rejected by Let's Encrypt,
             # but 'me@me.me' seems OK...
@@ -47,7 +50,6 @@ class TestDocksible(unittest.TestCase):
             # improve that as well...
             #self.docksible.email = 'user@example.com'
             self.docksible.email = 'me@me.me'
-            self.docksible.test_cert = True
 
 
     def test_docker_compose(self):
@@ -56,6 +58,8 @@ class TestDocksible(unittest.TestCase):
 
 
     def test_nginx(self):
+        # TODO: Set letsencrypt to True, and make minimal Nginx
+        # work with SSL too?
         self.docksible.letsencrypt = False
         self.docksible.set_action('nginx')
         self._do_test_run()
@@ -79,6 +83,7 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
+    # TODO
     def test_ssh_proxy(self):
         self.docksible.ssh_proxy = True
         # TODO: We should have some barebones Nginx action.
@@ -87,6 +92,7 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
+    # TODO
     def test_custom_app(self):
         self.docksible.set_action('custom-app')
         self.docksible.database_name = 'smartestate'
@@ -104,6 +110,7 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
+    # TODO
     def test_phpmyadmin(self):
         # TODO: We should have some barebones Nginx action.
         self.docksible.database_name = 'redmine'
@@ -170,20 +177,6 @@ class TestDocksible(unittest.TestCase):
         with open(expected, 'r', encoding='utf-8') as f1, open(actual, 'r', encoding='utf-8') as f2:
             self.docksible.cleanup_private_data()
             assert f1.read().strip().replace('\r\n', '\n') == f2.read().strip().replace('\r\n', '\n')
-
-
-    def test_v1(self):
-        print('TESTING DEV VERSION 1')
-        print("GOAL: Refactor the application so that all of 'src/docksible/project/' \
-              gets generated dynamically by DocksiblePlaybookBuilder")
-        print('To make it easier, do this:')
-        print('* git checkout dev/v1')
-        print('* cp -r src/docksible/project/* test/tmp-private-data/')
-        print('* git checkout refactor/gh-24-docker-compose')
-        print('Continue debugging the following code ;-)')
-        import pdb; pdb.set_trace()
-        self.docksible.letsencrypt = False
-        self._do_test_run()
 
 
     def _do_test_run(self):
