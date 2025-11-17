@@ -10,7 +10,7 @@ docksible_auxiliary:
   image: wordpress:cli
   container_name: docksible_auxiliary
   volumes:
-    - "{{ ansible_env.HOME }}/docker-compose-volumes/wordpress-data:/var/www/html"
+    - "{{ ansible_env.HOME }}/docker-compose-volumes/app-data:/var/www/html"
   command: >
     wp core install --allow-root --path=/var/www/html/
     --url={{ ansible_host }}

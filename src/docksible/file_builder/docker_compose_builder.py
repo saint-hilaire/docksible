@@ -61,7 +61,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                 'WORDPRESS_DB_NAME': self.database_name,
             }
             self.docker_compose_services['docksible_app']['volumes'] = [
-                '{{ ansible_env.HOME }}/docker-compose-volumes/wordpress-data:/var/www/html'
+                '{{ ansible_env.HOME }}/docker-compose-volumes/app-data:/var/www/html'
             ]
             if not self.manual_app_install:
                 self._add_auxiliary_service('wp-cli-service.yml.j2')
