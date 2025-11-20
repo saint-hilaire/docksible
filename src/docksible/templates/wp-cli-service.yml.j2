@@ -1,7 +1,6 @@
 docksible_auxiliary:
   depends_on:
-    docksible_app:
-      condition: service_healthy
+    - docksible_app
   environment:
     WORDPRESS_DB_HOST: docksible_db
     WORDPRESS_DB_USER: "{{ database_username }}"

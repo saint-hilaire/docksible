@@ -122,9 +122,6 @@ class Docksible:
             self.letsencrypt,
         )
 
-        # TODO: Move these to the above constructors?
-        # TODO: Continue here for letsencrypt. So far, the flag has been
-        # passed along correctly.
         self.playbook_builder.set_action(self.action)
         self.docker_compose_builder.set_action(self.action)
         self.nginx_conf_builder.set_action(self.action)
@@ -234,14 +231,6 @@ class Docksible:
 
     def cleanup_private_data(self):
         rmtree(self.private_data_dir)
-
-
-    # TODO: Looks like this isn't being used yet.
-    def get_certbot_domains_string(self):
-        try:
-            return '-d {}'.format(' -d '.join(self.domains_for_ssl))
-        except TypeError:
-            return ''
 
 
     def get_certbot_test_cert_string(self):

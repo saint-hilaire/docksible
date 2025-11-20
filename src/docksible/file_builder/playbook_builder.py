@@ -24,12 +24,10 @@ class PlaybookBuilder(DocksibleFileBuilder):
                 self.get_additional_template('playbook-run-tasks.yml')
             )
 
-        # TODO
         if self.letsencrypt:
             self._playbook_dict['tasks'].extend(
                 self.get_additional_template('letsencrypt-tasks.yml')
             )
-
 
 
     def write(self, filepath=[]):

@@ -5,8 +5,3 @@ docksible_app:
   image: "{{ app_image }}:{{ app_version }}"
   container_name: docksible_app
   restart: always
-  healthcheck:
-    test: ["CMD", "curl", "-f", "http://localhost"]
-    interval: 20s
-    timeout: 10s
-    retries: 5
