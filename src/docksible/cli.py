@@ -6,7 +6,7 @@ from .docksible import Docksible
 __author__ = "Belal Ibrahim"
 __copyright__ = "Copyright 2025 Belal Ibrahim"
 __license__ = "Apache License, Version 2.0"
-__version__ = "1.0.0-alpha-4"
+__version__ = "1.0.0-beta-1"
 __maintainer__ = "Belal Ibrahim"
 __email__ = "belal.ibrahim@proton.me"
 
@@ -105,6 +105,10 @@ def main():
         host=args.host,
         action=args.action,
         private_data_dir=args.private_data_dir,
+        letsencrypt=args.letsencrypt,
+        domain=args.domain,
+        email=args.email,
+        test_cert=args.test_cert,
         app_version=args.app_version,
         database_root_password=args.database_root_password,
         database_username=args.database_username,
@@ -126,15 +130,7 @@ def main():
         apparmor_workaround=args.apparmor_workaround,
     )
 
-    # TODO: Temporary solution, do this better in the future.
-    if args.action in ['backup']:
-        raise NotImplementedError
-    else:
-        docksible.letsencrypt = args.letsencrypt
-        docksible.domain = args.domain
-        docksible.email = args.email
-        docksible.test_cert = args.test_cert
-        return docksible.run()
+    return docksible.run()
 
 
 if __name__ == "__main__":

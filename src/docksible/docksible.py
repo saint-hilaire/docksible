@@ -101,21 +101,27 @@ class Docksible:
         if action != 'custom-app':
             self.app_image = action
 
-        self.playbook_builder = PlaybookBuilder(self.private_data_dir,
-                self.action)
+        self.playbook_builder = PlaybookBuilder(
+            self.private_data_dir,
+            self.action,
+            self.letsencrypt,
+        )
         self.docker_compose_builder = DockerComposeBuilder(
             self.private_data_dir,
             self.action,
+            self.letsencrypt,
             database_root_password=self.database_root_password,
             database_username=self.database_username,
             database_password=self.database_password,
             database_name=self.database_name,
             manual_app_install=self.manual_app_install,
         )
-        self.nginx_conf_builder = NginxConfBuilder(self.private_data_dir,
-                self.action)
+        self.nginx_conf_builder = NginxConfBuilder(
+            self.private_data_dir,
+            self.action,
+            self.letsencrypt,
+        )
 
-        # TODO: Move these to the above constructors?
         self.playbook_builder.set_action(self.action)
         self.docker_compose_builder.set_action(self.action)
         self.nginx_conf_builder.set_action(self.action)
@@ -163,6 +169,8 @@ class Docksible:
                 ]
                 if self.ssh_proxy:
                     value.append('ssh-proxy-data')
+                if self.letsencrypt:
+                    value.append('certbot-data')
 
             elif varname == 'service_to_encrypt':
                 # TODO: Tech debt. Fix in v1. I want to prefer dashes over
@@ -216,20 +224,6 @@ class Docksible:
             inventory=self.inventory,
             extravars=self.extravars,
         )
-        if runner.rc != 0:
-            self.cleanup_private_data()
-            return runner.rc
-
-        if self.letsencrypt:
-            runner = runner_interface.run(
-                private_data_dir=self.private_data_dir,
-                playbook='letsencrypt.yml',
-                inventory=self.inventory,
-                extravars=self.extravars,
-            )
-            if runner.rc != 0:
-                self.cleanup_private_data()
-                return runner.rc
 
         self.cleanup_private_data()
         return runner.rc
@@ -237,14 +231,6 @@ class Docksible:
 
     def cleanup_private_data(self):
         rmtree(self.private_data_dir)
-
-
-    # TODO: Looks like this isn't being used yet.
-    def get_certbot_domains_string(self):
-        try:
-            return '-d {}'.format(' -d '.join(self.domains_for_ssl))
-        except TypeError:
-            return ''
 
 
     def get_certbot_test_cert_string(self):

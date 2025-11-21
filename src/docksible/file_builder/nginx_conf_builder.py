@@ -6,8 +6,9 @@ from .docksible_file_builder import DocksibleFileBuilder
 
 class NginxConfBuilder(DocksibleFileBuilder):
 
-    def __init__(self, private_data_dir, action):
+    def __init__(self, private_data_dir, action, letsencrypt):
         self.private_data_dir = private_data_dir
+        self.letsencrypt = letsencrypt
 
         self.base_template = crossplane.parse(
                 os.path.join(TEMPLATES_DIR, 'base-nginx.conf.j2'))
@@ -15,6 +16,12 @@ class NginxConfBuilder(DocksibleFileBuilder):
         # TODO: Is there a better way?
         self.nginx_conf = self.base_template['config'][0]['parsed'][0]['block']
         self._server_block = self.nginx_conf[0]['block']
+
+        if self.letsencrypt:
+            self.base_ssl_template = crossplane.parse(
+                    os.path.join(TEMPLATES_DIR, 'nginx-ssl.conf.j2'))
+            self.nginx_ssl_conf = self.base_ssl_template[
+                    'config'][0]['parsed'][0]['block']
 
 
     def set_action(self, action):
@@ -42,6 +49,11 @@ class NginxConfBuilder(DocksibleFileBuilder):
                 'args': ['X-Real-IP', '$remote_addr'],
             },
         ]
+        if self.letsencrypt:
+            root_location_block.append({
+                'directive': 'proxy_set_header',
+                'args': ['X-Forwarded-Proto', '$scheme'],
+            })
 
         found_it = False
         for conf_dict in self._server_block:
@@ -75,3 +87,17 @@ class NginxConfBuilder(DocksibleFileBuilder):
                     self.nginx_conf
                 )
             )
+
+        if self.letsencrypt:
+            with open(
+                os.path.join(
+                    self.private_data_dir,
+                    'templates',
+                    'nginx-ssl.conf.j2',
+                ), 'w'
+            ) as fh:
+                fh.write(
+                    crossplane.build(
+                        self.nginx_ssl_conf
+                    )
+                )

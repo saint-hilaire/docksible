@@ -3,12 +3,13 @@ from .docksible_file_builder import DocksibleFileBuilder
 
 class PlaybookBuilder(DocksibleFileBuilder):
 
-    def __init__(self, private_data_dir, action):
+    def __init__(self, private_data_dir, action, letsencrypt):
 
         super().__init__(
                 private_data_dir,
                 'base-playbook.yml',
-                action
+                action,
+                letsencrypt,
         )
 
         self._playbook_dict = self.base_template[0]
@@ -20,7 +21,12 @@ class PlaybookBuilder(DocksibleFileBuilder):
 
         if action != 'setup-docker-compose':
             self._playbook_dict['tasks'].extend(
-                self.get_additional_template('playbook-run-tasks.yml.j2')
+                self.get_additional_template('playbook-run-tasks.yml')
+            )
+
+        if self.letsencrypt:
+            self._playbook_dict['tasks'].extend(
+                self.get_additional_template('letsencrypt-tasks.yml')
             )
 
 

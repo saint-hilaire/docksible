@@ -5,7 +5,9 @@ from docksible.constants import TEMPLATES_DIR
 
 class DocksibleFileBuilder:
 
-    def __init__(self, private_data_dir, base_template_filename, action):
+    def __init__(self, private_data_dir, base_template_filename, action,
+                 letsencrypt):
+
         self.private_data_dir = private_data_dir
 
         with open(
@@ -15,6 +17,8 @@ class DocksibleFileBuilder:
             ), 'r'
         ) as fh:
             self.base_template = yaml.safe_load(fh)
+
+        self.letsencrypt = letsencrypt
 
 
     def set_action(self, action):

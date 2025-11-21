@@ -11,7 +11,6 @@ SUPPORTED_ACTIONS = [
     'nginx',
     'redmine',
     'wordpress',
-    'backup',
     'custom-app',
 ]
 
