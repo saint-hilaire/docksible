@@ -6,39 +6,46 @@ from .docksible_file_builder import DocksibleFileBuilder
 
 class NginxConfBuilder(DocksibleFileBuilder):
 
-    def __init__(self, private_data_dir, action, letsencrypt):
+    def __init__(self, private_data_dir, action, letsencrypt=False):
         self.private_data_dir = private_data_dir
-        self.letsencrypt = letsencrypt
 
         self.base_template = crossplane.parse(
                 os.path.join(TEMPLATES_DIR, 'base-nginx.conf.j2'))
 
+        self._init_nginx_conf()
+
+        self._set_app_port_from_action(action)
+
+        self.set_letsencrypt(letsencrypt)
+        self.set_action(action)
+
+
+    def _init_nginx_conf(self):
         # TODO: Is there a better way?
         self.nginx_conf = self.base_template['config'][0]['parsed'][0]['block']
         self._server_block = self.nginx_conf[0]['block']
 
-        if self.letsencrypt:
-            self.base_ssl_template = crossplane.parse(
-                    os.path.join(TEMPLATES_DIR, 'nginx-ssl.conf.j2'))
-            self.nginx_ssl_conf = self.base_ssl_template[
-                    'config'][0]['parsed'][0]['block']
+
+    def _set_app_port_from_action(self, action):
+        if action in ['redmine']:
+            self._app_port = 3000
+        else:
+            self._app_port = 80
 
 
     def set_action(self, action):
         self.action = action
 
-        if action == 'nginx':
+        if action in ['setup-docker-compose', 'nginx']:
+            self._init_nginx_conf()
             return
 
-        if action in ['redmine']:
-            self.app_port = 3000
-        else:
-            self.app_port = 80
+        self._set_app_port_from_action(action)
 
         root_location_block = [
             {
                 'directive': 'proxy_pass',
-                'args': ['http://docksible_app:{}'.format(self.app_port)],
+                'args': ['http://docksible_app:{}'.format(self._app_port)],
             },
             {
                 'directive': 'proxy_set_header',
@@ -55,6 +62,37 @@ class NginxConfBuilder(DocksibleFileBuilder):
                 'args': ['X-Forwarded-Proto', '$scheme'],
             })
 
+        self._set_root_location_block(root_location_block)
+
+
+    def set_letsencrypt(self, letsencrypt):
+        if letsencrypt:
+            self._set_root_location_block([
+                {
+                    'directive': 'proxy_pass',
+                    'args': ['http://docksible_app:{}'.format(self._app_port)],
+                },
+                {
+                    'directive': 'proxy_set_header',
+                    'args': ['Host', '$host'],
+                },
+                {
+                    'directive': 'proxy_set_header',
+                    'args': ['X-Real-IP', '$remote_addr'],
+                },
+                {
+                    'directive': 'proxy_set_header',
+                    'args': ['X-Forwarded-Proto', '$scheme'],
+                },
+            ])
+            self.base_ssl_template = crossplane.parse(
+                    os.path.join(TEMPLATES_DIR, 'nginx-ssl.conf.j2'))
+            self.nginx_ssl_conf = self.base_ssl_template[
+                    'config'][0]['parsed'][0]['block']
+        return super().set_letsencrypt(letsencrypt)
+
+
+    def _set_root_location_block(self, root_location_block):
         found_it = False
         for conf_dict in self._server_block:
             if conf_dict['directive'] == 'location' \
@@ -64,7 +102,9 @@ class NginxConfBuilder(DocksibleFileBuilder):
         if not found_it:
             raise RuntimeError('Found no root location block in nginx_conf')
 
-        if action == 'wordpress':
+
+    def write(self, filepath=['templates', 'nginx.conf.j2']):
+        if self.action == 'wordpress':
             self._server_block.append({
                 'directive': 'location',
                 'args': ['/xmlrpc.php'],
@@ -74,8 +114,6 @@ class NginxConfBuilder(DocksibleFileBuilder):
                 ],
             })
 
-
-    def write(self, filepath=['templates', 'nginx.conf.j2']):
         with open(
             os.path.join(
                 self.private_data_dir,

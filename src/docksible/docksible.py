@@ -62,15 +62,26 @@ class Docksible:
             'ungrouped': {'hosts': {}},
         }
 
+        self.playbook_builder = PlaybookBuilder(
+            self.private_data_dir,
+            action,
+        )
+        self.docker_compose_builder = DockerComposeBuilder(
+            self.private_data_dir,
+            action,
+        )
+        self.nginx_conf_builder = NginxConfBuilder(
+            self.private_data_dir,
+            action,
+        )
         self.app_image = app_image
         self.app_version = app_version
 
-        self.database_root_password = database_root_password
-        self.database_username = database_username
-        self.database_password = database_password
-        self.database_name = database_name
+        self.set_database_root_password(database_root_password)
+        self.set_database_username(database_username)
+        self.set_database_password(database_password)
+        self.set_database_name(database_name)
 
-        self.letsencrypt = letsencrypt
         self.domain = domain
         self.email = email
         self.test_cert = test_cert
@@ -83,8 +94,7 @@ class Docksible:
 
         self.app_name = app_name
         self.internal_http_port = internal_http_port
-        self.phpmyadmin = phpmyadmin
-        self.manual_app_install = manual_app_install
+        self.set_manual_app_install(manual_app_install)
         self.extra_env_vars = extra_env_vars
 
         self.ssh_proxy = ssh_proxy
@@ -93,6 +103,8 @@ class Docksible:
         self.extravars = {}
 
         self.set_action(action)
+        self.set_letsencrypt(letsencrypt)
+        #self.set_phpmyadmin(phpmyadmin)
 
 
     def set_action(self, action):
@@ -101,30 +113,47 @@ class Docksible:
         if action != 'custom-app':
             self.app_image = action
 
-        self.playbook_builder = PlaybookBuilder(
-            self.private_data_dir,
-            self.action,
-            self.letsencrypt,
-        )
-        self.docker_compose_builder = DockerComposeBuilder(
-            self.private_data_dir,
-            self.action,
-            self.letsencrypt,
-            database_root_password=self.database_root_password,
-            database_username=self.database_username,
-            database_password=self.database_password,
-            database_name=self.database_name,
-            manual_app_install=self.manual_app_install,
-        )
-        self.nginx_conf_builder = NginxConfBuilder(
-            self.private_data_dir,
-            self.action,
-            self.letsencrypt,
-        )
-
         self.playbook_builder.set_action(self.action)
         self.docker_compose_builder.set_action(self.action)
         self.nginx_conf_builder.set_action(self.action)
+
+
+    def set_letsencrypt(self, letsencrypt):
+        self.letsencrypt = letsencrypt
+        self.playbook_builder.set_letsencrypt(letsencrypt)
+        self.docker_compose_builder.set_letsencrypt(letsencrypt)
+        self.nginx_conf_builder.set_letsencrypt(letsencrypt)
+
+
+    #def set_phpmyadmin(self, phpmyadmin):
+    #    self.phpmyadmin = phpmyadmin
+    #    self.docker_compose_builder.phpmyadmin = phpmyadmin
+
+
+    def set_database_root_password(self, database_root_password):
+        self.database_root_password = database_root_password
+        self.docker_compose_builder.database_root_password = \
+                database_root_password
+
+
+    def set_database_username(self, database_username):
+        self.database_username = database_username
+        self.docker_compose_builder.database_username = database_username
+
+
+    def set_database_password(self, database_password):
+        self.database_password = database_password
+        self.docker_compose_builder.database_password = database_password
+
+
+    def set_database_name(self, database_name):
+        self.database_name = database_name
+        self.docker_compose_builder.database_name = database_name
+
+
+    def set_manual_app_install(self, manual_app_install):
+        self.manual_app_install = manual_app_install
+        self.docker_compose_builder.manual_app_install = manual_app_install
 
 
     # TODO: Rename this to something more appropriate.
@@ -156,7 +185,7 @@ class Docksible:
             'admin_email',
             'wordpress_locale',
             'internal_http_port',
-            'phpmyadmin',
+            #'phpmyadmin',
             'extra_env_vars',
             'apparmor_workaround',
         ]

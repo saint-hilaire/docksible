@@ -6,7 +6,7 @@ from docksible.constants import TEMPLATES_DIR
 class DocksibleFileBuilder:
 
     def __init__(self, private_data_dir, base_template_filename, action,
-                 letsencrypt):
+                 letsencrypt=False):
 
         self.private_data_dir = private_data_dir
 
@@ -18,11 +18,13 @@ class DocksibleFileBuilder:
         ) as fh:
             self.base_template = yaml.safe_load(fh)
 
-        self.letsencrypt = letsencrypt
-
 
     def set_action(self, action):
         self.action = action
+
+
+    def set_letsencrypt(self, letsencrypt):
+        self.letsencrypt = letsencrypt
 
 
     def get_additional_template(self, filename):

@@ -32,6 +32,7 @@ class TestDocksible(unittest.TestCase):
             database_username='db-username',
             database_password='password',
             database_name='test_db',
+            test_cert=True
         )
 
         if host_is_local(host) or host_is_private(host):
@@ -39,10 +40,7 @@ class TestDocksible(unittest.TestCase):
                 self.docksible.sudo_password = getpass(
                     'Please enter sudo password for test host: '
                 )
-            self.docksible.letsencrypt = False
         else:
-            self.docksible.letsencrypt = True
-            self.docksible.test_cert = True
             self.docksible.domain = host
             # 'user@example.com' will be rejected by Let's Encrypt,
             # but 'me@me.me' seems OK...
@@ -52,21 +50,26 @@ class TestDocksible(unittest.TestCase):
             self.docksible.email = 'me@me.me'
 
 
+    def must_set_letsencrypt(self):
+        return not host_is_local(self.docksible.host) \
+            and not host_is_private(self.docksible.host)
+
+
     def test_docker_compose(self):
-        self.docksible.letsencrypt = False
+        self.docksible.set_letsencrypt(False)
         self._do_test_run()
 
 
     def test_nginx(self):
         # TODO: Set letsencrypt to True, and make minimal Nginx
         # work with SSL too?
-        self.docksible.letsencrypt = False
+        self.docksible.set_letsencrypt(False)
         self.docksible.set_action('nginx')
         self._do_test_run()
 
 
     def test_wordpress(self):
-        self.docksible.database_name = 'wordpress'
+        self.docksible.set_database_name('wordpress')
         self.docksible.site_title = 'My WordPress Site'
         self.docksible.admin_username = 'admin'
         self.docksible.admin_password = 'password'
@@ -74,12 +77,14 @@ class TestDocksible(unittest.TestCase):
         self.docksible.wordpress_locale = 'en_US'
 
         self.docksible.set_action('wordpress')
+        self.docksible.set_letsencrypt(self.must_set_letsencrypt())
         self._do_test_run()
 
 
     def test_redmine(self):
-        self.docksible.database_name = 'redmine'
+        self.docksible.set_database_name('redmine')
         self.docksible.set_action('redmine')
+        self.docksible.set_letsencrypt(self.must_set_letsencrypt())
         self._do_test_run()
 
 
@@ -110,12 +115,10 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
-    # TODO
     def test_phpmyadmin(self):
-        # TODO: We should have some barebones Nginx action.
         self.docksible.database_name = 'redmine'
         self.docksible.set_action('redmine')
-        self.docksible.phpmyadmin = True
+        self.docksible.set_phpmyadmin(True)
         self._do_test_run()
 
 
