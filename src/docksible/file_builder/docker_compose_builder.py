@@ -7,16 +7,16 @@ from .docksible_file_builder import DocksibleFileBuilder
 
 class DockerComposeBuilder(DocksibleFileBuilder):
 
-    def __init__(self, private_data_dir, action, letsencrypt,
+    def __init__(self, private_data_dir, action, letsencrypt=False,
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
-            manual_app_install=False,
+            manual_app_install=False, phpmyadmin=False
     ):
         super().__init__(
-                private_data_dir,
-                'base-docker-compose.yml.j2',
-                action,
-                letsencrypt,
+            private_data_dir,
+            'base-docker-compose.yml.j2',
+            action,
+            letsencrypt,
         )
         self.docker_compose_services = self.base_template['services']
 
@@ -27,8 +27,11 @@ class DockerComposeBuilder(DocksibleFileBuilder):
 
         self.manual_app_install = manual_app_install
 
+        self.set_action(action)
+        self.set_letsencrypt(letsencrypt)
 
-    def add_db_service(self):
+
+    def _add_db_service(self):
         with open(
             os.path.join(
                 TEMPLATES_DIR,
@@ -43,8 +46,13 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             self.docker_compose_services['docksible_db']['command'] = \
                     '--default-authentication-plugin=mysql_native_password'
 
+        #if self.phpmyadmin:
+        #    self.docker_compose_services['docksible_phpmyadmin'] = \
+        #            self.get_additional_template('phpmyadmin-service.yml.j2')[
+        #                    'docksible_phpmyadmin']
 
-    def add_app_service(self):
+
+    def _add_app_service(self):
         with open(
             os.path.join(
                 TEMPLATES_DIR,
@@ -84,7 +92,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                         service_template_name)['docksible_auxiliary']
 
 
-    def add_letsencrypt_config(self):
+    def _add_letsencrypt_config(self):
         if self.letsencrypt:
             self.docker_compose_services['docksible_webserver']['volumes'].append(
                 '{{ ansible_env.HOME }}/docker-compose-volumes/certbot-data:/etc/letsencrypt'
@@ -94,15 +102,10 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                             'letsencrypt-docker-compose.yml.j2')['docksible_certbot']
 
 
-
-
-    def set_action(self, action):
-        self.action = action
-        if action not in ['setup-docker-compose', 'nginx']:
-            self.add_db_service()
-            self.add_app_service()
-            self.add_letsencrypt_config()
-
-
     def write(self, filepath=['templates', 'docker-compose.yml.j2']):
+        if self.action not in ['setup-docker-compose', 'nginx']:
+            self._add_db_service()
+            self._add_app_service()
+            self._add_letsencrypt_config()
+
         super().write(filepath)
