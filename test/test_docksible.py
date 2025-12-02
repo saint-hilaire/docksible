@@ -116,7 +116,7 @@ class TestDocksible(unittest.TestCase):
 
 
     def test_phpmyadmin(self):
-        self.docksible.database_name = 'redmine'
+        self.docksible.set_database_name('redmine')
         self.docksible.set_action('redmine')
         self.docksible.set_phpmyadmin(True)
         self._do_test_run()

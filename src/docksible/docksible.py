@@ -81,6 +81,7 @@ class Docksible:
         self.set_database_username(database_username)
         self.set_database_password(database_password)
         self.set_database_name(database_name)
+        self.set_phpmyadmin(phpmyadmin)
 
         self.domain = domain
         self.email = email
@@ -104,7 +105,6 @@ class Docksible:
 
         self.set_action(action)
         self.set_letsencrypt(letsencrypt)
-        #self.set_phpmyadmin(phpmyadmin)
 
 
     def set_action(self, action):
@@ -125,9 +125,9 @@ class Docksible:
         self.nginx_conf_builder.set_letsencrypt(letsencrypt)
 
 
-    #def set_phpmyadmin(self, phpmyadmin):
-    #    self.phpmyadmin = phpmyadmin
-    #    self.docker_compose_builder.phpmyadmin = phpmyadmin
+    def set_phpmyadmin(self, phpmyadmin):
+        self.phpmyadmin = phpmyadmin
+        self.docker_compose_builder.phpmyadmin = phpmyadmin
 
 
     def set_database_root_password(self, database_root_password):

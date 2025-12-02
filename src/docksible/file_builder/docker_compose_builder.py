@@ -25,6 +25,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
         self.database_password = database_password
         self.database_name = database_name
 
+        self.phpmyadmin = phpmyadmin
         self.manual_app_install = manual_app_install
 
         self.set_action(action)
@@ -46,10 +47,10 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             self.docker_compose_services['docksible_db']['command'] = \
                     '--default-authentication-plugin=mysql_native_password'
 
-        #if self.phpmyadmin:
-        #    self.docker_compose_services['docksible_phpmyadmin'] = \
-        #            self.get_additional_template('phpmyadmin-service.yml.j2')[
-        #                    'docksible_phpmyadmin']
+        if self.phpmyadmin:
+            self.docker_compose_services['docksible_phpmyadmin'] = \
+                    self.get_additional_template('phpmyadmin-service.yml.j2')[
+                            'docksible_phpmyadmin']
 
 
     def _add_app_service(self):
