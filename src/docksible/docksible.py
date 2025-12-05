@@ -98,13 +98,13 @@ class Docksible:
         self.set_manual_app_install(manual_app_install)
         self.extra_env_vars = extra_env_vars
 
-        self.ssh_proxy = ssh_proxy
         self.sudo_password = sudo_password
         self.apparmor_workaround = apparmor_workaround
         self.extravars = {}
 
         self.set_action(action)
         self.set_letsencrypt(letsencrypt)
+        self.set_ssh_proxy(ssh_proxy)
 
 
     def set_action(self, action):
@@ -128,6 +128,11 @@ class Docksible:
     def set_phpmyadmin(self, phpmyadmin):
         self.phpmyadmin = phpmyadmin
         self.docker_compose_builder.phpmyadmin = phpmyadmin
+
+
+    def set_ssh_proxy(self, ssh_proxy):
+        self.ssh_proxy = ssh_proxy
+        self.docker_compose_builder.ssh_proxy = ssh_proxy
 
 
     def set_database_root_password(self, database_root_password):

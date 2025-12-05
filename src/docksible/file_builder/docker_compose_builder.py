@@ -10,7 +10,8 @@ class DockerComposeBuilder(DocksibleFileBuilder):
     def __init__(self, private_data_dir, action, letsencrypt=False,
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
-            manual_app_install=False, phpmyadmin=False
+            manual_app_install=False, phpmyadmin=False,
+            ssh_proxy=False
     ):
         super().__init__(
             private_data_dir,
@@ -27,6 +28,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
 
         self.phpmyadmin = phpmyadmin
         self.manual_app_install = manual_app_install
+        self.ssh_proxy = ssh_proxy
 
         self.set_action(action)
         self.set_letsencrypt(letsencrypt)
@@ -85,6 +87,12 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                 # TODO: Necessary? I saw this in the legacy version.
                 'seccomp:unconfined'
             ]
+
+        if self.ssh_proxy:
+            self.docker_compose_services['docksible_ssh_proxy'] = \
+                    self.get_additional_template('ssh-proxy-service.yml.j2')[
+                        'docksible_ssh_proxy'
+                    ]
 
 
     def _add_auxiliary_service(self, service_template_name):
