@@ -11,7 +11,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             database_root_password=None, database_username=None,
             database_password=None, database_name=None,
             manual_app_install=False, phpmyadmin=False,
-            ssh_proxy=False
+            ssh_proxy=False, extra_env_vars={}
     ):
         super().__init__(
             private_data_dir,
@@ -29,6 +29,7 @@ class DockerComposeBuilder(DocksibleFileBuilder):
         self.phpmyadmin = phpmyadmin
         self.manual_app_install = manual_app_install
         self.ssh_proxy = ssh_proxy
+        self.extra_env_vars = extra_env_vars
 
         self.set_action(action)
         self.set_letsencrypt(letsencrypt)
@@ -93,6 +94,14 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                     self.get_additional_template('ssh-proxy-service.yml.j2')[
                         'docksible_ssh_proxy'
                     ]
+
+        if self.extra_env_vars:
+            try:
+                self.docker_compose_services['docksible_app']['environment'].update(
+                        self.extra_env_vars)
+            except KeyError:
+                self.docker_compose_services['docksible_app']['environment'] = \
+                        self.extra_env_vars
 
 
     def _add_auxiliary_service(self, service_template_name):

@@ -6,7 +6,7 @@ from .docksible import Docksible
 __author__ = "Belal Ibrahim"
 __copyright__ = "Copyright 2025 Belal Ibrahim"
 __license__ = "Apache License, Version 2.0"
-__version__ = "1.0.0-beta-2"
+__version__ = "1.0.0-beta-3"
 __maintainer__ = "Belal Ibrahim"
 __email__ = "belal.ibrahim@proton.me"
 
@@ -62,7 +62,7 @@ def main():
     parser.add_argument('--admin-email')
     parser.add_argument('--wordpress-locale')
 
-    parser.add_argument('--internal-http-port', default=DEFAULT_INTERNAL_HTTP_PORT)
+    parser.add_argument('--internal-http-port')
     parser.add_argument('--phpmyadmin', action='store_true',
         help="""
         Set this flag to include a phpmyadmin container in your app's
