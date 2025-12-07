@@ -90,18 +90,17 @@ class TestDocksible(unittest.TestCase):
 
     def test_ssh_proxy(self):
         self.docksible.set_ssh_proxy(True)
-        self.docksible.database_name = 'redmine'
+        self.docksible.set_database_name('redmine')
         self.docksible.set_action('redmine')
         self._do_test_run()
 
 
-    # TODO
     def test_custom_app(self):
         self.docksible.set_action('custom-app')
-        self.docksible.database_name = 'smartestate'
+        self.docksible.set_database_name('smartestate')
         self.docksible.app_name = 'smartestate'
         self.docksible.app_image = 'belalibrahim/smartestate'
-        self.docksible.extra_env_vars = {
+        self.docksible.set_extra_env_vars({
             'DEBUG': 0,
             'ALLOWED_HOSTS': self.docksible.host,
             'DATABASE_ENGINE': 'django.db.backends.mysql',
@@ -109,7 +108,10 @@ class TestDocksible(unittest.TestCase):
             'DATABASE_NAME': self.docksible.database_name,
             'DATABASE_USER': self.docksible.database_username,
             'DATABASE_PASSWORD': self.docksible.database_password,
-        }
+        })
+        # Not necessary, because it's the default value.
+        # But in any case, it should work with and without.
+        #self.docksible.set_internal_http_port(8000)
         self._do_test_run()
 
 

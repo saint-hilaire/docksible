@@ -1,12 +1,13 @@
 import os
 import crossplane
-from docksible.constants import TEMPLATES_DIR
+from docksible.constants import *
 from .docksible_file_builder import DocksibleFileBuilder
 
 
 class NginxConfBuilder(DocksibleFileBuilder):
 
-    def __init__(self, private_data_dir, action, letsencrypt=False):
+    def __init__(self, private_data_dir, action, letsencrypt=False,
+                internal_http_port=None):
         self.private_data_dir = private_data_dir
 
         self.base_template = crossplane.parse(
@@ -14,7 +15,7 @@ class NginxConfBuilder(DocksibleFileBuilder):
 
         self._init_nginx_conf()
 
-        self._set_app_port_from_action(action)
+        self.internal_http_port = internal_http_port
 
         self.set_letsencrypt(letsencrypt)
         self.set_action(action)
@@ -26,13 +27,6 @@ class NginxConfBuilder(DocksibleFileBuilder):
         self._server_block = self.nginx_conf[0]['block']
 
 
-    def _set_app_port_from_action(self, action):
-        if action in ['redmine']:
-            self._app_port = 3000
-        else:
-            self._app_port = 80
-
-
     def set_action(self, action):
         self.action = action
 
@@ -40,12 +34,10 @@ class NginxConfBuilder(DocksibleFileBuilder):
             self._init_nginx_conf()
             return
 
-        self._set_app_port_from_action(action)
-
         root_location_block = [
             {
                 'directive': 'proxy_pass',
-                'args': ['http://docksible_app:{}'.format(self._app_port)],
+                'args': ['http://docksible_app:{}'.format(self.internal_http_port)],
             },
             {
                 'directive': 'proxy_set_header',
@@ -70,7 +62,7 @@ class NginxConfBuilder(DocksibleFileBuilder):
             self._set_root_location_block([
                 {
                     'directive': 'proxy_pass',
-                    'args': ['http://docksible_app:{}'.format(self._app_port)],
+                    'args': ['http://docksible_app:{}'.format(self.internal_http_port)],
                 },
                 {
                     'directive': 'proxy_set_header',

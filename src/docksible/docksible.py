@@ -28,7 +28,7 @@ class Docksible:
             admin_email=DEFAULT_ADMIN_EMAIL,
             wordpress_locale=DEFAULT_WORDPRESS_LOCALE,
             manual_app_install=False,
-            internal_http_port=DEFAULT_INTERNAL_HTTP_PORT,
+            internal_http_port=None,
             phpmyadmin=False,
             extra_env_vars={},
             apparmor_workaround=False,
@@ -94,7 +94,6 @@ class Docksible:
         self.wordpress_locale = wordpress_locale
 
         self.app_name = app_name
-        self.internal_http_port = internal_http_port
         self.set_manual_app_install(manual_app_install)
         self.extra_env_vars = extra_env_vars
 
@@ -105,6 +104,7 @@ class Docksible:
         self.set_action(action)
         self.set_letsencrypt(letsencrypt)
         self.set_ssh_proxy(ssh_proxy)
+        self.set_internal_http_port(internal_http_port)
 
 
     def set_action(self, action):
@@ -112,6 +112,11 @@ class Docksible:
 
         if action != 'custom-app':
             self.app_image = action
+
+        if action in ['wordpress']:
+            self.set_internal_http_port(80)
+        elif action in ['redmine']:
+            self.set_internal_http_port(3000)
 
         self.playbook_builder.set_action(self.action)
         self.docker_compose_builder.set_action(self.action)
@@ -159,6 +164,24 @@ class Docksible:
     def set_manual_app_install(self, manual_app_install):
         self.manual_app_install = manual_app_install
         self.docker_compose_builder.manual_app_install = manual_app_install
+
+
+    def set_extra_env_vars(self, extra_env_vars):
+        self.extra_env_vars = extra_env_vars
+        self.docker_compose_builder.extra_env_vars = extra_env_vars
+
+
+    def set_internal_http_port(self, internal_http_port):
+        if internal_http_port is None:
+            if self.action in ['redmine']:
+                internal_http_port = 3000
+            elif self.action in ['wordpress']:
+                internal_http_port = 80
+            else:
+                internal_http_port = 8000
+
+        self.internal_http_port = internal_http_port
+        self.nginx_conf_builder.internal_http_port = internal_http_port
 
 
     # TODO: Rename this to something more appropriate.

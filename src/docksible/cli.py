@@ -62,7 +62,7 @@ def main():
     parser.add_argument('--admin-email')
     parser.add_argument('--wordpress-locale')
 
-    parser.add_argument('--internal-http-port', default=DEFAULT_INTERNAL_HTTP_PORT)
+    parser.add_argument('--internal-http-port')
     parser.add_argument('--phpmyadmin', action='store_true',
         help="""
         Set this flag to include a phpmyadmin container in your app's
