@@ -24,6 +24,7 @@ class Docksible:
             app_version=DEFAULT_APP_VERSION,
             site_title=DEFAULT_SITE_TITLE,
             admin_username=DEFAULT_ADMIN_USERNAME,
+            admin_full_name=DEFAULT_ADMIN_FULL_NAME,
             admin_password=None,
             admin_email=DEFAULT_ADMIN_EMAIL,
             wordpress_locale=DEFAULT_WORDPRESS_LOCALE,
@@ -89,6 +90,7 @@ class Docksible:
 
         self.site_title = site_title
         self.admin_username = admin_username
+        self.admin_full_name = admin_full_name
         self.admin_password = admin_password
         self.admin_email = admin_email
         self.wordpress_locale = wordpress_locale
@@ -113,7 +115,7 @@ class Docksible:
         if action != 'custom-app':
             self.app_image = action
 
-        if action in ['wordpress']:
+        if action in ['wordpress', 'joomla']:
             self.set_internal_http_port(80)
         elif action in ['redmine']:
             self.set_internal_http_port(3000)
@@ -173,10 +175,10 @@ class Docksible:
 
     def set_internal_http_port(self, internal_http_port):
         if internal_http_port is None:
-            if self.action in ['redmine']:
-                internal_http_port = 3000
-            elif self.action in ['wordpress']:
+            if self.action in ['wordpress', 'joomla']:
                 internal_http_port = 80
+            elif self.action in ['redmine']:
+                internal_http_port = 3000
             else:
                 internal_http_port = 8000
 
@@ -209,11 +211,11 @@ class Docksible:
             'app_name',
             'site_title',
             'admin_username',
+            'admin_full_name',
             'admin_password',
             'admin_email',
             'wordpress_locale',
             'internal_http_port',
-            #'phpmyadmin',
             'extra_env_vars',
             'apparmor_workaround',
         ]

@@ -81,6 +81,19 @@ class TestDocksible(unittest.TestCase):
         self._do_test_run()
 
 
+    def test_joomla(self):
+        self.docksible.set_database_name('joomla')
+        self.docksible.site_title = 'My Joomla Site'
+        self.docksible.admin_username = 'admin'
+        self.docksible.admin_full_name = 'Joomla administrator'
+        self.docksible.admin_password = 'passwordpassword'
+        self.docksible.admin_email = 'me@me.me'
+
+        self.docksible.set_action('joomla')
+        self.docksible.set_letsencrypt(self.must_set_letsencrypt())
+        self._do_test_run()
+
+
     def test_redmine(self):
         self.docksible.set_database_name('redmine')
         self.docksible.set_action('redmine')

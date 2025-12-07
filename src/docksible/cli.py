@@ -58,6 +58,7 @@ def main():
 
     parser.add_argument('--site-title')
     parser.add_argument('--admin-username')
+    parser.add_argument('--admin-full-name')
     parser.add_argument('--admin-password')
     parser.add_argument('--admin-email')
     parser.add_argument('--wordpress-locale')
@@ -117,6 +118,7 @@ def main():
         sudo_password=args.remote_sudo_password,
         site_title=args.site_title,
         admin_username=args.admin_username,
+        admin_full_name=args.admin_full_name,
         admin_password=args.admin_password,
         admin_email=args.admin_email,
         wordpress_locale=args.wordpress_locale,

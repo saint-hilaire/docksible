@@ -79,6 +79,22 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             if not self.manual_app_install:
                 self._add_auxiliary_service('wp-cli-service.yml.j2')
 
+        elif self.action == 'joomla':
+            self.docker_compose_services['docksible_app']['environment'] = {
+                'JOOMLA_DB_HOST': 'docksible_db',
+                'JOOMLA_DB_USER': self.database_username,
+                'JOOMLA_DB_PASSWORD': self.database_password,
+                'JOOMLA_DB_NAME': self.database_name,
+                'JOOMLA_SITE_NAME': '{{ site_title }}',
+                'JOOMLA_ADMIN_USER': '{{ admin_username }}',
+                'JOOMLA_ADMIN_USERNAME': '{{ admin_full_name }}',
+                'JOOMLA_ADMIN_PASSWORD': '{{ admin_password }}',
+                'JOOMLA_ADMIN_EMAIL': '{{ admin_email }}',
+            }
+            self.docker_compose_services['docksible_app']['volumes'] = [
+                '{{ ansible_env.HOME }}/docker-compose-volumes/app-data:/var/www/html'
+            ]
+
         elif self.action == 'redmine':
             self.docker_compose_services['docksible_app']['environment'] = {
                 'REDMINE_DB_MYSQL': 'docksible_db',
