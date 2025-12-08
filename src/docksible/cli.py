@@ -6,7 +6,7 @@ from .docksible import Docksible
 __author__ = "Belal Ibrahim"
 __copyright__ = "Copyright 2025 Belal Ibrahim"
 __license__ = "Apache License, Version 2.0"
-__version__ = "1.0.0-beta-3"
+__version__ = "1.0.0-rc-1"
 __maintainer__ = "Belal Ibrahim"
 __email__ = "belal.ibrahim@proton.me"
 
@@ -58,6 +58,7 @@ def main():
 
     parser.add_argument('--site-title')
     parser.add_argument('--admin-username')
+    parser.add_argument('--admin-full-name')
     parser.add_argument('--admin-password')
     parser.add_argument('--admin-email')
     parser.add_argument('--wordpress-locale')
@@ -117,6 +118,7 @@ def main():
         sudo_password=args.remote_sudo_password,
         site_title=args.site_title,
         admin_username=args.admin_username,
+        admin_full_name=args.admin_full_name,
         admin_password=args.admin_password,
         admin_email=args.admin_email,
         wordpress_locale=args.wordpress_locale,

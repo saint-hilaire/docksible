@@ -177,6 +177,25 @@ class ArgValidator():
                 },
             ], True, True)
 
+        elif self.raw_args.action == 'joomla':
+            self.handle_defaults([
+                {
+                    'arg_name': 'database_name',
+                    'cli_default_value': None,
+                    'override_default_value': 'joomla',
+                },
+                {
+                    'arg_name': 'database_username',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_DATABASE_USERNAME,
+                },
+                {
+                    'arg_name': 'database_table_prefix',
+                    'cli_default_value': DEFAULT_DATABASE_TABLE_PREFIX,
+                    'override_default_value': 'joomla_',
+                },
+            ], True, True)
+
         elif self.raw_args.action == 'redmine':
             self.handle_defaults([
                 {
@@ -270,7 +289,7 @@ class ArgValidator():
                   """))
             return 1
 
-        if self.raw_args.action in ['wordpress'] \
+        if self.raw_args.action in ['wordpress', 'joomla'] \
                 and not self.raw_args.manual_app_install:
             self.handle_defaults([
                 {
@@ -298,6 +317,14 @@ class ArgValidator():
                         'override_default_value': DEFAULT_WORDPRESS_LOCALE,
                     },
                 ], True, True)
+            elif self.raw_args.action == 'joomla':
+                self.handle_defaults([
+                    {
+                        'arg_name': 'admin_full_name',
+                        'cli_default_value': None,
+                        'override_default_value': DEFAULT_ADMIN_FULL_NAME,
+                    },
+                ], True, True)
 
         elif self.raw_args.action == 'custom-app' \
                 and not (self.raw_args.app_image):
@@ -305,13 +332,13 @@ class ArgValidator():
             print("'--app-image' is required when running 'custom-app'.")
             return 1
 
-        if self.raw_args.action in ['wordpress'] \
+        if self.raw_args.action in ['wordpress', 'joomla'] \
                 and not self.raw_args.manual_app_install \
                 and not self.raw_args.admin_password:
 
             self.validated_args.admin_password = self.get_pass_and_check(
                 'Please enter an admin password: ',
-                8,
+                16 if self.raw_args.action == 'joomla' else 8,
                 True
             )
 
