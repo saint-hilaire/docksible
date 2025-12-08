@@ -2,21 +2,25 @@
 
 ## About
 
-This is a tool you can run locally to install a given web app via Docker Compose onto a remote VPS.
-Though not recommended for serious enterprise grade production environments, it is well suited
-to quickly spin up an off the cuff demo server, or even a small production server.
+Install a Dockerized web app on a given remote VPS, with a single command
+in your local CLI - powered by Ansible.
 
-### Warning
+Supports SSL, so it's perfect for quick demo servers, or even lightweight production
+environments.
 
-This tool is still under development and not stable yet.
-Until version 1.0 becomes available, things can and will break between releases.
+You can also install on localhost or local VMs, perfect for local experiments
+with different types of apps.
 
 ## Features
 
 * WordPress
+* Joomla
 * Redmine (open source issue tracker)
-* SSL
+* "Custom app" - you simply provide a valid container name (from Docker Hub),
+  and any required app specific environment variables (via `--extra-env-vars`), and it should work.
+* SSL certs, including test certs
 * SSH proxy to tunnel hidden services like database
+* phpMyAdmin container
 * Hopefully more soon ;-)
 
 ## Requirements
