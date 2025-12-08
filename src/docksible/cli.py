@@ -1,23 +1,19 @@
 import argparse
+from . import __version__
 from .constants import *
 from .arg_validator import ArgValidator
 from .docksible import Docksible
 
-__author__ = "Belal Ibrahim"
-__copyright__ = "Copyright 2025 Belal Ibrahim"
-__license__ = "Apache License, Version 2.0"
-__version__ = "1.0.0-rc-1"
-__maintainer__ = "Belal Ibrahim"
-__email__ = "belal.ibrahim@proton.me"
-
 
 def main():
+
+    print(DOCKSIBLE_BANNER)
 
     parser = argparse.ArgumentParser(
         prog='docksible'
     )
 
-    parser.add_argument('user_at_host',
+    parser.add_argument('user_at_host', nargs='?',
         help="""
         user and host where you want to \
         install your app. example: user@example.com, root@192.168.0.2, etc.
@@ -25,7 +21,7 @@ def main():
         localhost, 127.0.0.1, etc.
         """
         )
-    parser.add_argument('action', choices=SUPPORTED_ACTIONS)
+    parser.add_argument('action', nargs='?', choices=SUPPORTED_ACTIONS)
 
     parser.add_argument('--app-version', '-v', default=DEFAULT_APP_VERSION)
     parser.add_argument('--ask-remote-sudo', action='store_true')
@@ -96,7 +92,7 @@ def main():
 
     validator = ArgValidator(args)
     if validator.validate_args() != 0:
-        print('FATAL! Bad args')
+        print("FATAL! Bad args. Run 'docksible --help' for usage help.")
         return 1
 
     args = validator.get_validated_args()

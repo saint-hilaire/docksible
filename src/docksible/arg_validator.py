@@ -118,8 +118,8 @@ class ArgValidator():
             assert len(user_at_host_split) <= 2
             self.validated_args.user = user_at_host_split[0]
             self.validated_args.host = user_at_host_split[1]
-        except AssertionError:
-            print("FATAL! First positional argument is invalid.")
+        except (AssertionError, AttributeError):
+            print("FATAL! First positional argument must specify a host for your web app.")
             return 1
         except IndexError:
             self.validated_args.host = user_at_host_split[0]

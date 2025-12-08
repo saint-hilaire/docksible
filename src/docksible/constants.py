@@ -1,5 +1,20 @@
 import os
+from . import __version__
 from .helpers import *
+
+
+DOCKSIBLE_BANNER = """
+        __ \\                |          _)  |      |       
+        |   |   _ \\    __|  |  /   __|  |  __ \\   |   _ \\ 
+        |   |  (   |  (       <  \\__ \\  |  |   |  |   __/ 
+       ____/  \\___/  \\___| _|\\_\\ ____/ _| _.__/  _| \\___| 
+
+    =======================================================
+
+        --------------------------------------------
+            Docker apps with Ansible  -  v{}
+        --------------------------------------------
+""".format(__version__)
 
 USER_HOME_DIR = os.path.expanduser('~')
 TEMPLATES_DIR = find_templates_dir()
