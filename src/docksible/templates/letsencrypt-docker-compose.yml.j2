@@ -1,7 +1,7 @@
 docksible_certbot:
   depends_on:
-    - docksible_webserver
-    - docksible_app
+    docksible_webserver:
+      condition: service_healthy
 
   image: certbot/certbot
   container_name: docksible_certbot

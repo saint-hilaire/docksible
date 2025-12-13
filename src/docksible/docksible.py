@@ -119,6 +119,8 @@ class Docksible:
             self.set_internal_http_port(80)
         elif action in ['redmine']:
             self.set_internal_http_port(3000)
+        else:
+            self.set_internal_http_port(8000)
 
         self.playbook_builder.set_action(self.action)
         self.docker_compose_builder.set_action(self.action)
