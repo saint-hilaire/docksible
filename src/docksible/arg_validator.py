@@ -224,7 +224,7 @@ class ArgValidator():
 
             self.validated_args.database_root_password = self.get_pass_and_check(
                 'Please enter a database root password: ',
-                0,
+                8,
                 True
             )
 
@@ -245,7 +245,7 @@ class ArgValidator():
         if self.validated_args.database_username and not self.validated_args.database_password:
             self.validated_args.database_password = self.get_pass_and_check(
                 'Please enter a database password: ',
-                0,
+                8,
                 True
             )
 
