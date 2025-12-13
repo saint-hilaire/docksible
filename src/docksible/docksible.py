@@ -186,9 +186,7 @@ class Docksible:
         self.nginx_conf_builder.internal_http_port = internal_http_port
 
 
-    # TODO: Rename this to something more appropriate.
-    # It sets the extravars...
-    def _update_env(self):
+    def _update_extravars(self):
         if self.action == 'redmine':
             self.internal_http_port = 3000
         elif self.action == 'wordpress':
@@ -203,7 +201,6 @@ class Docksible:
             'database_name',
             'domain',
             'email',
-            'service_to_encrypt',
             'test_cert',
             'ssh_proxy',
             'ansible_sudo_pass',
@@ -230,11 +227,6 @@ class Docksible:
                     value.append('ssh-proxy-data')
                 if self.letsencrypt:
                     value.append('certbot-data')
-
-            elif varname == 'service_to_encrypt':
-                # TODO: Tech debt. Fix in v1. I want to prefer dashes over
-                # underscores, but for now, I need it like this.
-                value = self.action.replace('-', '_')
 
             elif varname == 'test_cert':
                 value = self.get_certbot_test_cert_string()
@@ -273,7 +265,7 @@ class Docksible:
 
 
     def run(self):
-        self._update_env()
+        self._update_extravars()
         self._build_ansible_files()
         self._install_galaxy_dependencies()
 
