@@ -23,13 +23,6 @@ class PlaybookBuilder(DocksibleFileBuilder):
         self.playbook_filename = f'{action}.yml'
 
 
-    #def set_letsencrypt(self, letsencrypt):
-    #    if self.action == 'setup-docker-compose':
-    #        self.letsencrypt = False
-    #        return
-    #    return super().set_letsencrypt(letsencrypt)
-
-
     def write(self, filepath=[]):
         if self.action != 'setup-docker-compose':
             self._playbook_dict['tasks'].extend(

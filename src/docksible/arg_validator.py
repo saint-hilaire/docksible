@@ -22,7 +22,6 @@ class ArgValidator():
         return self.validated_args
 
 
-    # TODO?
     def handle_defaults(
         self,
         default_args,
