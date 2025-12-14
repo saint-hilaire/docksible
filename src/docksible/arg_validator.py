@@ -3,6 +3,7 @@ from copy import deepcopy
 from getpass import getpass, getuser
 from textwrap import dedent
 from .constants import *
+from .helpers import *
 
 INSECURE_CLI_PASS_WARNING = 'It\'s insecure to pass passwords via CLI args! If you are sure that you want to do this, rerun this command with the --insecure-cli-password flag.'
 
@@ -21,7 +22,6 @@ class ArgValidator():
         return self.validated_args
 
 
-    # TODO?
     def handle_defaults(
         self,
         default_args,
@@ -117,8 +117,8 @@ class ArgValidator():
             assert len(user_at_host_split) <= 2
             self.validated_args.user = user_at_host_split[0]
             self.validated_args.host = user_at_host_split[1]
-        except AssertionError:
-            print("FATAL! First positional argument is invalid.")
+        except (AssertionError, AttributeError):
+            print("FATAL! First positional argument must specify a host for your web app.")
             return 1
         except IndexError:
             self.validated_args.host = user_at_host_split[0]
@@ -127,8 +127,11 @@ class ArgValidator():
                 return 1
             self.validated_args.user = getuser()
 
-        if self.validated_args.host in ['localhost', '127.0.0.1']:
+        if host_is_local(self.validated_args.host):
             self.validated_args.ask_remote_sudo = os.geteuid() != 0
+        elif host_is_private(self.validated_args.host):
+            self.validated_args.ask_remote_sudo = \
+                    self.validated_args.user != 'root'
 
         if self.raw_args.remote_sudo_password \
             and not self.raw_args.insecure_cli_password:
@@ -172,6 +175,35 @@ class ArgValidator():
                     'override_default_value': 'wp_',
                 },
             ], True, True)
+
+        elif self.raw_args.action == 'joomla':
+            self.handle_defaults([
+                {
+                    'arg_name': 'database_name',
+                    'cli_default_value': None,
+                    'override_default_value': 'joomla',
+                },
+                {
+                    'arg_name': 'database_username',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_DATABASE_USERNAME,
+                },
+                {
+                    'arg_name': 'database_table_prefix',
+                    'cli_default_value': DEFAULT_DATABASE_TABLE_PREFIX,
+                    'override_default_value': 'joomla_',
+                },
+            ], True, True)
+
+        elif self.raw_args.action == 'redmine':
+            self.handle_defaults([
+                {
+                    'arg_name': 'database_name',
+                    'cli_default_value': None,
+                    'override_default_value': 'redmine',
+                },
+            ], True, True)
+
         elif self.raw_args.action == 'custom-app':
             self.handle_defaults([
                 {
@@ -187,11 +219,11 @@ class ArgValidator():
             ], True, True)
 
         if not self.raw_args.database_root_password \
-                and self.raw_args.action != 'setup-docker-compose':
+                and self.raw_args.action not in ['setup-docker-compose', 'nginx']:
 
             self.validated_args.database_root_password = self.get_pass_and_check(
                 'Please enter a database root password: ',
-                0,
+                8,
                 True
             )
 
@@ -212,7 +244,7 @@ class ArgValidator():
         if self.validated_args.database_username and not self.validated_args.database_password:
             self.validated_args.database_password = self.get_pass_and_check(
                 'Please enter a database password: ',
-                0,
+                8,
                 True
             )
 
@@ -256,11 +288,58 @@ class ArgValidator():
                   """))
             return 1
 
-        if self.raw_args.action == 'custom-app' \
+        if self.raw_args.action in ['wordpress', 'joomla'] \
+                and not self.raw_args.manual_app_install:
+            self.handle_defaults([
+                {
+                    'arg_name': 'site_title',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_SITE_TITLE,
+                },
+                {
+                    'arg_name': 'admin_username',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_ADMIN_USERNAME,
+                },
+                {
+                    'arg_name': 'admin_email',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_ADMIN_EMAIL,
+                },
+            ], True, True)
+
+            if self.raw_args.action == 'wordpress':
+                self.handle_defaults([
+                    {
+                        'arg_name': 'wordpress_locale',
+                        'cli_default_value': None,
+                        'override_default_value': DEFAULT_WORDPRESS_LOCALE,
+                    },
+                ], True, True)
+            elif self.raw_args.action == 'joomla':
+                self.handle_defaults([
+                    {
+                        'arg_name': 'admin_full_name',
+                        'cli_default_value': None,
+                        'override_default_value': DEFAULT_ADMIN_FULL_NAME,
+                    },
+                ], True, True)
+
+        elif self.raw_args.action == 'custom-app' \
                 and not (self.raw_args.app_image):
 
             print("'--app-image' is required when running 'custom-app'.")
             return 1
+
+        if self.raw_args.action in ['wordpress', 'joomla'] \
+                and not self.raw_args.manual_app_install \
+                and not self.raw_args.admin_password:
+
+            self.validated_args.admin_password = self.get_pass_and_check(
+                'Please enter an admin password: ',
+                16 if self.raw_args.action == 'joomla' else 8,
+                True
+            )
 
         return 0
 

@@ -1,134 +1,19 @@
-import os
 import argparse
-
-# Shouldn't need these.
-import shlex
-from subprocess import run, Popen, PIPE
-from time import sleep
-
+from . import __version__
 from .constants import *
 from .arg_validator import ArgValidator
 from .docksible import Docksible
 
-__author__ = "Belal Ibrahim"
-__copyright__ = "Copyright 2025 Belal Ibrahim"
-__license__ = "Apache License, Version 2.0"
-__version__ = "0.12.0"
-__maintainer__ = "Belal Ibrahim"
-__email__ = "belal.ibrahim@proton.me"
-
-
-# TODO
-def backup_dir(user, host, remote_dir, local_dest=DEFAULT_BACKUPS_DIR, delete=False):
-    print("Backing up {remote_dir}...".format(remote_dir=remote_dir))
-    rsync_cmd = "rsync --recursive --no-links "
-    if delete:
-        rsync_cmd += "--delete "
-    rsync_cmd += "{user}@{host}:{remote_dir} {local_dest}/".format(
-        user=user,
-        host=host,
-        remote_dir=remote_dir,
-        local_dest=local_dest
-    )
-    proc = run(shlex.split(rsync_cmd))
-    print("... Done.")
-
-
-# TODO
-def backup_database(
-    host,
-    database_user,
-    database_password,
-    database_name,
-    local_dest=DEFAULT_BACKUPS_DIR
-):
-    print("Starting database backup process...")
-    proxy_process = proxy_connection(host, "docksible_db", 3306)
-
-    # TODO: Test database connectivity, and don't go on until it is OK.
-    #       But for now, 7 seconds seems enough
-    #       to build up the tunnel connection.
-    sleep(7)
-    mysql_dump_output_file = open("{local_dest}/{database_name}.sql".format(
-        local_dest=local_dest,
-        database_name=database_name
-        ), "w")
-    mysql_dump_cmd = "mysqldump --user={database_user} \
-        --password={database_password} --port=9000 --host=127.0.0.1 \
-        --protocol=TCP --no-tablespaces --column-statistics=0 \
-        {database_name}".format(
-            database_user=database_user,
-            database_password=database_password,
-            database_name=database_name,
-        )
-    print("Starting mysqldump...")
-    print(mysql_dump_cmd)
-    proc = run(shlex.split(mysql_dump_cmd), stdout=mysql_dump_output_file)
-    print("... Done.")
-
-    print("Killing proxy connection...")
-    proxy_process.kill()
-    print("... Done.")
-    mysql_dump_output_file.close()
-
-
-# TODO
-def do_backup(
-        user,
-        host,
-        database_user,
-        database_password,
-        database_name,
-        local_dest=DEFAULT_BACKUPS_DIR,
-        delete=False
-):
-    print("Started backup process...")
-    if not os.path.exists(local_dest):
-        os.makedirs(local_dest)
-    backup_dir(user, host, "/root/docksible-volumes/ftp_data",
-        local_dest, delete)
-    backup_dir(user, host,
-        "/root/docksible-volumes/wordpress_data/wp-content",
-        local_dest, delete)
-    backup_database(host, database_user, database_password,
-        database_name, local_dest)
-    print("Backup process finished.")
-
-
-# TODO
-def proxy_connection(
-    host,
-    forwarded_host,
-    remote_port,
-    local_port=9000,
-    proxy_user="proxy_user", 
-    port=2222, 
-):
-    print("Opening proxy connection with following SSH-command:")
-    ssh_command = "ssh -p {port} {proxy_user}@{host} \
-        -L {local_port}:{forwarded_host}:{remote_port}".format(
-            host=host,
-            forwarded_host=forwarded_host,
-            remote_port=remote_port,
-            local_port=local_port,
-            proxy_user=proxy_user,
-            port=port,
-        )
-    print(ssh_command)
-    try:
-        return Popen(shlex.split(ssh_command), stdin=PIPE, stdout=PIPE,
-            stderr=PIPE)
-    except Exception as e:
-        return e
-
 
 def main():
+
+    print(DOCKSIBLE_BANNER)
 
     parser = argparse.ArgumentParser(
         prog='docksible'
     )
 
-    parser.add_argument('user_at_host',
+    parser.add_argument('user_at_host', nargs='?',
         help="""
         user and host where you want to \
         install your app. example: user@example.com, root@192.168.0.2, etc.
@@ -136,7 +21,7 @@ def main():
         localhost, 127.0.0.1, etc.
         """
         )
-    parser.add_argument('action', choices=SUPPORTED_ACTIONS)
+    parser.add_argument('action', nargs='?', choices=SUPPORTED_ACTIONS)
 
     parser.add_argument('--app-version', '-v', default=DEFAULT_APP_VERSION)
     parser.add_argument('--ask-remote-sudo', action='store_true')
@@ -166,7 +51,15 @@ def main():
         """
     )
     parser.add_argument('--app-name')
-    parser.add_argument('--internal-http-port', default=DEFAULT_INTERNAL_HTTP_PORT)
+
+    parser.add_argument('--site-title')
+    parser.add_argument('--admin-username')
+    parser.add_argument('--admin-full-name')
+    parser.add_argument('--admin-password')
+    parser.add_argument('--admin-email')
+    parser.add_argument('--wordpress-locale')
+
+    parser.add_argument('--internal-http-port')
     parser.add_argument('--phpmyadmin', action='store_true',
         help="""
         Set this flag to include a phpmyadmin container in your app's
@@ -174,6 +67,13 @@ def main():
         the connection through an SSH tunnel.
         Omit this flag, if you don't need phpmyadmin to connect to your
         app's database.
+        """
+    )
+    parser.add_argument('--manual-app-install', action='store_true',
+        help="""
+        Set this flag if, for example, you don't want WP-CLI to install your
+        site, but you want to perform the "Famous 5 Minute WordPress Install"
+        manually. Applies to other apps that have an equivalent to this.
         """
     )
     parser.add_argument('--extra-env-vars',
@@ -192,7 +92,7 @@ def main():
 
     validator = ArgValidator(args)
     if validator.validate_args() != 0:
-        print('FATAL! Bad args')
+        print("FATAL! Bad args. Run 'docksible --help' for usage help.")
         return 1
 
     args = validator.get_validated_args()
@@ -202,41 +102,33 @@ def main():
         host=args.host,
         action=args.action,
         private_data_dir=args.private_data_dir,
+        letsencrypt=args.letsencrypt,
+        domain=args.domain,
+        email=args.email,
+        test_cert=args.test_cert,
         app_version=args.app_version,
         database_root_password=args.database_root_password,
         database_username=args.database_username,
         database_password=args.database_password,
         database_name=args.database_name,
         sudo_password=args.remote_sudo_password,
+        site_title=args.site_title,
+        admin_username=args.admin_username,
+        admin_full_name=args.admin_full_name,
+        admin_password=args.admin_password,
+        admin_email=args.admin_email,
+        wordpress_locale=args.wordpress_locale,
         ssh_proxy=args.ssh_proxy,
         app_image=args.app_image,
         app_name=args.app_name,
         internal_http_port=args.internal_http_port,
         phpmyadmin=args.phpmyadmin,
+        manual_app_install=args.manual_app_install,
         extra_env_vars=args.extra_env_vars,
         apparmor_workaround=args.apparmor_workaround,
     )
 
-    if args.action == 'wordpress':
-        docksible.wordpress_auth_vars = get_wordpress_auth_vars()
-
-    # TODO: Temporary solution, do this better in the future.
-    if args.action in ['backup']:
-        do_backup(
-            args.user,
-            args.host,
-            args.database_username,
-            args.database_password,
-            args.database_name,
-            DEFAULT_BACKUPS_DIR
-        )
-        return NotImplemented
-    else:
-        docksible.letsencrypt = args.letsencrypt
-        docksible.domain = args.domain
-        docksible.email = args.email
-        docksible.test_cert = args.test_cert
-        return docksible.run()
+    return docksible.run()
 
 
 if __name__ == "__main__":

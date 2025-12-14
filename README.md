@@ -2,21 +2,25 @@
 
 ## About
 
-This is a tool you can run locally to install a given web app via Docker Compose onto a remote VPS.
-Though not recommended for serious enterprise grade production environments, it is well suited
-to quickly spin up an off the cuff demo server, or even a small production server.
+Install a Dockerized web app on a given remote VPS, with a single command
+in your local CLI - powered by Ansible.
 
-### Warning
+Supports SSL, so it's perfect for quick demo servers, or even lightweight production
+environments.
 
-This tool is still under development and not stable yet.
-Until version 1.0 becomes available, things can and will break between releases.
+You can also install on localhost or local VMs, perfect for local experiments
+with different types of apps.
 
 ## Features
 
 * WordPress
+* Joomla
 * Redmine (open source issue tracker)
-* SSL
+* "Custom app" - you simply provide a valid container name (from Docker Hub),
+  and any required app specific environment variables (via `--extra-env-vars`), and it should work.
+* SSL certs, including test certs
 * SSH proxy to tunnel hidden services like database
+* phpMyAdmin container
 * Hopefully more soon ;-)
 
 ## Requirements
@@ -63,27 +67,3 @@ database. Here's how to do it:
   ```
   mysql -u your_db_user -p --port=9000 --host=localhost --protocol=TCP
   ```
-
-## Known issues
-
-When setting up a web app on Ubuntu 24.10 and newer, and doing so with the
-`--letsencrypt` flag, which is recommended, you must also set the
-`--apparmor-workaround` flag.
-
-This because it seems that in Ubuntu 24.10 and newer,
-there is an issue with AppArmor that prevents Docker containers from being
-restarted, even when doing so as root, which occurs a few times in the
-Let's Encrypt role.
-
-Setting the flag `--apparmor-workaround` will result in the raw command
-`aa-remove-unknown` being run on the server everytime before a container
-gets restarted. This workaround fixes the issue for now, but it is not
-elegant. Doing this on older versions results in a different error,
-hence the CLI option.
-
-Altogether, it's tech debt, a temporary workaround, and will be removed soon.
-Also, the Let's Encrypt handling will be refactored and improved altogether.
-See these issues for more info:
-
-* https://github.com/belal-i/docksible/issues/27
-* https://github.com/belal-i/docksible/issues/24
