@@ -34,6 +34,16 @@ class NginxConfBuilder(DocksibleFileBuilder):
             self._init_nginx_conf()
             return
 
+        # TODO: Quick fix shortly before release...
+        # In the future, solve this in a better way.
+        if self.internal_http_port is None:
+            if action in ['wordpress', 'joomla']:
+                self.internal_http_port = 80
+            elif action in ['redmine']:
+                self.internal_http_port = 3000
+            else:
+                self.internal_http_port = 8000
+
         root_location_block = [
             {
                 'directive': 'proxy_pass',
