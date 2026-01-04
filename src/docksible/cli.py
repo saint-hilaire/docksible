@@ -84,7 +84,6 @@ def main():
         that the app expects are arbitrary.
         """
     )
-    parser.add_argument('--apparmor-workaround', action='store_true')
     parser.add_argument('--private-data-dir', default=DEFAULT_PRIVATE_DATA_DIR)
     parser.add_argument('--version', '-V', action='version', version=__version__)
 
@@ -125,7 +124,6 @@ def main():
         phpmyadmin=args.phpmyadmin,
         manual_app_install=args.manual_app_install,
         extra_env_vars=args.extra_env_vars,
-        apparmor_workaround=args.apparmor_workaround,
     )
 
     return docksible.run()
