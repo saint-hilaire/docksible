@@ -98,7 +98,9 @@ class DockerComposeBuilder(DocksibleFileBuilder):
         elif self.action == 'redmine':
             self.docker_compose_services['docksible_app']['environment'] = {
                 'REDMINE_DB_MYSQL': 'docksible_db',
-                'REDMINE_DB_PASSWORD': self.database_root_password,
+                'REDMINE_DB_USERNAME': self.database_username,
+                'REDMINE_DB_PASSWORD': self.database_password,
+                'REDMINE_DB_DATABASE': self.database_name,
             }
             self.docker_compose_services['docksible_app']['security_opt'] = [
                 # TODO: Necessary? I saw this in the legacy version.
