@@ -102,10 +102,6 @@ class DockerComposeBuilder(DocksibleFileBuilder):
                 'REDMINE_DB_PASSWORD': self.database_password,
                 'REDMINE_DB_DATABASE': self.database_name,
             }
-            self.docker_compose_services['docksible_app']['security_opt'] = [
-                # TODO: Necessary? I saw this in the legacy version.
-                'seccomp:unconfined'
-            ]
 
         if self.ssh_proxy:
             self.docker_compose_services['docksible_ssh_proxy'] = \
