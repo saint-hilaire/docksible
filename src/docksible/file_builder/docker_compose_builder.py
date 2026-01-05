@@ -45,11 +45,6 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             self.docker_compose_services['docksible_db'] = \
                     yaml.safe_load(fh)['docksible_db']
 
-        if self.action == 'wordpress':
-            # TODO: Necessary? I saw this in the legacy version.
-            self.docker_compose_services['docksible_db']['command'] = \
-                    '--default-authentication-plugin=mysql_native_password'
-
         if self.phpmyadmin:
             self.docker_compose_services['docksible_phpmyadmin'] = \
                     self.get_additional_template('phpmyadmin-service.yml.j2')[
