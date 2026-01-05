@@ -202,6 +202,11 @@ class ArgValidator():
                     'cli_default_value': None,
                     'override_default_value': 'redmine',
                 },
+                {
+                    'arg_name': 'database_username',
+                    'cli_default_value': None,
+                    'override_default_value': DEFAULT_DATABASE_USERNAME,
+                },
             ], True, True)
 
         elif self.raw_args.action == 'custom-app':

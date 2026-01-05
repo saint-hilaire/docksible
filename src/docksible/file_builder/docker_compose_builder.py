@@ -45,11 +45,6 @@ class DockerComposeBuilder(DocksibleFileBuilder):
             self.docker_compose_services['docksible_db'] = \
                     yaml.safe_load(fh)['docksible_db']
 
-        if self.action == 'wordpress':
-            # TODO: Necessary? I saw this in the legacy version.
-            self.docker_compose_services['docksible_db']['command'] = \
-                    '--default-authentication-plugin=mysql_native_password'
-
         if self.phpmyadmin:
             self.docker_compose_services['docksible_phpmyadmin'] = \
                     self.get_additional_template('phpmyadmin-service.yml.j2')[
@@ -98,12 +93,10 @@ class DockerComposeBuilder(DocksibleFileBuilder):
         elif self.action == 'redmine':
             self.docker_compose_services['docksible_app']['environment'] = {
                 'REDMINE_DB_MYSQL': 'docksible_db',
-                'REDMINE_DB_PASSWORD': self.database_root_password,
+                'REDMINE_DB_USERNAME': self.database_username,
+                'REDMINE_DB_PASSWORD': self.database_password,
+                'REDMINE_DB_DATABASE': self.database_name,
             }
-            self.docker_compose_services['docksible_app']['security_opt'] = [
-                # TODO: Necessary? I saw this in the legacy version.
-                'seccomp:unconfined'
-            ]
 
         if self.ssh_proxy:
             self.docker_compose_services['docksible_ssh_proxy'] = \
