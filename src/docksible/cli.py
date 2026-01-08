@@ -7,8 +7,6 @@ from .docksible import Docksible
 
 def main():
 
-    print(DOCKSIBLE_BANNER)
-
     parser = argparse.ArgumentParser(
         prog='docksible'
     )
@@ -88,6 +86,8 @@ def main():
     parser.add_argument('--version', '-V', action='version', version=__version__)
 
     args = parser.parse_args()
+
+    print(DOCKSIBLE_BANNER)
 
     validator = ArgValidator(args)
     if validator.validate_args() != 0:
