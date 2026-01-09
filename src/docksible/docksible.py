@@ -32,7 +32,6 @@ class Docksible:
             internal_http_port=None,
             phpmyadmin=False,
             extra_env_vars={},
-            apparmor_workaround=False,
         ):
 
         self.private_data_dir = private_data_dir
@@ -100,7 +99,6 @@ class Docksible:
         self.extra_env_vars = extra_env_vars
 
         self.sudo_password = sudo_password
-        self.apparmor_workaround = apparmor_workaround
         self.extravars = {}
 
         self.set_action(action)
@@ -214,7 +212,6 @@ class Docksible:
             'wordpress_locale',
             'internal_http_port',
             'extra_env_vars',
-            'apparmor_workaround',
         ]
         for varname in extravars:
             if varname == 'docker_compose_volume_dirs':
